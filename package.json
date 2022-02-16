@@ -1,0 +1,22 @@
+{
+  "name": "game-frontend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "./node_modules/.bin/light-server -s .",
+    "update": "node ./build.js",
+    "screenshots": "node ./generate-screenshots.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "directory-tree": "^2.2.4",
+    "fs-extra": "^8.1.0",
+    "light-server": "^2.9.1",
+    "monaco-editor": "^0.18.1",
+    "phaser": "^3.55.2",
+    "puppeteer": "^2.0.0"
+  }
+}
