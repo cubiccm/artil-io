@@ -1,3 +1,5 @@
+import generateWorld from './worldGenerator.js'
+
 var _w = window.innerWidth, _h = window.innerHeight;
 
 var config = {
@@ -7,7 +9,9 @@ var config = {
   physics: {
     default: 'matter',
     matter: {
-      gravity: { y: 0 }
+      gravity: { 
+        y: 100 
+      }
     }
   },
   scene: {
@@ -19,6 +23,10 @@ var config = {
 
 var game = new Phaser.Game(config);
 
+var body;
+var debugGraphics;
+var debugMessage;
+
 function preload() {
   this.load.svg("body", "assets/pacman.svg", {scale: 0.3});
   this.load.image("tank", "assets/tank.png");
@@ -26,32 +34,47 @@ function preload() {
 }
 
 function create() {
+  this.cameras.main.setBounds(-1024, -1024, 1024 * 2, 1024 * 2);
+
   this.cameras.main.scrollX = -_w / 2;
   this.cameras.main.scrollY = -_h / 2;
   this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
     gameObject.x = dragX;
     gameObject.y = dragY;
   });
-  generateTerrain(this);
+
+  debugGraphics = this.add.graphics();
+
+  generateWorld(this);
   generateBody(this);
+
+  debugMessage = this.add.text(16, 16, getDebugMessage(), {
+      fontSize: '18px',
+      padding: { x: 10, y: 5 },
+      backgroundColor: '#000000',
+      fill: '#ffffff'
+  });
+  debugMessage.setScrollFactor(0);
+  debugGraphics.clear();
+  debugMessage.setText(getDebugMessage());
+
+  this.cameras.main.startFollow(body);
 }
 
 function update() {
-
+  debugMessage.setText(getDebugMessage());
 } 
 
-var generateTerrain = (t) => {
-  for (let i = 0; i < 30; i++) {
-    let rect = t.add.rectangle(Phaser.Math.Between(-1000, 1000), Phaser.Math.Between(-1000, 1000), Phaser.Math.Between(150, 750), 20, 0xffffff);
-    rect.setInteractive();
-    t.input.setDraggable(rect);
-    t.matter.add.gameObject(rect).setStatic(true).setFriction(0, 0, 0);
-  }
-};
+function getDebugMessage ()
+{
+    return `
+    x: ${body.x}
+    y: ${body.y}
+    `
+}
 
-var body;
 var generateBody = (t) => {
-  body = t.matter.add.sprite(0, 0, "tank", null, {shape: t.cache.json.get("tank_shape").tank}).setScale(0.12);
+  body = t.matter.add.sprite(0, 0, "tank", null, {shape: t.cache.json.get("tank_shape").tank}).setScale(0.1);
   // body.setCircle();
   body.setBounce(0.15).setMass(100).setFriction(0, 0.1, 0);
   t.matter.world.setGravity();
@@ -65,5 +88,4 @@ var generateBody = (t) => {
       body.applyForceFrom(COM, new Phaser.Math.Vector2(0.7, 0));
     }
   });
-  t.cameras.main.startFollow(body);
 };
