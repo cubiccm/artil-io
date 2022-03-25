@@ -27,6 +27,7 @@ var body;
 var debugGraphics;
 var debugMessage;
 
+
 function preload() {
   this.load.svg("body", "assets/pacman.svg", {scale: 0.3});
   this.load.image("tank", "assets/tank.png");
@@ -34,7 +35,9 @@ function preload() {
 }
 
 function create() {
+  console.log(this);
   this.cameras.main.setBounds(-1024, -1024, 1024 * 2, 1024 * 2);
+  this.matter.world.setBounds(-1024, -1024, 1024 * 2, 1024 * 2);
 
   this.cameras.main.scrollX = -_w / 2;
   this.cameras.main.scrollY = -_h / 2;
@@ -83,9 +86,16 @@ var generateBody = (t) => {
     let COM = new Phaser.Math.Vector2(body.centerOfMass);
     COM.y *= 2;
     if (event.key == "A" || event.key == "a") {
-      body.applyForceFrom(COM, new Phaser.Math.Vector2(-0.7, 0));
-    } else if (event.key == "D" || event.key == "d") {
-      body.applyForceFrom(COM, new Phaser.Math.Vector2(0.7, 0));
+      // body.applyForceFrom(COM, new Phaser.Math.Vector2(-0.7, 0));
+      body.applyForce(new Phaser.Math.Vector2(-0.7, 0));
+    }  
+    if (event.key == "D" || event.key == "d") {
+      // body.applyForceFrom(COM, new Phaser.Math.Vector2(0.7, 0));
+      body.applyForce(new Phaser.Math.Vector2(0.7, 0));
+    } 
+    if (event.key == "W" || event.key == "w") {
+      // body.applyForceFrom(COM, new Phaser.Math.Vector2(0.7, 0));
+      body.applyForce(new Phaser.Math.Vector2(0, -3));
     }
   });
 };
