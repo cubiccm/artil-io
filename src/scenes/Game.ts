@@ -20,7 +20,7 @@ export default class Demo extends Phaser.Scene {
     this.load.svg("body", "assets/pacman.svg", { scale: 0.3 });
     this.load.image("tank", "assets/tank.png");
     this.load.json("tank_shape", "assets/tank.json");
-
+    this.load.json("tank_shape_simplified", "assets/tank_simp.json");
   }
 
   create() {
@@ -54,15 +54,15 @@ export default class Demo extends Phaser.Scene {
     debugGraphics.clear();
     debugMessage.setText(getDebugMessage());
 
-    // this.cameras.main.startFollow(playerController.matterSprite);
-    smoothMoveCameraTowards(playerController.matterSprite);
+    this.cameras.main.startFollow(playerController.matterSprite);
+    // smoothMoveCameraTowards(playerController.matterSprite);
 
   }
 
   update(time: number, delta: number) {
     debugMessage.setText(getDebugMessage());
     updateBody(this, time, delta);
-    smoothMoveCameraTowards(playerController.matterSprite, 0.9);
+    // smoothMoveCameraTowards(playerController.matterSprite, 0.9);
   }
 }
 
@@ -101,15 +101,15 @@ function generateBody(t: Phaser.Scene) {
       jump: 10
     }
   };
-  playerController.matterSprite.setScale(0.1);
 
-  let w = playerController.matterSprite.width;
-  let h = playerController.matterSprite.height;
+  let w = 1300;
+  let h = 900;
 
   var sx = w / 2;
   var sy = h / 2;
 
-  var playerBody = t.matter.bodies.rectangle(sx, sy, w * 0.75, h, { chamfer: { radius: 10 } });
+  // var playerBody = t.matter.bodies.rectangle(sx, sy, w * 0.75, h, { chamfer: { radius: 10 } });
+  var playerBody = t.matter.bodies.fromVertices(sx, sy, t.cache.json.get("tank_shape_simplified").tank.fixtures[0].vertices); // Not aligned and wierd angles, so strange
   playerController.sensors.bottom = t.matter.bodies.rectangle(sx, h, sx, 5, { isSensor: true });
   playerController.sensors.left = t.matter.bodies.rectangle(sx - w * 0.45, sy, 5, h * 0.25, { isSensor: true });
   playerController.sensors.right = t.matter.bodies.rectangle(sx + w * 0.45, sy, 5, h * 0.25, { isSensor: true });
@@ -122,11 +122,14 @@ function generateBody(t: Phaser.Scene) {
     restitution: 0.05 // Prevent body from sticking against a wall
   });
 
+  t.matter.world.setGravity(0, 1, 0.001);
+
   playerController.matterSprite
     .setExistingBody(compoundBody)
     // .setFixedRotation() // Sets max inertia to prevent rotation
     .setBounce(0.5)
-    .setPosition(630, 1000);
+    .setPosition(0, 0)
+    .setScale(0.1);
 
 
   t.matter.add.image(630, 750, 'box');
@@ -255,7 +258,7 @@ function generateTerrain(t: Phaser.Scene) {
     rect.setInteractive();
     t.input.setDraggable(rect);
     t.matter.add.gameObject(rect)
-    rect.setStatic(true)
+    rect.setStatic(true);
     rect.setFriction(0, 0, 0);
   }
 };

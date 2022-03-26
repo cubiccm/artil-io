@@ -1,0 +1,28 @@
+{
+	"generator_info": "Shape definitions generated with PhysicsEditor. Visit https://www.codeandweb.com/physicseditor",
+	"tank": {
+		"type": "fromPhysicsEditor",
+		"label": "tank",
+		"isStatic": false,
+		"density": 0.1,
+		"restitution": 0,
+		"friction": 0.1,
+		"frictionAir": 0.01,
+		"frictionStatic": 0.5,
+		"collisionFilter": {
+			"group": 0,
+			"category": 1,
+			"mask": 255
+		},
+		"fixtures": [
+			{
+				"label": "",
+				"isSensor": false,
+				"vertices": [
+					[ { "x":1389, "y":646 }, { "x":952, "y":390 }, { "x":337, "y":223 }, { "x":98, "y":407 }, { "x":879, "y":1102 }, { "x":1127, "y":982 } ],
+					[ { "x":36, "y":1108 }, { "x":879, "y":1102 }, { "x":98, "y":407 } ]
+				]
+			}
+		]
+	}
+}
