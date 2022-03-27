@@ -19,8 +19,7 @@ export default class Demo extends Phaser.Scene {
     // this.load.image('logo', 'assets/phaser3-logo.png');
     this.load.svg("body", "assets/pacman.svg", { scale: 0.3 });
     this.load.image("tank", "assets/tank.png");
-    this.load.json("tank_shape", "assets/tank.json");
-    this.load.json("tank_shape_simplified", "assets/tank_simp.json");
+    this.load.json("tank_shape", "assets/tank_shape.json");
   }
 
   create() {
@@ -75,7 +74,7 @@ function getDebugMessage() {
 
 function generateBody(t: Phaser.Scene) {
   playerController = {
-    matterSprite: t.matter.add.sprite(0, 0, 'tank', undefined, { shape: t.cache.json.get("tank_shape").tank } as any),
+    matterSprite: t.matter.add.sprite(0, 0, 'tank', undefined, { shape: t.cache.json.get("tank_shape").tank } as Phaser.Types.Physics.Matter.MatterBodyConfig),
     blocked: {
       left: false,
       right: false,
@@ -103,16 +102,17 @@ function generateBody(t: Phaser.Scene) {
   };
 
   let w = 1300;
-  let h = 900;
+  let h = 1100;
 
   var sx = w / 2;
   var sy = h / 2;
 
   // var playerBody = t.matter.bodies.rectangle(sx, sy, w * 0.75, h, { chamfer: { radius: 10 } });
-  var playerBody = t.matter.bodies.fromVertices(sx, sy, t.cache.json.get("tank_shape_simplified").tank.fixtures[0].vertices); // Not aligned and wierd angles, so strange
+  var playerBody = t.matter.bodies.fromVertices(sx, sy+100, playerController.matterSprite.body.vertices); // Not aligned and wierd angles, so strange
+  console.log('pb', playerBody);
   playerController.sensors.bottom = t.matter.bodies.rectangle(sx, h, sx, 5, { isSensor: true });
-  playerController.sensors.left = t.matter.bodies.rectangle(sx - w * 0.45, sy, 5, h * 0.25, { isSensor: true });
-  playerController.sensors.right = t.matter.bodies.rectangle(sx + w * 0.45, sy, 5, h * 0.25, { isSensor: true });
+  playerController.sensors.left = t.matter.bodies.rectangle(sx - w * 0.45, sy, 5, h * 0.5, { isSensor: true });
+  playerController.sensors.right = t.matter.bodies.rectangle(sx + w * 0.45, sy, 5, h * 0.5, { isSensor: true });
   var compoundBody = t.matter.body.create({
     parts: [
       playerBody, playerController.sensors.bottom, playerController.sensors.left,
@@ -148,29 +148,25 @@ function generateBody(t: Phaser.Scene) {
     var left = playerController.sensors.left;
     var right = playerController.sensors.right;
     var bottom = playerController.sensors.bottom;
-    
+
     for (var i = 0; i < event.pairs.length; i++) {
       var bodyA = event.pairs[i].bodyA;
       var bodyB = event.pairs[i].bodyB;
 
       if (bodyA === playerBody || bodyB === playerBody) {
-        console.log(0);
         continue;
       }
       else if (bodyA === bottom || bodyB === bottom) {
         // Standing on any surface counts (e.g. jumping off of a non-static crate).
         playerController.numTouching.bottom += 1;
-        console.log(1);
       }
       else if ((bodyA === left && bodyB.isStatic) || (bodyB === left && bodyA.isStatic)) {
         // Only static objects count since we don't want to be blocked by an object that we
         // can push around.
         playerController.numTouching.left += 1;
-        console.log(2);
       }
       else if ((bodyA === right && bodyB.isStatic) || (bodyB === right && bodyA.isStatic)) {
         playerController.numTouching.right += 1;
-        console.log(3);
       }
     }
   });
