@@ -10,7 +10,7 @@ var config = {
     default: 'matter',
     matter: {
       gravity: { 
-        y: 100 
+        y: 100
       }
     }
   },

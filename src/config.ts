@@ -9,9 +9,9 @@ export default {
   physics: {
     default: 'matter',
     matter: {
-      gravity: { 
-        y: 100 
-      }
+      gravity: { y: 100 },
+      enableSleep: false,
+      debug: true
     }
   },
 };
