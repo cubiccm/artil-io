@@ -3,7 +3,6 @@ import * as types from 'types';
 
 let _w = window.innerWidth, _h = window.innerHeight;
 
-
 let body: Phaser.Physics.Matter.Sprite;
 let debugGraphics: Phaser.GameObjects.Graphics;
 let debugMessage: Phaser.GameObjects.Text;
@@ -25,7 +24,6 @@ export default class Demo extends Phaser.Scene {
   }
 
   create() {
-    console.log(this);
     cursors = this.input.keyboard.createCursorKeys();
     cam = this.cameras.main;
     smoothedControls = new SmoothedHorionztalControl(0.0005);
@@ -255,14 +253,26 @@ function updateBody(t: Phaser.Scene, time: number, delta: number) {
 }
 
 function generateTerrain(t: Phaser.Scene) {
-  for (let i = 0; i < 30; i++) {
-    let rect: any = t.add.rectangle(Phaser.Math.Between(-1000, 1000), Phaser.Math.Between(-1000, 1000), Phaser.Math.Between(150, 750), 20, 0xffffff);
-    rect.setInteractive();
-    t.input.setDraggable(rect);
-    t.matter.add.gameObject(rect)
-    rect.setStatic(true);
-    rect.setFriction(0, 0, 0);
-  }
+  // for (let i = 0; i < 30; i++) {
+  //   let rect: any = t.add.rectangle(Phaser.Math.Between(-1000, 1000), Phaser.Math.Between(-1000, 1000), Phaser.Math.Between(150, 750), 20, 0xffffff);
+  //   rect.setInteractive();
+  //   t.input.setDraggable(rect);
+  //   t.matter.add.gameObject(rect)
+  //   rect.setStatic(true);
+  //   rect.setFriction(0, 0, 0);
+  // }
+
+  let w = 750;
+  let h = 200;
+
+  let ny = Math.floor(w/10);
+  let nx = Math.floor(h/10);
+
+  let rect: any = t.add.rectangle(100, 700, w, h);
+  t.matter.add.gameObject(rect)
+  rect.setStatic(true);
+  rect.setFriction(0, 0, 0);
+
 };
 
 class SmoothedHorionztalControl {
