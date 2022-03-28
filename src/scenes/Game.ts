@@ -1,5 +1,8 @@
 import Phaser from 'phaser';
 import * as types from 'types';
+// import * as PlayerController from 'types/PlayerController'
+import * as _ from "lodash";
+import { combineNoise, generateNoise } from "utils/perlin";
 
 let _w = window.innerWidth, _h = window.innerHeight;
 
@@ -110,9 +113,9 @@ function generateBody(t: Phaser.Scene) {
 
   // var playerBody = t.matter.bodies.rectangle(sx, sy, w * 0.75, h, { chamfer: { radius: 10 } });
   let body = playerController.matterSprite.body as MatterJS.BodyType;
-  t.matter.body.translate(body, { x: sx - 100, y: sy + 270 });
+  t.matter.body.translate(body, { x: sx - 100, y: sy + 250 });
   // @ts-ignore
-  t.matter.body.setCentre(body, { x: 0, y: 0.5 * sy }, true);
+  t.matter.body.setCentre(body, { x: 0, y: 0.45 * sy }, true);
   playerController.sensors.bottom = t.matter.bodies.rectangle(sx, h, sx, 5, { isSensor: true });
   playerController.sensors.left = t.matter.bodies.rectangle(sx - w * 0.45, sy, 5, h * 0.5, { isSensor: true });
   playerController.sensors.right = t.matter.bodies.rectangle(sx + w * 0.45, sy, 5, h * 0.5, { isSensor: true });
@@ -264,15 +267,44 @@ function generateTerrain(t: Phaser.Scene) {
 
   let w = 750;
   let h = 200;
+  let s = 20;
 
-  let ny = Math.floor(w/10);
-  let nx = Math.floor(h/10);
+  let ny = Math.ceil(h / s);
+  let nx = Math.ceil(w / s);
 
-  let rect: any = t.add.rectangle(100, 700, w, h);
-  t.matter.add.gameObject(rect)
-  rect.setStatic(true);
-  rect.setFriction(0, 0, 0);
+  let noise_t = combineNoise(generateNoise(h, h/2, 8, 2, nx)).pos;
+  let noise_r = combineNoise(generateNoise(w, w/2, 8, 2, ny)).pos;
+  let noise_b = combineNoise(generateNoise(128, 128, 8, 2, nx)).pos;
+  let noise_l = combineNoise(generateNoise(128, 128, 8, 2, ny)).pos;
+  let min_noise_t: any = _.min(noise_t);
+  let min_noise_r: any = _.min(noise_r);
+  let min_noise_b: any = _.min(noise_b);
+  let min_noise_l: any = _.min(noise_l);
+  console.log(noise_t);
+  let verts_t = _.range(1, nx).map((i) => ({ x: i * w / nx, y: 0 - (noise_t[i]-min_noise_t)}));
+  // let verts_r = _.range(1, ny).map((i) => ({ x: w + (noise_r[i] - min_noise_r) , y: i * h / ny }));
+  // let verts_b = _.range(nx, 1).map((i) => ({ x: i * w / nx, y: h + (noise_b[i] - min_noise_b) }));
+  // let verts_l = _.range(ny, 1).map((i) => ({ x: 0 - (noise_l[i] - min_noise_l), y: i * h / ny }));
+  // let verts_t = _.range(1, nx).map((i) => ({ x: i * w / nx, y: 0 - (noise_t[i]-min_noise_t)}));
+  let verts_r = _.range(1, ny).map((i) => ({ x: w  , y: i * h / ny }));
+  let verts_b = _.range(nx, 1).map((i) => ({ x: i * w / nx, y: h  }));
+  let verts_l = _.range(ny, 1).map((i) => ({ x: 0 , y: i * h / ny }));
 
+  let verts = _.flatten([verts_t, verts_r, verts_b, verts_l]);
+  console.log('v', verts);
+
+  // let sverts = "";
+  // _.map(verts, (v: any) => (sverts += `${v.x} ${v.y} `));
+  // sverts.trimEnd();
+  // console.log(sverts);
+
+
+  // var poly: any = t.add.polygon(100, 700, verts, 0x0000ff, 1); // wierd bug sometimes the shape skips some vertices?
+  // t.matter.add.gameObject(poly, { shape: { type: 'fromVerts', verts: verts, flagInternal: true } });
+  // poly.setStatic(true);
+
+  var poly = t.matter.add.fromVertices(100, 500, verts, { isStatic: true,  }); // if i tried to add all noise, the shape disappeears wtf?
+  console.log(poly)
 };
 
 class SmoothedHorionztalControl {
