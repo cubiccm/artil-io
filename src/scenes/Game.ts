@@ -98,8 +98,8 @@ function generateBody(t: Phaser.Scene) {
     },
     lastJumpedAt: 0,
     speed: {
-      run: 7,
-      jump: 10
+      run: 2,
+      jump: 6
     },
     HP: 100,
   };
@@ -114,7 +114,7 @@ function generateBody(t: Phaser.Scene) {
   let body = playerController.matterSprite.body as MatterJS.BodyType;
   t.matter.body.translate(body, {x: sx, y: sy+150}); 
   // @ts-ignore
-  t.matter.body.setCentre(body, {x:0, y:0.5*sy}, true); 
+  t.matter.body.setCentre(body, {x: -0.1*sx, y: 0.5*sy}, true); 
   playerController.sensors.bottom = t.matter.bodies.rectangle(sx, h, sx, 5, { isSensor: true });
   playerController.sensors.left = t.matter.bodies.rectangle(sx - w * 0.45, sy, 5, h * 0.5, { isSensor: true });
   playerController.sensors.right = t.matter.bodies.rectangle(sx + w * 0.45, sy, 5, h * 0.5, { isSensor: true });
@@ -133,7 +133,7 @@ function generateBody(t: Phaser.Scene) {
   playerController.matterSprite
     .setExistingBody(compoundBody)
     // .setFixedRotation() // Sets max inertia to prevent rotation
-  playerController.matterSprite.setBounce(0.5)
+  playerController.matterSprite.setBounce(0)
   playerController.matterSprite.setPosition(0, 0)
   playerController.matterSprite.setScale(0.1);
 
