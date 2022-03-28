@@ -1,13 +1,15 @@
 import Phaser from 'phaser';
+import * as types from 'types';
 
 let _w = window.innerWidth, _h = window.innerHeight;
+
 
 let body: Phaser.Physics.Matter.Sprite;
 let debugGraphics: Phaser.GameObjects.Graphics;
 let debugMessage: Phaser.GameObjects.Text;
 let cursors: Phaser.Types.Input.Keyboard.CursorKeys;
 var smoothedControls: SmoothedHorionztalControl;
-var playerController: any;
+var playerController: types.PlayerController;
 var cam: Phaser.Cameras.Scene2D.Camera;
 
 export default class Demo extends Phaser.Scene {
@@ -86,9 +88,9 @@ function generateBody(t: Phaser.Scene) {
       bottom: 0
     },
     sensors: {
-      bottom: null,
-      left: null,
-      right: null
+      bottom: undefined,
+      left: undefined,
+      right: undefined
     },
     time: {
       leftDown: 0,
@@ -98,7 +100,8 @@ function generateBody(t: Phaser.Scene) {
     speed: {
       run: 7,
       jump: 10
-    }
+    },
+    HP: 100,
   };
 
   let w = 1300;
@@ -108,14 +111,17 @@ function generateBody(t: Phaser.Scene) {
   var sy = h / 2;
 
   // var playerBody = t.matter.bodies.rectangle(sx, sy, w * 0.75, h, { chamfer: { radius: 10 } });
-  var playerBody = t.matter.bodies.fromVertices(sx, sy+100, playerController.matterSprite.body.vertices); // Not aligned and wierd angles, so strange
-  console.log('pb', playerBody);
+  let body = playerController.matterSprite.body as MatterJS.BodyType;
+  t.matter.body.translate(body, {x: sx, y: sy+150}); 
+  // @ts-ignore
+  t.matter.body.setCentre(body, {x:0, y:0.5*sy}, true); 
   playerController.sensors.bottom = t.matter.bodies.rectangle(sx, h, sx, 5, { isSensor: true });
   playerController.sensors.left = t.matter.bodies.rectangle(sx - w * 0.45, sy, 5, h * 0.5, { isSensor: true });
   playerController.sensors.right = t.matter.bodies.rectangle(sx + w * 0.45, sy, 5, h * 0.5, { isSensor: true });
+  
   var compoundBody = t.matter.body.create({
     parts: [
-      playerBody, playerController.sensors.bottom, playerController.sensors.left,
+      body, playerController.sensors.bottom, playerController.sensors.left,
       playerController.sensors.right
     ],
     friction: 0.01,
@@ -127,9 +133,9 @@ function generateBody(t: Phaser.Scene) {
   playerController.matterSprite
     .setExistingBody(compoundBody)
     // .setFixedRotation() // Sets max inertia to prevent rotation
-    .setBounce(0.5)
-    .setPosition(0, 0)
-    .setScale(0.1);
+  playerController.matterSprite.setBounce(0.5)
+  playerController.matterSprite.setPosition(0, 0)
+  playerController.matterSprite.setScale(0.1);
 
 
   t.matter.add.image(630, 750, 'box');
@@ -144,7 +150,7 @@ function generateBody(t: Phaser.Scene) {
 
   // Loop over the active colliding pairs and count the surfaces the player is touching.
   t.matter.world.on('collisionactive', function (event: any) {
-    var playerBody = playerController.body;
+    var playerBody = playerController.matterSprite.body;
     var left = playerController.sensors.left;
     var right = playerController.sensors.right;
     var bottom = playerController.sensors.bottom;
