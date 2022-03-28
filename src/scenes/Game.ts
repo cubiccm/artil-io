@@ -98,8 +98,8 @@ function generateBody(t: Phaser.Scene) {
     },
     lastJumpedAt: 0,
     speed: {
-      run: 7,
-      jump: 10
+      run: 2,
+      jump: 6
     },
     HP: 100,
   };
@@ -112,13 +112,13 @@ function generateBody(t: Phaser.Scene) {
 
   // var playerBody = t.matter.bodies.rectangle(sx, sy, w * 0.75, h, { chamfer: { radius: 10 } });
   let body = playerController.matterSprite.body as MatterJS.BodyType;
-  t.matter.body.translate(body, {x: sx, y: sy+150}); 
+  t.matter.body.translate(body, { x: sx - 100, y: sy + 270 });
   // @ts-ignore
-  t.matter.body.setCentre(body, {x:0, y:0.5*sy}, true); 
+  t.matter.body.setCentre(body, { x: 0, y: 0.5 * sy }, true);
   playerController.sensors.bottom = t.matter.bodies.rectangle(sx, h, sx, 5, { isSensor: true });
   playerController.sensors.left = t.matter.bodies.rectangle(sx - w * 0.45, sy, 5, h * 0.5, { isSensor: true });
   playerController.sensors.right = t.matter.bodies.rectangle(sx + w * 0.45, sy, 5, h * 0.5, { isSensor: true });
-  
+
   var compoundBody = t.matter.body.create({
     parts: [
       body, playerController.sensors.bottom, playerController.sensors.left,
@@ -132,10 +132,10 @@ function generateBody(t: Phaser.Scene) {
 
   playerController.matterSprite
     .setExistingBody(compoundBody)
-    // .setFixedRotation() // Sets max inertia to prevent rotation
-  playerController.matterSprite.setBounce(0.5)
+  // .setFixedRotation() // Sets max inertia to prevent rotation
+  playerController.matterSprite.setBounce(0)
   playerController.matterSprite.setPosition(0, 0)
-  playerController.matterSprite.setScale(0.1);
+  playerController.matterSprite.setScale(0.15);
 
 
   t.matter.add.image(630, 750, 'box');
