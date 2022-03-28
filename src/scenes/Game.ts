@@ -114,7 +114,7 @@ function generateBody(t: Phaser.Scene) {
   let body = playerController.matterSprite.body as MatterJS.BodyType;
   t.matter.body.translate(body, {x: sx-100, y: sy+270}); 
   // @ts-ignore
-  t.matter.body.setCentre(body, {x: -0.1*sx, y: 0.5*sy}, true); 
+  t.matter.body.setCentre(body, {x: 0, y: 0.5*sy}, true); 
   playerController.sensors.bottom = t.matter.bodies.rectangle(sx, h, sx, 5, { isSensor: true });
   playerController.sensors.left = t.matter.bodies.rectangle(sx - w * 0.45, sy, 5, h * 0.5, { isSensor: true });
   playerController.sensors.right = t.matter.bodies.rectangle(sx + w * 0.45, sy, 5, h * 0.5, { isSensor: true });
