@@ -1,4 +1,4 @@
-import * as _ from "lodash";
+import _ from "lodash";
 
 import PoissonDiskSampling from 'poisson-disk-sampling';
 import { combineNoise } from "@/scripts/perlin";
@@ -25,7 +25,6 @@ function generateTerrain(t: Phaser.Scene) {
   for (let p of points) {
     let x = p[0] * (max_x - min_x) + min_x;
     let y = p[1] * (max_y - min_y) + min_y;
-    console.log(x, y);
     generatePlatform(t, x, y, w, h, s);
   }
 
