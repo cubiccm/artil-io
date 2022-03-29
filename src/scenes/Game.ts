@@ -1,12 +1,14 @@
 import Phaser from 'phaser';
-import * as types from 'types';
-// import * as PlayerController from 'types/PlayerController'
+import * as types from '@/types';
 import * as _ from "lodash";
-import { combineNoise, generateNoise } from "utils/perlin";
+import { combineNoise } from "@/scripts/perlin";
+import { Random } from "random-js";
+import PoissonDiskSampling from 'poisson-disk-sampling';
+
+const random = new Random(); // uses the nativeMath engine
 
 let _w = window.innerWidth, _h = window.innerHeight;
 
-let body: Phaser.Physics.Matter.Sprite;
 let debugGraphics: Phaser.GameObjects.Graphics;
 let debugMessage: Phaser.GameObjects.Text;
 let cursors: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -105,7 +107,7 @@ function generateBody(t: Phaser.Scene) {
     HP: 100,
   };
 
-  let w = 1300;
+  let w = 1100;
   let h = 1100;
 
   var sx = w / 2;
@@ -113,12 +115,14 @@ function generateBody(t: Phaser.Scene) {
 
   // var playerBody = t.matter.bodies.rectangle(sx, sy, w * 0.75, h, { chamfer: { radius: 10 } });
   let body = playerController.matterSprite.body as MatterJS.BodyType;
-  t.matter.body.translate(body, { x: sx - 100, y: sy + 250 });
+  t.matter.body.translate(body, { x: sx, y: sy + 250 });
+  // body.setCentre({ x: 0, y: 0.45 * sy });
+  console.log(body)
   // @ts-ignore
   t.matter.body.setCentre(body, { x: 0, y: 0.45 * sy }, true);
   playerController.sensors.bottom = t.matter.bodies.rectangle(sx, h, sx, 5, { isSensor: true });
-  playerController.sensors.left = t.matter.bodies.rectangle(sx - w * 0.45, sy, 5, h * 0.5, { isSensor: true });
-  playerController.sensors.right = t.matter.bodies.rectangle(sx + w * 0.45, sy, 5, h * 0.5, { isSensor: true });
+  playerController.sensors.left = t.matter.bodies.rectangle(sx - w * 0.45, sy+250, 5, h * 0.4, { isSensor: true });
+  playerController.sensors.right = t.matter.bodies.rectangle(sx + w * 0.45, sy+250, 5, h * 0.4, { isSensor: true });
 
   var compoundBody = t.matter.body.create({
     parts: [
@@ -265,47 +269,122 @@ function generateTerrain(t: Phaser.Scene) {
   //   rect.setFriction(0, 0, 0);
   // }
 
-  let w = 750;
-  let h = 200;
-  let s = 20;
+  const [min_x, max_x] = [-1000, 1000];
+  const [min_y, max_y] = [-1000, 1000];
+  const shift = 750;
+  const qty = 10;
+  const radius = 750;
+  const n = 4
 
+  const w = 750;
+  const h = 200;
+  const s = 25;
+
+  // let set = new Set<{x: number, y: number}>();
+  // for (let i = 1; i < n; i++) {
+  //   for (let j = 1; j < n; j++) {
+  //     let x = i * (max_x - min_x) / n + min_x + shift * (Math.random() - 0.5)
+  //     let y = j * (max_y - min_y) / n + min_y + shift * (Math.random() - 0.5)
+  //     set.add({x: x, y: y});
+  //   }
+  // }
+  // for (let {x, y} of set) {
+  //   generatePlatform(t, x, y, w, h, s);
+  // }
+
+  // let deltas = new Set();
+  // for (let x of _.range(min_x, max_x, (max_x - min_x) / qty)) {
+  //   for (let y of _.range(min_y, max_y, (max_y - min_y) / qty)) {
+  //     if (x * x + y * y < radius * radius) {
+  //       deltas.add(JSON.stringify({ x: x, y: y }));
+  //     }
+  //   }
+  // }
+
+  // let randPoints = [];
+  // let excluded = new Set();
+  // let i = 0;
+  // while (i < qty) {
+  //   let x = Math.random() * (max_x - min_x) + min_x;
+  //   let y = Math.random() * (max_y - min_y) + min_y;
+  //   if (excluded.has(JSON.stringify({ x: x, y: y }))) {
+  //     continue;
+  //   }
+  //   randPoints.push({ x: x, y: y });
+  //   i += 1;
+  //   _.forEach(deltas, v => excluded.add(v));
+  // }
+
+  // for (let { x, y } of randPoints) {
+  //   generatePlatform(t, x, y, w, h, s);
+  // }
+
+  // let i = 0;
+  // let points = Array<{ x: number, y: number }>();
+  // while (i < qty) {
+  //   let x = random.integer(min_x, max_x);
+  //   let y = random.integer(min_y, max_y);
+  //   let tooClose = false;
+  //   if (points.some(p => (p.x - x) < 4 / 3 * w && (p.y - y) < 4 / 3 * h)) {
+  //     tooClose = true;
+  //     continue;
+  //   }
+  //   if (tooClose)
+  //     continue;
+  //   points.push({ x: x, y: y });
+  //   i += 1;
+  // }
+  
+  let p = new PoissonDiskSampling({
+    shape: [1, 1],
+    minDistance: 1/3,
+    tries: 10
+  })
+  let points = p.fill();
+
+  for (let p of points) {
+    let x = p[0] * (max_x - min_x) + min_x;
+    let y = p[1] * (max_y - min_y) + min_y;
+    console.log(x, y);
+    generatePlatform(t, x, y, w, h, s);
+  }
+
+};
+
+function generatePlatform(t: Phaser.Scene, x: number, y: number, w: number, h: number, s: number) {
   let ny = Math.ceil(h / s);
   let nx = Math.ceil(w / s);
 
-  let noise_t = combineNoise(generateNoise(h, h/2, 8, 2, nx)).pos;
-  let noise_r = combineNoise(generateNoise(w, w/2, 8, 2, ny)).pos;
-  let noise_b = combineNoise(generateNoise(128, 128, 8, 2, nx)).pos;
-  let noise_l = combineNoise(generateNoise(128, 128, 8, 2, ny)).pos;
+  let noise_t = combineNoise(h, h / 2, 8, 2, nx).pos.map(v => Math.floor(v));
+  let noise_r = combineNoise(w, w / 2, 8, 2, ny).pos.map(v => Math.floor(v));
+  let noise_b = combineNoise(h, h / 8, 8, 2, nx).pos.map(v => Math.floor(v));
+  let noise_l = combineNoise(w, w / 2, 8, 2, ny).pos.map(v => Math.floor(v));
   let min_noise_t: any = _.min(noise_t);
   let min_noise_r: any = _.min(noise_r);
   let min_noise_b: any = _.min(noise_b);
   let min_noise_l: any = _.min(noise_l);
-  console.log(noise_t);
-  let verts_t = _.range(1, nx).map((i) => ({ x: i * w / nx, y: 0 - (noise_t[i]-min_noise_t)}));
-  // let verts_r = _.range(1, ny).map((i) => ({ x: w + (noise_r[i] - min_noise_r) , y: i * h / ny }));
-  // let verts_b = _.range(nx, 1).map((i) => ({ x: i * w / nx, y: h + (noise_b[i] - min_noise_b) }));
-  // let verts_l = _.range(ny, 1).map((i) => ({ x: 0 - (noise_l[i] - min_noise_l), y: i * h / ny }));
-  // let verts_t = _.range(1, nx).map((i) => ({ x: i * w / nx, y: 0 - (noise_t[i]-min_noise_t)}));
-  let verts_r = _.range(1, ny).map((i) => ({ x: w  , y: i * h / ny }));
-  let verts_b = _.range(nx, 1).map((i) => ({ x: i * w / nx, y: h  }));
-  let verts_l = _.range(ny, 1).map((i) => ({ x: 0 , y: i * h / ny }));
 
-  let verts = _.flatten([verts_t, verts_r, verts_b, verts_l]);
-  console.log('v', verts);
+  let verts_t = _.range(0, nx - 1).map((i) => ({ x: i * w / nx, y: 0 - (noise_t[i] - min_noise_t) }));
+  let verts_r = _.range(0, ny - 1).map((i) => ({ x: w + (noise_r[i] - min_noise_r), y: i * h / ny }));
+  let verts_b = _.range(nx - 1, 0).map((i) => ({ x: i * w / nx, y: h + (noise_b[i] - min_noise_b) }));
+  let verts_l = _.range(ny - 1, 0).map((i) => ({ x: 0 - (noise_l[i] - min_noise_l), y: i * h / ny }));
 
-  // let sverts = "";
-  // _.map(verts, (v: any) => (sverts += `${v.x} ${v.y} `));
-  // sverts.trimEnd();
-  // console.log(sverts);
+  let verts: { x: number, y: number }[] = _.flatten([verts_t, verts_r, verts_b, verts_l]);
 
+  // let min_verts_x = _.minBy(verts, 'x')!.x;
+  // let min_verts_y = _.minBy(verts, 'y')!.y;
+  // verts = verts.map((v) => ({ x: (v.x - min_verts_x!), y: v.y - min_verts_y! }));
 
-  // var poly: any = t.add.polygon(100, 700, verts, 0x0000ff, 1); // wierd bug sometimes the shape skips some vertices?
-  // t.matter.add.gameObject(poly, { shape: { type: 'fromVerts', verts: verts, flagInternal: true } });
+  var poly = t.add.polygon(x, y, verts, 0x0000ff, 0.5); // wierd bug sometimes the shape skips some vertices?
+  t.matter.add.gameObject(poly, { shape: { type: 'fromVerts', verts: verts, flagInternal: false }, isStatic: true, label: 'terrain' });
   // poly.setStatic(true);
+  // console.log(poly.getCenter().x, poly.getCenter().y);
+  // var center = t.matter.vertices.centre(verts)
+  // poly.body = t.matter.add.fromVertices(center.x-w, center.y-h, verts, { isStatic: true }, true, 0.02, 0);
 
-  var poly = t.matter.add.fromVertices(100, 500, verts, { isStatic: true,  }); // if i tried to add all noise, the shape disappeears wtf?
-  console.log(poly)
-};
+  // var poly = t.matter.add.fromVertices(100, 500, verts, { isStatic: true,  }); // if i tried to add all noise, the shape disappeears wtf?
+
+}
 
 class SmoothedHorionztalControl {
   public msSpeed: number;

@@ -64,6 +64,11 @@
   "resolved" "https://registry.npmjs.org/@types/node/-/node-14.18.12.tgz"
   "version" "14.18.12"
 
+"@types/poisson-disk-sampling@^2.2.0":
+  "integrity" "sha512-fbIHI+bjFksBhFW2BZRpS2Kk4aMhZcs7U1ohVGjteD4F4TS5CJ2G/SinXyueuIY7PDeJX3SgJe+cwfjBgT6Sdw=="
+  "resolved" "https://registry.npmjs.org/@types/poisson-disk-sampling/-/poisson-disk-sampling-2.2.0.tgz"
+  "version" "2.2.0"
+
 "balanced-match@^1.0.0":
   "integrity" "sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw=="
   "resolved" "https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.2.tgz"
@@ -242,6 +247,11 @@
   "resolved" "https://registry.npmjs.org/minimist/-/minimist-1.2.6.tgz"
   "version" "1.2.6"
 
+"moore@~1.0.0":
+  "integrity" "sha1-HSspjDLP0zDbD+gaC1usMZ/Z62U="
+  "resolved" "https://registry.npmjs.org/moore/-/moore-1.0.0.tgz"
+  "version" "1.0.0"
+
 "ms@2.1.2":
   "integrity" "sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w=="
   "resolved" "https://registry.npmjs.org/ms/-/ms-2.1.2.tgz"
@@ -295,6 +305,13 @@
   "resolved" "https://registry.npmjs.org/picomatch/-/picomatch-2.3.1.tgz"
   "version" "2.3.1"
 
+"poisson-disk-sampling@^2.2.3":
+  "integrity" "sha512-wbb1owfDn5mct92qVjVEAhXVwjlXqhN/oWuvaoVuzgAezr4pTKPYjULl3tNMi1fZRECaI0LDt3p4hlPlYtHDnw=="
+  "resolved" "https://registry.npmjs.org/poisson-disk-sampling/-/poisson-disk-sampling-2.2.3.tgz"
+  "version" "2.2.3"
+  dependencies:
+    "moore" "~1.0.0"
+
 "postcss@^8.4.6":
   "integrity" "sha512-lg6eITwYe9v6Hr5CncVbK70SoioNQIq81nsaG86ev5hAidQvmOeETBqs7jm43K2F5/Ley3ytDtriImV6TpNiSg=="
   "resolved" "https://registry.npmjs.org/postcss/-/postcss-8.4.12.tgz"
@@ -308,6 +325,11 @@
   "integrity" "sha1-czIwDoQBYb2j5podHZGn1LwW8YI="
   "resolved" "https://registry.npmjs.org/process/-/process-0.11.10.tgz"
   "version" "0.11.10"
+
+"random-js@^2.1.0":
+  "integrity" "sha512-CRUyWmnzmZBA7RZSVGq0xMqmgCyPPxbiKNLFA5ud7KenojVX2s7Gv+V7eB52beKTPGxWRnVZ7D/tCIgYJJ8vNQ=="
+  "resolved" "https://registry.npmjs.org/random-js/-/random-js-2.1.0.tgz"
+  "version" "2.1.0"
 
 "recrawl-sync@^2.0.3":
   "integrity" "sha512-E2sI4F25Fu2nrfV+KsnC7/qfk/spQIYXlonfQoS4rwxeNK5BjxnLPbWiRXHVXPwYBOTWtPX5765kTm/zJiL+LQ=="

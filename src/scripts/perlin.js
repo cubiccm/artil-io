@@ -54,7 +54,8 @@ function generateNoise(amp, wl, octaves, divisor, width) {
 }
 
 //combines octaves together
-function combineNoise(pl) {
+function combineNoise(amp, wl, octaves, divisor, width) {
+    var pl = generateNoise(amp, wl, octaves, divisor, width)
     var result = { pos: [] };
     for (var i = 0, total = 0, j = 0; i < pl[0].pos.length; i++) {
         total = 0;
@@ -66,4 +67,4 @@ function combineNoise(pl) {
     return result;
 }
 
-export {combineNoise, generateNoise};
+export { combineNoise };
