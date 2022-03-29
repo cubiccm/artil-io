@@ -121,8 +121,8 @@ function generateBody(t: Phaser.Scene) {
   // @ts-ignore
   t.matter.body.setCentre(body, { x: 0, y: 0.45 * sy }, true);
   playerController.sensors.bottom = t.matter.bodies.rectangle(sx, h, sx, 5, { isSensor: true });
-  playerController.sensors.left = t.matter.bodies.rectangle(sx - w * 0.45, sy+250, 5, h * 0.4, { isSensor: true });
-  playerController.sensors.right = t.matter.bodies.rectangle(sx + w * 0.45, sy+250, 5, h * 0.4, { isSensor: true });
+  playerController.sensors.left = t.matter.bodies.rectangle(sx - w * 0.45, sy + 250, 5, h * 0.4, { isSensor: true });
+  playerController.sensors.right = t.matter.bodies.rectangle(sx + w * 0.45, sy + 250, 5, h * 0.4, { isSensor: true });
 
   var compoundBody = t.matter.body.create({
     parts: [
@@ -141,11 +141,6 @@ function generateBody(t: Phaser.Scene) {
   playerController.matterSprite.setBounce(0)
   playerController.matterSprite.setPosition(0, 0)
   playerController.matterSprite.setScale(0.15);
-
-
-  t.matter.add.image(630, 750, 'box');
-  t.matter.add.image(630, 650, 'box');
-  t.matter.add.image(630, 550, 'box');
 
   t.matter.world.on('beforeupdate', function (event: any) {
     playerController.numTouching.left = 0;
@@ -260,84 +255,18 @@ function updateBody(t: Phaser.Scene, time: number, delta: number) {
 }
 
 function generateTerrain(t: Phaser.Scene) {
-  // for (let i = 0; i < 30; i++) {
-  //   let rect: any = t.add.rectangle(Phaser.Math.Between(-1000, 1000), Phaser.Math.Between(-1000, 1000), Phaser.Math.Between(150, 750), 20, 0xffffff);
-  //   rect.setInteractive();
-  //   t.input.setDraggable(rect);
-  //   t.matter.add.gameObject(rect)
-  //   rect.setStatic(true);
-  //   rect.setFriction(0, 0, 0);
-  // }
-
   const [min_x, max_x] = [-1000, 1000];
   const [min_y, max_y] = [-1000, 1000];
-  const shift = 750;
-  const qty = 10;
-  const radius = 750;
-  const n = 4
 
   const w = 750;
   const h = 200;
   const s = 25;
 
-  // let set = new Set<{x: number, y: number}>();
-  // for (let i = 1; i < n; i++) {
-  //   for (let j = 1; j < n; j++) {
-  //     let x = i * (max_x - min_x) / n + min_x + shift * (Math.random() - 0.5)
-  //     let y = j * (max_y - min_y) / n + min_y + shift * (Math.random() - 0.5)
-  //     set.add({x: x, y: y});
-  //   }
-  // }
-  // for (let {x, y} of set) {
-  //   generatePlatform(t, x, y, w, h, s);
-  // }
+  const r = 1 / 3;
 
-  // let deltas = new Set();
-  // for (let x of _.range(min_x, max_x, (max_x - min_x) / qty)) {
-  //   for (let y of _.range(min_y, max_y, (max_y - min_y) / qty)) {
-  //     if (x * x + y * y < radius * radius) {
-  //       deltas.add(JSON.stringify({ x: x, y: y }));
-  //     }
-  //   }
-  // }
-
-  // let randPoints = [];
-  // let excluded = new Set();
-  // let i = 0;
-  // while (i < qty) {
-  //   let x = Math.random() * (max_x - min_x) + min_x;
-  //   let y = Math.random() * (max_y - min_y) + min_y;
-  //   if (excluded.has(JSON.stringify({ x: x, y: y }))) {
-  //     continue;
-  //   }
-  //   randPoints.push({ x: x, y: y });
-  //   i += 1;
-  //   _.forEach(deltas, v => excluded.add(v));
-  // }
-
-  // for (let { x, y } of randPoints) {
-  //   generatePlatform(t, x, y, w, h, s);
-  // }
-
-  // let i = 0;
-  // let points = Array<{ x: number, y: number }>();
-  // while (i < qty) {
-  //   let x = random.integer(min_x, max_x);
-  //   let y = random.integer(min_y, max_y);
-  //   let tooClose = false;
-  //   if (points.some(p => (p.x - x) < 4 / 3 * w && (p.y - y) < 4 / 3 * h)) {
-  //     tooClose = true;
-  //     continue;
-  //   }
-  //   if (tooClose)
-  //     continue;
-  //   points.push({ x: x, y: y });
-  //   i += 1;
-  // }
-  
   let p = new PoissonDiskSampling({
     shape: [1, 1],
-    minDistance: 1/3,
+    minDistance: r,
     tries: 10
   })
   let points = p.fill();
@@ -377,13 +306,6 @@ function generatePlatform(t: Phaser.Scene, x: number, y: number, w: number, h: n
 
   var poly = t.add.polygon(x, y, verts, 0x0000ff, 0.5); // wierd bug sometimes the shape skips some vertices?
   t.matter.add.gameObject(poly, { shape: { type: 'fromVerts', verts: verts, flagInternal: false }, isStatic: true, label: 'terrain' });
-  // poly.setStatic(true);
-  // console.log(poly.getCenter().x, poly.getCenter().y);
-  // var center = t.matter.vertices.centre(verts)
-  // poly.body = t.matter.add.fromVertices(center.x-w, center.y-h, verts, { isStatic: true }, true, 0.02, 0);
-
-  // var poly = t.matter.add.fromVertices(100, 500, verts, { isStatic: true,  }); // if i tried to add all noise, the shape disappeears wtf?
-
 }
 
 class SmoothedHorionztalControl {
