@@ -18,6 +18,7 @@
 		"dbaeumer.vscode-eslint",
 		"mhutchie.git-graph",
 		"github.copilot",
+		"eamodio.gitlens"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

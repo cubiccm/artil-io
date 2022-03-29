@@ -11,7 +11,6 @@ let _w = window.innerWidth, _h = window.innerHeight;
 let debugGraphics: Phaser.GameObjects.Graphics;
 let debugMessage: Phaser.GameObjects.Text;
 let cursors: Phaser.Types.Input.Keyboard.CursorKeys;
-var playerController: types.PlayerController;
 var cam: Phaser.Cameras.Scene2D.Camera;
 
 var player: Tank;
@@ -47,8 +46,8 @@ export default class Game extends Phaser.Scene {
     this.matter.world.setGravity(0, 1, 0.001);
 
     player = new Tank(this, 300, 300);
-    
-    generateTerrain(this);    
+
+    generateTerrain(this);
     eventEmitter(this);
 
     debugMessage = this.add.text(16, 16, getDebugMessage(), {
@@ -80,8 +79,6 @@ function getDebugMessage() {
 }
 
 function eventEmitter(scene: Phaser.Scene) {
-  var player_data = player.data.values;
-
   scene.matter.world.on('beforeupdate', function (event: any) {
     Global.event_bus.emit('beforeupdate', event);
   });
@@ -89,9 +86,9 @@ function eventEmitter(scene: Phaser.Scene) {
   // Loop over the active colliding pairs and count the surfaces the player is touching.
   scene.matter.world.on('collisionactive', function (event: any) {
     var playerBody = player.body;
-    var left = player_data.sensors.left;
-    var right = player_data.sensors.right;
-    var bottom = player_data.sensors.bottom;
+    var left = player.player_data.sensors.left;
+    var right = player.player_data.sensors.right;
+    var bottom = player.player_data.sensors.bottom;
 
     for (var i = 0; i < event.pairs.length; i++) {
       var bodyA = event.pairs[i].bodyA;
@@ -126,25 +123,25 @@ function eventEmitter(scene: Phaser.Scene) {
   }, scene);
 
 }
- 
+
 function inputEmitter(scene: Phaser.Scene, time: number, delta: number) {
   let keyboard = scene.input.keyboard;
   let keys: any = keyboard.addKeys('LEFT,RIGHT,UP,DOWN');
 
   if (keyboard.checkDown(keys.LEFT)) {
-    Global.event_bus.emit('keydown-LEFT', {time: time, delta: delta});
+    Global.event_bus.emit('keydown-LEFT', { time: time, delta: delta });
   }
 
   if (keyboard.checkDown(keys.RIGHT)) {
-    Global.event_bus.emit('keydown-RIGHT', {time: time, delta: delta});
+    Global.event_bus.emit('keydown-RIGHT', { time: time, delta: delta });
   }
 
   if (keyboard.checkDown(keys.UP)) {
-    Global.event_bus.emit('keydown-UP', {time: time, delta: delta});
+    Global.event_bus.emit('keydown-UP', { time: time, delta: delta });
   }
 
   if (keyboard.checkDown(keys.DOWN)) {
-    Global.event_bus.emit('keydown-DOWN', {time: time, delta: delta});
+    Global.event_bus.emit('keydown-DOWN', { time: time, delta: delta });
   }
 }
 

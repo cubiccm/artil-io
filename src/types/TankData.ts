@@ -1,5 +1,4 @@
-interface playerController {
-    matterSprite: Phaser.Physics.Matter.Sprite;
+interface TankData {
     blocked: {
       left: boolean;
       right: boolean;
@@ -27,4 +26,4 @@ interface playerController {
     HP: number;
   }
   
-export default playerController
+export default TankData

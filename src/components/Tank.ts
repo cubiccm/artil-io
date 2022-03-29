@@ -115,34 +115,33 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
   }
 
   listenEvents() {
-    let player_data = this.data.values;
 
     Global.event_bus.on("beforeupdate", (e: any) => {
-      player_data.numTouching.left = 0;
-      player_data.numTouching.right = 0;
-      player_data.numTouching.bottom = 0;
+      this.player_data.numTouching.left = 0;
+      this.player_data.numTouching.right = 0;
+      this.player_data.numTouching.bottom = 0;
     });
 
     Global.event_bus.on("afterupdate", (e: any) => {
-      player_data.blocked.right = player_data.numTouching.right > 0 ? true : false;
-      player_data.blocked.left = player_data.numTouching.left > 0 ? true : false;
-      player_data.blocked.bottom = player_data.numTouching.bottom > 0 ? true : false;
+      this.player_data.blocked.right = this.player_data.numTouching.right > 0 ? true : false;
+      this.player_data.blocked.left = this.player_data.numTouching.left > 0 ? true : false;
+      this.player_data.blocked.bottom = this.player_data.numTouching.bottom > 0 ? true : false;
     });
 
     Global.event_bus.on("playerMoveLeft", this.moveLeft);
     Global.event_bus.on("playerMoveRight", this.moveRight);
     Global.event_bus.on("playerJump", this.jump);
 
-    Global.event_bus.on("playerSensorBottom", () => { 
-      player_data.numTouching.bottom += 1 
+    Global.event_bus.on("playerSensorBottom", () => {
+      this.player_data.numTouching.bottom += 1
     });
 
-    Global.event_bus.on("playerSensorLeft", () => { 
-      player_data.numTouching.left += 1 
+    Global.event_bus.on("playerSensorLeft", () => {
+      this.player_data.numTouching.left += 1
     });
-    
-    Global.event_bus.on("playerSensorRight", () => { 
-      player_data.numTouching.right += 1 
+
+    Global.event_bus.on("playerSensorRight", () => {
+      this.player_data.numTouching.right += 1
     });
 
     Global.event_bus.on("keydown-LEFT", (e: any) => {
@@ -157,4 +156,9 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
       this.jump(e.time, e.delta);
     });
   }
+
+  public get player_data(): types.TankData {
+    return this.data.values as any;
+  }
+
 }
