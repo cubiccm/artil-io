@@ -95,16 +95,17 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
   }
 
   moveLeft(time: number, delta: number) {
-    const oldVelocityX = this.body.velocity.x;
-    const targetVelocityX = -this.data.values.speed.run;
-    const newVelocityX = Phaser.Math.Linear(
-      oldVelocityX,
-      targetVelocityX,
-      -this.smoothedControls.value
-    );
     if (!this.data.values.blocked.left) {
       this.smoothedControls.moveLeft(delta);
       // matterSprite.anims.play('left', true);
+
+      const oldVelocityX = this.body.velocity.x;
+      const targetVelocityX = -this.data.values.speed.run;
+      const newVelocityX = Phaser.Math.Linear(
+        oldVelocityX,
+        targetVelocityX,
+        -this.smoothedControls.value
+      );
 
       this.setVelocityX(newVelocityX);
     }
@@ -116,16 +117,17 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
   }
 
   moveRight(time: number, delta: number) {
-    const oldVelocityX = this.body.velocity.x;
-    const targetVelocityX = this.data.values.speed.run;
-    const newVelocityX = Phaser.Math.Linear(
-      oldVelocityX,
-      targetVelocityX,
-      this.smoothedControls.value
-    );
     if (!this.data.values.blocked.right) {
       this.smoothedControls.moveRight(delta);
       // matterSprite.anims.play('right', true);
+
+      const oldVelocityX = this.body.velocity.x;
+      const targetVelocityX = this.data.values.speed.run;
+      const newVelocityX = Phaser.Math.Linear(
+        oldVelocityX,
+        targetVelocityX,
+        this.smoothedControls.value
+      );
 
       this.setVelocityX(newVelocityX);
     }
