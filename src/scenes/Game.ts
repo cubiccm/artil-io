@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import * as _ from 'lodash';
 import Tank from '@/components/Tank';
+import DebugMessage from '@/components/DebugMessage';
 import Global from '@/global';
 
 import generateTerrain from '@/scripts/terrainGenerator';
@@ -8,11 +9,9 @@ import generateTerrain from '@/scripts/terrainGenerator';
 const _w = window.innerWidth,
   _h = window.innerHeight;
 
-let debugGraphics: Phaser.GameObjects.Graphics;
+let player: Tank;
 let debugMessage: Phaser.GameObjects.Text;
 let cam: Phaser.Cameras.Scene2D.Camera;
-
-let player: Tank;
 
 export default class Game extends Phaser.Scene {
   constructor() {
@@ -41,7 +40,6 @@ export default class Game extends Phaser.Scene {
       }
     );
 
-    debugGraphics = this.add.graphics();
     this.matter.world.setGravity(0, 1, 0.001);
 
     player = new Tank(this, 300, 300);
@@ -49,31 +47,16 @@ export default class Game extends Phaser.Scene {
     generateTerrain(this);
     eventEmitter(this);
 
-    debugMessage = this.add.text(16, 16, getDebugMessage(), {
-      fontSize: '18px',
-      padding: { x: 10, y: 5 },
-      backgroundColor: '#000000'
-    });
-    debugMessage.setScrollFactor(0);
-    debugGraphics.clear();
-    debugMessage.setText(getDebugMessage());
+    debugMessage = new DebugMessage(this, player, 16, 16);
 
     this.cameras.main.startFollow(player);
     // smoothMoveCameraTowards(playerController.matterSprite);
   }
 
   update(time: number, delta: number) {
-    debugMessage.setText(getDebugMessage());
     inputEmitter(this, time, delta);
     // smoothMoveCameraTowards(playerController.matterSprite, 0.9);
   }
-}
-
-function getDebugMessage() {
-  return `
-    x: ${player.x}
-    y: ${player.y}
-    `;
 }
 
 function eventEmitter(scene: Phaser.Scene) {
