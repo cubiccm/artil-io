@@ -4,13 +4,14 @@ import Global from '@/global';
 
 export default class Tank extends Phaser.Physics.Matter.Sprite {
   public smoothedControls!: SmoothedHorionztalControl;
+  private prevXSpeed: number;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene.matter.world, x, y, 'tank', undefined, {
+    super(scene.matter.world, x, y, 'tank_1', undefined, {
       shape: scene.cache.json.get('tank_shape').tank
     } as Phaser.Types.Physics.Matter.MatterBodyConfig);
     scene.add.existing(this);
-
+    this.prevXSpeed = 0;
     this.setData({
       blocked: {
         left: false,
@@ -88,6 +89,7 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
     this.setExistingBody(compoundBody);
     this.setPosition(0, 0);
     this.setScale(0.15);
+    this.createWheelAnimations();
 
     this.smoothedControls = new SmoothedHorionztalControl(this, 0.0005);
 
@@ -112,8 +114,7 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
 
     if (!this.data.values.blocked.bottom)
       this.setAngularVelocity(-0.005); // For rotating in the air
-    else if (this.data.values.blocked.left)
-      this.setAngularVelocity(0.01); // For climbing
+    else if (this.data.values.blocked.left) this.setAngularVelocity(0.01); // For climbing
   }
 
   moveRight(time: number, delta: number) {
@@ -132,10 +133,8 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
       this.setVelocityX(newVelocityX);
     }
 
-    if (!this.data.values.blocked.bottom)
-      this.setAngularVelocity(0.005);
-    else if (this.data.values.blocked.right)
-      this.setAngularVelocity(-0.01);
+    if (!this.data.values.blocked.bottom) this.setAngularVelocity(0.005);
+    else if (this.data.values.blocked.right) this.setAngularVelocity(-0.01);
   }
 
   jump(time: number, delta: number) {
@@ -158,13 +157,54 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
     }
   }
 
+  createWheelAnimations() {
+    this.anims.create({
+      key: 'move_left',
+      frames: [
+        { key: 'tank_1' },
+        { key: 'tank_2' },
+        { key: 'tank_3' },
+        { key: 'tank_4' }
+      ],
+      frameRate: 15,
+      repeat: -1
+    });
+    this.anims.create({
+      key: 'move_right',
+      frames: [
+        { key: 'tank_4' },
+        { key: 'tank_3' },
+        { key: 'tank_2' },
+        { key: 'tank_1' }
+      ],
+      frameRate: 15,
+      repeat: -1
+    });
+
+    this.anims.create({
+      key: 'idle',
+      frames: [{ key: 'tank_1', frame: undefined }],
+      frameRate: 20,
+      repeat: 1
+    });
+  }
   listenEvents() {
     Global.event_bus.on('beforeupdate', (e: any) => {
       this.player_data.numTouching.left = 0;
       this.player_data.numTouching.right = 0;
       this.player_data.numTouching.bottom = 0;
     });
-
+    Global.event_bus.on('playerMovingLeft', () => {
+      console.log('left');
+      this.play('move_left');
+    });
+    Global.event_bus.on('playerMovingRight', () => {
+      console.log('right');
+      this.play('move_right');
+    });
+    Global.event_bus.on('playerIdle', () => {
+      this.play('idle');
+    });
     Global.event_bus.on('afterupdate', (e: any) => {
       this.player_data.blocked.right =
         this.player_data.numTouching.right > 0 ? true : false;
@@ -172,6 +212,15 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
         this.player_data.numTouching.left > 0 ? true : false;
       this.player_data.blocked.bottom =
         this.player_data.numTouching.bottom > 0 ? true : false;
+
+      if (this.prevXSpeed > 0 && this.body.velocity.x < 0) {
+        Global.event_bus.emit('playerMovingLeft', event);
+      } else if (this.prevXSpeed < 0 && this.body.velocity.x > 0) {
+        Global.event_bus.emit('playerMovingRight');
+      } else if (this.body.velocity.x < 0.01 && this.body.velocity.x > -0.01) {
+        Global.event_bus.emit('playerIdle');
+      }
+      this.prevXSpeed = this.body.velocity.x;
     });
 
     Global.event_bus.on('playerMoveLeft', this.moveLeft);

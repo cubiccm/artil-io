@@ -21,6 +21,10 @@ export default class Game extends Phaser.Scene {
   preload() {
     this.load.image('tank', 'assets/tank.png');
     this.load.json('tank_shape', 'assets/tank_shape.json');
+    this.load.image('tank_1', 'assets/tank-frames/tank_1.png');
+    this.load.image('tank_2', 'assets/tank-frames/tank_2.png');
+    this.load.image('tank_3', 'assets/tank-frames/tank_3.png');
+    this.load.image('tank_4', 'assets/tank-frames/tank_4.png');
   }
 
   create() {
