@@ -19,7 +19,6 @@ interface TankData {
     rightDown: number;
   };
   lastJumpedAt: number;
-  prevXSpeed: number;
   speed: {
     run: number;
     jump: number;

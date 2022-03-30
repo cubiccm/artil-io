@@ -101,19 +101,6 @@ function eventEmitter(scene: Phaser.Scene) {
   // Update over, so now we can determine if any direction is blocked
   scene.matter.world.on('afterupdate', function (event: any) {
     Global.event_bus.emit('afterupdate', event);
-
-    // --------------------------BEGIN ANIMATIONS-------------------------------
-    if (player.player_data.prevXSpeed >= 0 && player.body.velocity.x < 0) {
-      Global.event_bus.emit('playerMovingLeft');
-    }
-    else if (player.player_data.prevXSpeed <= 0 && player.body.velocity.x > 0) {
-      Global.event_bus.emit('playerMovingRight');
-    }
-    else if (player.body.velocity.x < 0.01 && player.body.velocity.x > -0.01) {
-      Global.event_bus.emit('playerIdle');
-    }
-    player.setData('prevXSpeed', player.body.velocity.x);
-    // ---------------------------END ANIMATIONS--------------------------------
   });
 
   scene.input.on(
