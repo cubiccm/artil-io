@@ -15,7 +15,9 @@
     "isolatedModules": true,
     "noEmit": true,
     "baseUrl": "./src",
-    // "rootDir": "./src",
+    "paths": {
+      "@/*": ["./*"], // @ to resolve src folder
+    }  
   },
-  "include": ["./src/**/*"]
+  "include": ["src"],
 }

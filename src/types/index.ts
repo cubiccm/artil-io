@@ -1,1 +1,1 @@
-export type {default as PlayerController} from "./PlayerController"
+export type {default as TankData} from "./TankData"
