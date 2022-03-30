@@ -6,7 +6,7 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
   public smoothedControls!: SmoothedHorionztalControl;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene.matter.world, x, y, 'tank', undefined, {
+    super(scene.matter.world, x, y, 'tank_1', undefined, {
       shape: scene.cache.json.get('tank_shape').tank
     } as Phaser.Types.Physics.Matter.MatterBodyConfig);
     scene.add.existing(this);
@@ -32,6 +32,7 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
         rightDown: 0
       },
       lastJumpedAt: 0,
+      prevXSpeed: 0,
       speed: {
         run: 2,
         jump: 6
@@ -72,6 +73,7 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
       5,
       h * 0.2,
       { isSensor: true }
+
     );
 
     const compoundBody = scene.matter.body.create({
@@ -88,7 +90,7 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
     this.setExistingBody(compoundBody);
     this.setPosition(0, 0);
     this.setScale(0.15);
-
+    this.createWheelAnimations();
     this.smoothedControls = new SmoothedHorionztalControl(this, 0.0005);
 
     this.listenEvents();
@@ -158,6 +160,37 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
     }
   }
 
+  createWheelAnimations() {
+    this.anims.create({
+      key: 'move_left',
+      frames: [
+        { key: 'tank_1', },
+        { key: 'tank_2', },
+        { key: 'tank_3', },
+        { key: 'tank_4', }
+      ],
+      frameRate: 15,
+      repeat: -1
+    });
+    this.anims.create({
+      key: 'move_right',
+      frames: [
+        { key: 'tank_4', },
+        { key: 'tank_3', },
+        { key: 'tank_2', },
+        { key: 'tank_1', }
+      ],
+      frameRate: 15,
+      repeat: -1
+    });
+
+    this.anims.create({
+      key: 'idle',
+      frames: [{ key: 'tank_1', frame: undefined }],
+      frameRate: 20,
+      repeat: 1
+    });
+  }
   listenEvents() {
     Global.event_bus.on('beforeupdate', (e: any) => {
       this.player_data.numTouching.left = 0;
@@ -177,7 +210,15 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
     Global.event_bus.on('playerMoveLeft', this.moveLeft);
     Global.event_bus.on('playerMoveRight', this.moveRight);
     Global.event_bus.on('playerJump', this.jump);
-
+    Global.event_bus.on('playerMovingLeft', () => {
+      this.play('move_left');
+    });
+    Global.event_bus.on('playerMovingRight', () => {
+      this.play('move_right');
+    });
+    Global.event_bus.on('playerIdle', () => {
+      this.play('idle');
+    });
     Global.event_bus.on('playerSensorBottom', () => {
       this.player_data.numTouching.bottom += 1;
     });

@@ -21,6 +21,10 @@ export default class Game extends Phaser.Scene {
   preload() {
     this.load.image('tank', 'assets/tank.png');
     this.load.json('tank_shape', 'assets/tank_shape.json');
+    this.load.image('tank_1', 'assets/tank-frames/tank_1.png');
+    this.load.image('tank_2', 'assets/tank-frames/tank_2.png');
+    this.load.image('tank_3', 'assets/tank-frames/tank_3.png');
+    this.load.image('tank_4', 'assets/tank-frames/tank_4.png');
   }
 
   create() {
@@ -97,6 +101,19 @@ function eventEmitter(scene: Phaser.Scene) {
   // Update over, so now we can determine if any direction is blocked
   scene.matter.world.on('afterupdate', function (event: any) {
     Global.event_bus.emit('afterupdate', event);
+
+    // --------------------------BEGIN ANIMATIONS-------------------------------
+    if (player.player_data.prevXSpeed >= 0 && player.body.velocity.x < 0) {
+      Global.event_bus.emit('playerMovingLeft');
+    }
+    else if (player.player_data.prevXSpeed <= 0 && player.body.velocity.x > 0) {
+      Global.event_bus.emit('playerMovingRight');
+    }
+    else if (player.body.velocity.x < 0.01 && player.body.velocity.x > -0.01) {
+      Global.event_bus.emit('playerIdle');
+    }
+    player.setData('prevXSpeed', player.body.velocity.x);
+    // ---------------------------END ANIMATIONS--------------------------------
   });
 
   scene.input.on(
