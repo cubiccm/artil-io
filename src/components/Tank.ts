@@ -54,23 +54,23 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
     });
     this.data.values.sensors.bottom = scene.matter.bodies.rectangle(
       sx,
-      h,
-      sx,
-      5,
+      h + 5,
+      w - 150,
+      10,
       { isSensor: true }
     );
     this.data.values.sensors.left = scene.matter.bodies.rectangle(
       sx - w * 0.45,
-      sy + 250,
+      sy + 400,
       5,
-      h * 0.4,
+      h * 0.2,
       { isSensor: true }
     );
     this.data.values.sensors.right = scene.matter.bodies.rectangle(
-      sx + w * 0.45,
-      sy + 250,
+      sx + w * 0.47,
+      sy + 400,
       5,
-      h * 0.4,
+      h * 0.2,
       { isSensor: true }
     );
 
@@ -95,35 +95,45 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
   }
 
   moveLeft(time: number, delta: number) {
+    const oldVelocityX = this.body.velocity.x;
+    const targetVelocityX = -this.data.values.speed.run;
+    const newVelocityX = Phaser.Math.Linear(
+      oldVelocityX,
+      targetVelocityX,
+      -this.smoothedControls.value
+    );
     if (!this.data.values.blocked.left) {
       this.smoothedControls.moveLeft(delta);
       // matterSprite.anims.play('left', true);
 
-      const oldVelocityX = this.body.velocity.x;
-      const targetVelocityX = -this.data.values.speed.run;
-      const newVelocityX = Phaser.Math.Linear(
-        oldVelocityX,
-        targetVelocityX,
-        -this.smoothedControls.value
-      );
       this.setVelocityX(newVelocityX);
     }
+
+    if (!this.data.values.blocked.bottom)
+      this.setAngularVelocity(-0.005); // For rotating in the air
+    else if (this.data.values.blocked.left)
+      this.setAngularVelocity(0.01); // For climbing
   }
 
   moveRight(time: number, delta: number) {
+    const oldVelocityX = this.body.velocity.x;
+    const targetVelocityX = this.data.values.speed.run;
+    const newVelocityX = Phaser.Math.Linear(
+      oldVelocityX,
+      targetVelocityX,
+      this.smoothedControls.value
+    );
     if (!this.data.values.blocked.right) {
       this.smoothedControls.moveRight(delta);
       // matterSprite.anims.play('right', true);
 
-      const oldVelocityX = this.body.velocity.x;
-      const targetVelocityX = this.data.values.speed.run;
-      const newVelocityX = Phaser.Math.Linear(
-        oldVelocityX,
-        targetVelocityX,
-        this.smoothedControls.value
-      );
       this.setVelocityX(newVelocityX);
     }
+
+    if (!this.data.values.blocked.bottom)
+      this.setAngularVelocity(0.005);
+    else if (this.data.values.blocked.right)
+      this.setAngularVelocity(-0.01);
   }
 
   jump(time: number, delta: number) {
