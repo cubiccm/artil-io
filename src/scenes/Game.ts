@@ -1,19 +1,18 @@
 import Phaser from 'phaser';
-import * as types from '@/types';
-import * as _ from "lodash";
+import * as _ from 'lodash';
 import Tank from '@/components/Tank';
 import Global from '@/global';
 
-import generateTerrain from "@/scripts/terrainGenerator";
+import generateTerrain from '@/scripts/terrainGenerator';
 
-let _w = window.innerWidth, _h = window.innerHeight;
+const _w = window.innerWidth,
+  _h = window.innerHeight;
 
 let debugGraphics: Phaser.GameObjects.Graphics;
 let debugMessage: Phaser.GameObjects.Text;
-let cursors: Phaser.Types.Input.Keyboard.CursorKeys;
-var cam: Phaser.Cameras.Scene2D.Camera;
+let cam: Phaser.Cameras.Scene2D.Camera;
 
-var player: Tank;
+let player: Tank;
 
 export default class Game extends Phaser.Scene {
   constructor() {
@@ -21,14 +20,11 @@ export default class Game extends Phaser.Scene {
   }
 
   preload() {
-    // this.load.image('logo', 'assets/phaser3-logo.png');
-    this.load.svg("body", "assets/pacman.svg", { scale: 0.3 });
-    this.load.image("tank", "assets/tank.png");
-    this.load.json("tank_shape", "assets/tank_shape.json");
+    this.load.image('tank', 'assets/tank.png');
+    this.load.json('tank_shape', 'assets/tank_shape.json');
   }
 
   create() {
-    cursors = this.input.keyboard.createCursorKeys();
     cam = this.cameras.main;
     this.matter.world.createDebugGraphic();
 
@@ -37,10 +33,13 @@ export default class Game extends Phaser.Scene {
 
     this.cameras.main.scrollX = -_w / 2;
     this.cameras.main.scrollY = -_h / 2;
-    this.input.on('drag', (pointer: any, gameObject: any, dragX: any, dragY: any) => {
-      gameObject.x = dragX;
-      gameObject.y = dragY;
-    });
+    this.input.on(
+      'drag',
+      (pointer: any, gameObject: any, dragX: any, dragY: any) => {
+        gameObject.x = dragX;
+        gameObject.y = dragY;
+      }
+    );
 
     debugGraphics = this.add.graphics();
     this.matter.world.setGravity(0, 1, 0.001);
@@ -53,7 +52,7 @@ export default class Game extends Phaser.Scene {
     debugMessage = this.add.text(16, 16, getDebugMessage(), {
       fontSize: '18px',
       padding: { x: 10, y: 5 },
-      backgroundColor: '#000000',
+      backgroundColor: '#000000'
     });
     debugMessage.setScrollFactor(0);
     debugGraphics.clear();
@@ -61,7 +60,6 @@ export default class Game extends Phaser.Scene {
 
     this.cameras.main.startFollow(player);
     // smoothMoveCameraTowards(playerController.matterSprite);
-
   }
 
   update(time: number, delta: number) {
@@ -75,7 +73,7 @@ function getDebugMessage() {
   return `
     x: ${player.x}
     y: ${player.y}
-    `
+    `;
 }
 
 function eventEmitter(scene: Phaser.Scene) {
@@ -85,31 +83,32 @@ function eventEmitter(scene: Phaser.Scene) {
 
   // Loop over the active colliding pairs and count the surfaces the player is touching.
   scene.matter.world.on('collisionactive', function (event: any) {
-    var playerBody = player.body;
-    var left = player.player_data.sensors.left;
-    var right = player.player_data.sensors.right;
-    var bottom = player.player_data.sensors.bottom;
+    // const playerBody = player.body;
+    const left = player.player_data.sensors.left;
+    const right = player.player_data.sensors.right;
+    const bottom = player.player_data.sensors.bottom;
 
-    for (var i = 0; i < event.pairs.length; i++) {
-      var bodyA = event.pairs[i].bodyA;
-      var bodyB = event.pairs[i].bodyB;
+    event.pairs.forEach((pair: any) => {
+      const bodyA = pair.bodyA;
+      const bodyB = pair.bodyB;
 
-      if (bodyA === playerBody || bodyB === playerBody) {
-        continue;
-      }
-      else if (bodyA === bottom || bodyB === bottom) {
+      if (bodyA === bottom || bodyB === bottom) {
         // Standing on any surface counts (e.g. jumping off of a non-static crate).
         Global.event_bus.emit('playerSensorBottom', event);
-      }
-      else if ((bodyA === left && bodyB.isStatic) || (bodyB === left && bodyA.isStatic)) {
+      } else if (
+        (bodyA === left && bodyB.isStatic) ||
+        (bodyB === left && bodyA.isStatic)
+      ) {
         // Only static objects count since we don't want to be blocked by an object that we
         // can push around.
         Global.event_bus.emit('playerSensorLeft', event);
-      }
-      else if ((bodyA === right && bodyB.isStatic) || (bodyB === right && bodyA.isStatic)) {
+      } else if (
+        (bodyA === right && bodyB.isStatic) ||
+        (bodyB === right && bodyA.isStatic)
+      ) {
         Global.event_bus.emit('playerSensorRight', event);
       }
-    }
+    });
   });
 
   // Update over, so now we can determine if any direction is blocked
@@ -117,16 +116,19 @@ function eventEmitter(scene: Phaser.Scene) {
     Global.event_bus.emit('afterupdate', event);
   });
 
-  scene.input.on('pointerdown', function () {
-    scene.matter.world.drawDebug = !scene.matter.world.drawDebug;
-    scene.matter.world.debugGraphic.visible = scene.matter.world.drawDebug;
-  }, scene);
-
+  scene.input.on(
+    'pointerdown',
+    function () {
+      scene.matter.world.drawDebug = !scene.matter.world.drawDebug;
+      scene.matter.world.debugGraphic.visible = scene.matter.world.drawDebug;
+    },
+    scene
+  );
 }
 
 function inputEmitter(scene: Phaser.Scene, time: number, delta: number) {
-  let keyboard = scene.input.keyboard;
-  let keys: any = keyboard.addKeys('LEFT,RIGHT,UP,DOWN');
+  const keyboard = scene.input.keyboard;
+  const keys: any = keyboard.addKeys('LEFT,RIGHT,UP,DOWN');
 
   if (keyboard.checkDown(keys.LEFT)) {
     Global.event_bus.emit('keydown-LEFT', { time: time, delta: delta });
@@ -145,9 +147,14 @@ function inputEmitter(scene: Phaser.Scene, time: number, delta: number) {
   }
 }
 
-
 function smoothMoveCameraTowards(target: any, smoothFactor: any = 0) {
-  if (smoothFactor === undefined) { smoothFactor = 0; }
-  cam.scrollX = smoothFactor * cam.scrollX + (1 - smoothFactor) * (target.x - cam.width * 0.5);
-  cam.scrollY = smoothFactor * cam.scrollY + (1 - smoothFactor) * (target.y - cam.height * 0.5);
+  if (smoothFactor === undefined) {
+    smoothFactor = 0;
+  }
+  cam.scrollX =
+    smoothFactor * cam.scrollX +
+    (1 - smoothFactor) * (target.x - cam.width * 0.5);
+  cam.scrollY =
+    smoothFactor * cam.scrollY +
+    (1 - smoothFactor) * (target.y - cam.height * 0.5);
 }

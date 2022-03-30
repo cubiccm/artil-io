@@ -19,5 +19,5 @@
       "@/*": ["./*"], // @ to resolve src folder
     }  
   },
-  "include": ["./src/**/*"],
+  "include": ["src"],
 }
