@@ -59,15 +59,33 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
     });
     this.data.values.sensors.bottom = new TankSensor(
       scene.matter.bodies.rectangle(sx, h + 5, w - 150, 10, { isSensor: true }),
-      this, 'B', false);
+      this,
+      'B',
+      false
+    );
     this.data.values.sensors.left = new TankSensor(
-      scene.matter.bodies.rectangle(sx - w * 0.45, sy + 400, 5, h * 0.2, { isSensor: true }), 
-      this, 'L', true);
+      scene.matter.bodies.rectangle(sx - w * 0.45, sy + 400, 5, h * 0.2, {
+        isSensor: true
+      }),
+      this,
+      'L',
+      true
+    );
     this.data.values.sensors.right = new TankSensor(
-      scene.matter.bodies.rectangle(sx + w * 0.47, sy + 400, 5, h * 0.2, { isSensor: true }),
-      this, 'R', true);
+      scene.matter.bodies.rectangle(sx + w * 0.47, sy + 400, 5, h * 0.2, {
+        isSensor: true
+      }),
+      this,
+      'R',
+      true
+    );
 
-    this.data.values.components.cannon_end = scene.matter.bodies.circle(850, 400, 10, { isSensor: true });
+    this.data.values.components.cannon_end = scene.matter.bodies.circle(
+      850,
+      400,
+      10,
+      { isSensor: true }
+    );
 
     const compoundBody = scene.matter.body.create({
       parts: [
@@ -87,9 +105,13 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
 
     // Setup tank animations
     this.createWheelAnimations();
-    Global.event_bus.on('afterupdate', function (event: any) {
-      this.updateAnimations();
-    }, this);
+    Global.event_bus.on(
+      'afterupdate',
+      function (event: any) {
+        this.updateAnimations();
+      },
+      this
+    );
 
     this.smoothedControls = new SmoothedHorionztalControl(this, 0.0005);
   }
@@ -163,10 +185,13 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
   fire(cursor: Vector2) {
     const origin = this.data.values.components.cannon_end.position;
     const velocity = 30;
-    const vx = velocity * Math.cos(Math.atan2(cursor.y - origin.y, cursor.x - origin.x));
-    const vy = velocity * Math.sin(Math.atan2(cursor.y - origin.y, cursor.x - origin.x));
+    const vx =
+      velocity * Math.cos(Math.atan2(cursor.y - origin.y, cursor.x - origin.x));
+    const vy =
+      velocity * Math.sin(Math.atan2(cursor.y - origin.y, cursor.x - origin.x));
     this.data.values.bullets.push(
-      new Bullet(this.scene, origin.x, origin.y, vx, vy, this));
+      new Bullet(this.scene, origin.x, origin.y, vx, vy, this)
+    );
   }
 
   createWheelAnimations() {
@@ -205,25 +230,34 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
   frame_rate: integer = 0;
   updateAnimations() {
     let new_anim_state = '';
-    const max_frame_rate = 18; // Frame rate in full speed
-    const frame_rate_step = 3; // Step between different frame rate levels
-    const frame_rate_level = (this.body.velocity.x/this.data.values.speed.run) * (max_frame_rate/frame_rate_step);
-    const new_frame_rate = Math.max(
-        Math.round(frame_rate_level) * frame_rate_step
-    , max_frame_rate);
-    if (!this.data.values.sensors.bottom.blocked 
-        || (this.body.velocity.x < 0.1 && this.body.velocity.x > -0.1)) {
-      new_anim_state = "idle";
+    const max_frame_rate = 24; // Frame rate in full speed
+    const frame_rate_step = 6; // Step between different frame rate levels
+    const frame_rate_level =
+      Math.abs(this.body.velocity.x / this.data.values.speed.run) *
+      (max_frame_rate / frame_rate_step);
+    const new_frame_rate = Math.min(
+      Math.round(frame_rate_level) * frame_rate_step,
+      max_frame_rate
+    );
+    
+    if (
+      !this.data.values.sensors.bottom.blocked ||
+      (this.body.velocity.x < 0.1 && this.body.velocity.x > -0.1)
+    ) {
+      new_anim_state = 'idle';
     } else if (this.body.velocity.x > 0) {
-      new_anim_state = "moving_right";
+      new_anim_state = 'moving_right';
     } else if (this.body.velocity.x < 0) {
-      new_anim_state = "moving_left";
+      new_anim_state = 'moving_left';
     }
 
-    if (new_anim_state != "idle")
-      this.anims.anims.get(new_anim_state).frameRate = new_frame_rate;
+    if (new_anim_state != 'idle')
+      this.anims.get(new_anim_state).frameRate = new_frame_rate;
 
-    if (new_anim_state == this.anim_state && new_frame_rate == this.frame_rate) {
+    if (
+      new_anim_state == this.anim_state &&
+      new_frame_rate == this.frame_rate
+    ) {
       // No amination changes
       return false;
     }
