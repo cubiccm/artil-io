@@ -73,7 +73,6 @@ export default class Game extends Phaser.Scene {
       player.fire(new Phaser.Math.Vector2(cursor_x, cursor_y));
     });
 
-
     debugMessage = new DebugMessage(this, player, 16, 16);
 
     this.cameras.main.startFollow(player);
@@ -93,7 +92,7 @@ function eventEmitter(scene: Phaser.Scene) {
 
   // Loop over the active colliding pairs and count the surfaces the player is touching.
   scene.matter.world.on('collisionactive', function (event: any) {
-    
+    // Not used
   });
 
   // Update over, so now we can determine if any direction is blocked

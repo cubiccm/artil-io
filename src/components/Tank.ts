@@ -108,7 +108,7 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
     this.createWheelAnimations();
     Global.event_bus.on(
       'afterupdate',
-      function (event: any) {
+      () => {
         this.updateAnimations();
       },
       this
@@ -183,7 +183,7 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
     }
   }
 
-  fire(cursor: Vector2) {
+  fire(cursor: Phaser.Math.Vector2) {
     const origin = this.data.values.components.cannon_end.position;
     const velocity = 30;
     const vx =
@@ -240,7 +240,7 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
       Math.round(frame_rate_level) * frame_rate_step,
       max_frame_rate
     );
-    
+
     if (
       !this.data.values.sensors.bottom.blocked ||
       (this.body.velocity.x < 0.1 && this.body.velocity.x > -0.1)

@@ -1,3 +1,6 @@
+import Bullet from '@/components/Bullet';
+import TankSensor from '@/components/TankSensor';
+
 interface TankData {
   blocked: {
     left: boolean;

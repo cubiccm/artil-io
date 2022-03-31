@@ -22,7 +22,7 @@ export default class Bullet {
     // Draw bullet
     this.body = this.drawBody(x, y);
     this.body.setVelocity(velocity_x, velocity_y);
-    
+
     // Collision event
     this.body.setOnCollide((pair: MatterJS.ICollisionData) => {
       this.handleCollision(pair.bodyA as MatterJS.BodyType);
