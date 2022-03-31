@@ -1,3 +1,6 @@
+import Bullet from '@/components/Bullet';
+import TankSensor from '@/components/TankSensor';
+
 interface TankData {
   blocked: {
     left: boolean;
@@ -10,9 +13,9 @@ interface TankData {
     bottom: number;
   };
   sensors: {
-    bottom?: MatterJS.BodyType;
-    left?: MatterJS.BodyType;
-    right?: MatterJS.BodyType;
+    bottom?: TankSensor;
+    left?: TankSensor;
+    right?: TankSensor;
   };
   time: {
     leftDown: number;
@@ -24,6 +27,10 @@ interface TankData {
     jump: number;
   };
   HP: number;
+  bullets: Bullet[];
+  components: {
+    cannon_end: MatterJS.BodyType;
+  };
 }
 
 export default TankData;

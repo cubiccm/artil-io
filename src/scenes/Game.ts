@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import * as _ from 'lodash';
 import Tank from '@/components/Tank';
 import DebugMessage from '@/components/DebugMessage';
 import Global from '@/global';
@@ -46,10 +45,32 @@ export default class Game extends Phaser.Scene {
 
     this.matter.world.setGravity(0, 1, 0.001);
 
+    generateTerrain(this);
+
+    // Generate player
     player = new Tank(this, 300, 300);
 
-    generateTerrain(this);
+    // Player events
     eventEmitter(this);
+
+    Global.event_bus.on('keydown-LEFT', (e: any) => {
+      player.moveLeft(e.time, e.delta);
+    });
+
+    Global.event_bus.on('keydown-RIGHT', (e: any) => {
+      player.moveRight(e.time, e.delta);
+    });
+
+    Global.event_bus.on('keydown-UP', (e: any) => {
+      player.jump(e.time, e.delta);
+    });
+
+    Global.event_bus.on('mousedown-LEFT', (e: any) => {
+      const cam = this.cameras.main;
+      const cursor_x = e.x + cam.scrollX;
+      const cursor_y = e.y + cam.scrollY;
+      player.fire(new Phaser.Math.Vector2(cursor_x, cursor_y));
+    });
 
     debugMessage = new DebugMessage(this, player, 16, 16);
 
@@ -70,32 +91,7 @@ function eventEmitter(scene: Phaser.Scene) {
 
   // Loop over the active colliding pairs and count the surfaces the player is touching.
   scene.matter.world.on('collisionactive', function (event: any) {
-    // const playerBody = player.body;
-    const left = player.player_data.sensors.left;
-    const right = player.player_data.sensors.right;
-    const bottom = player.player_data.sensors.bottom;
-
-    event.pairs.forEach((pair: any) => {
-      const bodyA = pair.bodyA;
-      const bodyB = pair.bodyB;
-
-      if (bodyA === bottom || bodyB === bottom) {
-        // Standing on any surface counts (e.g. jumping off of a non-static crate).
-        Global.event_bus.emit('playerSensorBottom', event);
-      } else if (
-        (bodyA === left && bodyB.isStatic) ||
-        (bodyB === left && bodyA.isStatic)
-      ) {
-        // Only static objects count since we don't want to be blocked by an object that we
-        // can push around.
-        Global.event_bus.emit('playerSensorLeft', event);
-      } else if (
-        (bodyA === right && bodyB.isStatic) ||
-        (bodyB === right && bodyA.isStatic)
-      ) {
-        Global.event_bus.emit('playerSensorRight', event);
-      }
-    });
+    // Not used
   });
 
   // Update over, so now we can determine if any direction is blocked
@@ -105,7 +101,7 @@ function eventEmitter(scene: Phaser.Scene) {
 
   scene.input.on(
     'pointerdown',
-    function () {
+    function (event: any) {
       scene.matter.world.drawDebug = !scene.matter.world.drawDebug;
       scene.matter.world.debugGraphic.visible = scene.matter.world.drawDebug;
     },
@@ -115,22 +111,42 @@ function eventEmitter(scene: Phaser.Scene) {
 
 function inputEmitter(scene: Phaser.Scene, time: number, delta: number) {
   const keyboard = scene.input.keyboard;
-  const keys: any = keyboard.addKeys('LEFT,RIGHT,UP,DOWN');
+  const keys: any = keyboard.addKeys('LEFT,RIGHT,UP,DOWN,W,A,S,D,SPACE');
 
-  if (keyboard.checkDown(keys.LEFT)) {
+  if (keyboard.checkDown(keys.LEFT) || keyboard.checkDown(keys.A)) {
     Global.event_bus.emit('keydown-LEFT', { time: time, delta: delta });
   }
 
-  if (keyboard.checkDown(keys.RIGHT)) {
+  if (keyboard.checkDown(keys.RIGHT) || keyboard.checkDown(keys.D)) {
     Global.event_bus.emit('keydown-RIGHT', { time: time, delta: delta });
   }
 
-  if (keyboard.checkDown(keys.UP)) {
+  if (keyboard.checkDown(keys.UP) || keyboard.checkDown(keys.SPACE)) {
     Global.event_bus.emit('keydown-UP', { time: time, delta: delta });
   }
 
   if (keyboard.checkDown(keys.DOWN)) {
     Global.event_bus.emit('keydown-DOWN', { time: time, delta: delta });
+  }
+
+  const pointer = scene.input.activePointer;
+
+  if (pointer.leftButtonDown()) {
+    Global.event_bus.emit('mousedown-LEFT', {
+      time: time,
+      delta: delta,
+      x: pointer.x,
+      y: pointer.y
+    });
+  }
+
+  if (pointer.rightButtonDown()) {
+    Global.event_bus.emit('mousedown-RIGHT', {
+      time: time,
+      delta: delta,
+      x: pointer.x,
+      y: pointer.y
+    });
   }
 }
 
