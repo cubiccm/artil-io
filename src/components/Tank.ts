@@ -9,6 +9,7 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene.matter.world, x, y, 'tank_1', undefined, {
+      label: 'tank',
       shape: scene.cache.json.get('tank_shape').tank
     } as Phaser.Types.Physics.Matter.MatterBodyConfig);
     scene.add.existing(this);
