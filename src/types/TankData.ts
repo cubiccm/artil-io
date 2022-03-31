@@ -10,9 +10,9 @@ interface TankData {
     bottom: number;
   };
   sensors: {
-    bottom?: MatterJS.BodyType;
-    left?: MatterJS.BodyType;
-    right?: MatterJS.BodyType;
+    bottom?: TankSensor;
+    left?: TankSensor;
+    right?: TankSensor;
   };
   time: {
     leftDown: number;
@@ -24,6 +24,10 @@ interface TankData {
     jump: number;
   };
   HP: number;
+  bullets: Bullet[];
+  components: {
+    cannon_end: MatterJS.BodyType;
+  };
 }
 
 export default TankData;

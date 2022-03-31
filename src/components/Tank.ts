@@ -1,17 +1,17 @@
 import * as types from '@/types';
 import SmoothedHorionztalControl from '@/scripts/control';
 import Global from '@/global';
+import TankSensor from '@/components/TankSensor';
+import Bullet from '@/components/Bullet';
 
 export default class Tank extends Phaser.Physics.Matter.Sprite {
   public smoothedControls!: SmoothedHorionztalControl;
-  private prevXSpeed: number;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene.matter.world, x, y, 'tank_1', undefined, {
       shape: scene.cache.json.get('tank_shape').tank
     } as Phaser.Types.Physics.Matter.MatterBodyConfig);
     scene.add.existing(this);
-    this.prevXSpeed = 0;
     this.setData({
       blocked: {
         left: false,
@@ -37,7 +37,11 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
         run: 2,
         jump: 6
       },
-      HP: 100
+      HP: 100,
+      bullets: [],
+      components: {
+        cannon_end: null
+      }
     });
     const w = 1100;
     const h = 1100;
@@ -53,34 +57,25 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
       x: sx,
       y: sy + 0.9 * sy
     });
-    this.data.values.sensors.bottom = scene.matter.bodies.rectangle(
-      sx,
-      h + 5,
-      w - 150,
-      10,
-      { isSensor: true }
-    );
-    this.data.values.sensors.left = scene.matter.bodies.rectangle(
-      sx - w * 0.45,
-      sy + 400,
-      5,
-      h * 0.2,
-      { isSensor: true }
-    );
-    this.data.values.sensors.right = scene.matter.bodies.rectangle(
-      sx + w * 0.47,
-      sy + 400,
-      5,
-      h * 0.2,
-      { isSensor: true }
-    );
+    this.data.values.sensors.bottom = new TankSensor(
+      scene.matter.bodies.rectangle(sx, h + 5, w - 150, 10, { isSensor: true }),
+      this, 'B', false);
+    this.data.values.sensors.left = new TankSensor(
+      scene.matter.bodies.rectangle(sx - w * 0.45, sy + 400, 5, h * 0.2, { isSensor: true }), 
+      this, 'L', true);
+    this.data.values.sensors.right = new TankSensor(
+      scene.matter.bodies.rectangle(sx + w * 0.47, sy + 400, 5, h * 0.2, { isSensor: true }),
+      this, 'R', true);
+
+    this.data.values.components.cannon_end = scene.matter.bodies.circle(850, 400, 10, { isSensor: true });
 
     const compoundBody = scene.matter.body.create({
       parts: [
         this.body,
-        this.data.values.sensors.bottom,
-        this.data.values.sensors.left,
-        this.data.values.sensors.right
+        this.data.values.components.cannon_end,
+        this.data.values.sensors.bottom.body,
+        this.data.values.sensors.left.body,
+        this.data.values.sensors.right.body
       ],
       friction: 0.01,
       restitution: 0.05 // Prevent body from sticking against a wall
@@ -89,15 +84,18 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
     this.setExistingBody(compoundBody);
     this.setPosition(0, 0);
     this.setScale(0.15);
+
+    // Setup tank animations
     this.createWheelAnimations();
+    Global.event_bus.on('afterupdate', function (event: any) {
+      this.updateAnimations();
+    }, this);
 
     this.smoothedControls = new SmoothedHorionztalControl(this, 0.0005);
-
-    this.listenEvents();
   }
 
   moveLeft(time: number, delta: number) {
-    if (!this.data.values.blocked.left) {
+    if (!this.data.values.sensors.left.blocked) {
       this.smoothedControls.moveLeft(delta);
       // matterSprite.anims.play('left', true);
 
@@ -112,13 +110,15 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
       this.setVelocityX(newVelocityX);
     }
 
-    if (!this.data.values.blocked.bottom)
+    if (!this.data.values.sensors.bottom.blocked) {
       this.setAngularVelocity(-0.005); // For rotating in the air
-    else if (this.data.values.blocked.left) this.setAngularVelocity(0.01); // For climbing
+    } else if (this.data.values.sensors.left.blocked) {
+      this.setAngularVelocity(0.01); // For climbing
+    }
   }
 
   moveRight(time: number, delta: number) {
-    if (!this.data.values.blocked.right) {
+    if (!this.data.values.sensors.right.blocked) {
       this.smoothedControls.moveRight(delta);
       // matterSprite.anims.play('right', true);
 
@@ -133,22 +133,25 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
       this.setVelocityX(newVelocityX);
     }
 
-    if (!this.data.values.blocked.bottom) this.setAngularVelocity(0.005);
-    else if (this.data.values.blocked.right) this.setAngularVelocity(-0.01);
+    if (!this.data.values.sensors.bottom.blocked) {
+      this.setAngularVelocity(0.005);
+    } else if (this.data.values.sensors.right.blocked) {
+      this.setAngularVelocity(-0.01);
+    }
   }
 
   jump(time: number, delta: number) {
     const canJump = time - this.data.values.lastJumpedAt > 250;
     if (canJump) {
-      if (this.data.values.blocked.bottom) {
+      if (this.data.values.sensors.bottom.blocked) {
         this.setVelocityY(-this.data.values.speed.jump);
         this.data.values.lastJumpedAt = time;
-      } else if (this.data.values.blocked.left) {
+      } else if (this.data.values.sensors.left.blocked) {
         // Jump up and away from the wall
         this.setVelocityY(-this.data.values.speed.jump);
         this.setVelocityX(this.data.values.speed.run);
         this.data.values.lastJumpedAt = time;
-      } else if (this.data.values.blocked.right) {
+      } else if (this.data.values.sensors.right.blocked) {
         // Jump up and away from the wall
         this.setVelocityY(-this.data.values.speed.jump);
         this.setVelocityX(-this.data.values.speed.run);
@@ -157,9 +160,18 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
     }
   }
 
+  fire(cursor: Vector2) {
+    const origin = this.data.values.components.cannon_end.position;
+    const velocity = 30;
+    const vx = velocity * Math.cos(Math.atan2(cursor.y - origin.y, cursor.x - origin.x));
+    const vy = velocity * Math.sin(Math.atan2(cursor.y - origin.y, cursor.x - origin.x));
+    this.data.values.bullets.push(
+      new Bullet(this.scene, origin.x, origin.y, vx, vy, this));
+  }
+
   createWheelAnimations() {
     this.anims.create({
-      key: 'move_left',
+      key: 'moving_right',
       frames: [
         { key: 'tank_1' },
         { key: 'tank_2' },
@@ -170,7 +182,7 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
       repeat: -1
     });
     this.anims.create({
-      key: 'move_right',
+      key: 'moving_left',
       frames: [
         { key: 'tank_4' },
         { key: 'tank_3' },
@@ -188,68 +200,38 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
       repeat: 1
     });
   }
-  listenEvents() {
-    Global.event_bus.on('beforeupdate', (e: any) => {
-      this.player_data.numTouching.left = 0;
-      this.player_data.numTouching.right = 0;
-      this.player_data.numTouching.bottom = 0;
-    });
-    Global.event_bus.on('playerMovingLeft', () => {
-      console.log('left');
-      this.play('move_left');
-    });
-    Global.event_bus.on('playerMovingRight', () => {
-      console.log('right');
-      this.play('move_right');
-    });
-    Global.event_bus.on('playerIdle', () => {
-      this.play('idle');
-    });
-    Global.event_bus.on('afterupdate', (e: any) => {
-      this.player_data.blocked.right =
-        this.player_data.numTouching.right > 0 ? true : false;
-      this.player_data.blocked.left =
-        this.player_data.numTouching.left > 0 ? true : false;
-      this.player_data.blocked.bottom =
-        this.player_data.numTouching.bottom > 0 ? true : false;
 
-      if (this.prevXSpeed > 0 && this.body.velocity.x < 0) {
-        Global.event_bus.emit('playerMovingLeft', event);
-      } else if (this.prevXSpeed < 0 && this.body.velocity.x > 0) {
-        Global.event_bus.emit('playerMovingRight');
-      } else if (this.body.velocity.x < 0.01 && this.body.velocity.x > -0.01) {
-        Global.event_bus.emit('playerIdle');
-      }
-      this.prevXSpeed = this.body.velocity.x;
-    });
+  anim_state = 'idle';
+  frame_rate: integer = 0;
+  updateAnimations() {
+    let new_anim_state = '';
+    const max_frame_rate = 18; // Frame rate in full speed
+    const frame_rate_step = 3; // Step between different frame rate levels
+    const frame_rate_level = (this.body.velocity.x/this.data.values.speed.run) * (max_frame_rate/frame_rate_step);
+    const new_frame_rate = Math.max(
+        Math.round(frame_rate_level) * frame_rate_step
+    , max_frame_rate);
+    if (!this.data.values.sensors.bottom.blocked 
+        || (this.body.velocity.x < 0.1 && this.body.velocity.x > -0.1)) {
+      new_anim_state = "idle";
+    } else if (this.body.velocity.x > 0) {
+      new_anim_state = "moving_right";
+    } else if (this.body.velocity.x < 0) {
+      new_anim_state = "moving_left";
+    }
 
-    Global.event_bus.on('playerMoveLeft', this.moveLeft);
-    Global.event_bus.on('playerMoveRight', this.moveRight);
-    Global.event_bus.on('playerJump', this.jump);
+    if (new_anim_state != "idle")
+      this.anims.anims.get(new_anim_state).frameRate = new_frame_rate;
 
-    Global.event_bus.on('playerSensorBottom', () => {
-      this.player_data.numTouching.bottom += 1;
-    });
+    if (new_anim_state == this.anim_state && new_frame_rate == this.frame_rate) {
+      // No amination changes
+      return false;
+    }
 
-    Global.event_bus.on('playerSensorLeft', () => {
-      this.player_data.numTouching.left += 1;
-    });
-
-    Global.event_bus.on('playerSensorRight', () => {
-      this.player_data.numTouching.right += 1;
-    });
-
-    Global.event_bus.on('keydown-LEFT', (e: any) => {
-      this.moveLeft(e.time, e.delta);
-    });
-
-    Global.event_bus.on('keydown-RIGHT', (e: any) => {
-      this.moveRight(e.time, e.delta);
-    });
-
-    Global.event_bus.on('keydown-UP', (e: any) => {
-      this.jump(e.time, e.delta);
-    });
+    this.anim_state = new_anim_state;
+    this.frame_rate = new_frame_rate;
+    this.play(new_anim_state);
+    return true;
   }
 
   public get player_data(): types.TankData {
