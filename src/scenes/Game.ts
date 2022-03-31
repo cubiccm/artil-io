@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import * as _ from 'lodash';
 import Tank from '@/components/Tank';
 import DebugMessage from '@/components/DebugMessage';
 import Global from '@/global';
