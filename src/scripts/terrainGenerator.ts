@@ -2,8 +2,7 @@ import _ from 'lodash';
 
 import PoissonDiskSampling from 'poisson-disk-sampling';
 import { combineNoise } from '@/scripts/perlin';
-import { Random } from 'random-js';
-const random = new Random(); // uses the nativeMath engine
+import Platform from '@/components/Platform';
 
 function generateTerrain(scene: Phaser.Scene) {
   const [min_x, max_x] = [-1000, 1000];
@@ -25,7 +24,7 @@ function generateTerrain(scene: Phaser.Scene) {
   points.forEach((p) => {
     let x = p[0] * (max_x - min_x) + min_x;
     let y = p[1] * (max_y - min_y) + min_y;
-    generatePlatform(scene, x, y, w, h, s);
+    const platform = new Platform(scene, x, y, w, h, s, 0x0000ff, 0.5);
   });
 }
 
@@ -48,7 +47,7 @@ function generatePlatform(
   let min_noise_r: any = _.min(noise_r);
   let min_noise_b: any = _.min(noise_b);
   let min_noise_l: any = _.min(noise_l);
-  s;
+
   let verts_t = _.range(0, nx - 1).map((i) => ({
     x: (i * w) / nx,
     y: 0 - (noise_t[i] - min_noise_t)
@@ -77,7 +76,7 @@ function generatePlatform(
   // let min_verts_y = _.minBy(verts, 'y')!.y;
   // verts = verts.map((v) => ({ x: (v.x - min_verts_x!), y: v.y - min_verts_y! }));
 
-  var poly = scene.add.polygon(x, y, verts, 0x0000ff, 0.5); // wierd bug sometimes the shape skips some vertices?
+  let poly = scene.add.polygon(x, y, verts, 0x0000ff, 0.5); // wierd bug sometimes the shape skips some vertices?
   scene.matter.add.gameObject(poly, {
     shape: { type: 'fromVerts', verts: verts, flagInternal: false },
     isStatic: true,

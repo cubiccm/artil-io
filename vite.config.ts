@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import replace from '@rollup/plugin-replace';
-import { resolve } from 'path'
-import tsconfigPaths from 'vite-tsconfig-paths'
+import { resolve } from 'path';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   build: {
@@ -20,7 +20,7 @@ export default defineConfig({
     }
   },
   server: {
-    port: 4000,
+    port: 4000
   },
-  plugins: [tsconfigPaths()],
+  plugins: [tsconfigPaths()]
 });

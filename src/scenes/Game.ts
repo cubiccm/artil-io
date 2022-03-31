@@ -4,6 +4,7 @@ import DebugMessage from '@/components/DebugMessage';
 import Global from '@/global';
 
 import generateTerrain from '@/scripts/terrainGenerator';
+import _ from 'lodash';
 
 const _w = window.innerWidth,
   _h = window.innerHeight;
@@ -13,6 +14,7 @@ let debugMessage: Phaser.GameObjects.Text;
 let cam: Phaser.Cameras.Scene2D.Camera;
 
 export default class Game extends Phaser.Scene {
+  public static scene: Game;
   constructor() {
     super('Artilio');
   }
@@ -27,6 +29,7 @@ export default class Game extends Phaser.Scene {
   }
 
   create() {
+    Game.scene = this;
     cam = this.cameras.main;
     this.matter.world.createDebugGraphic();
 
@@ -74,8 +77,65 @@ export default class Game extends Phaser.Scene {
 
     debugMessage = new DebugMessage(this, player, 16, 16);
 
+    // draw debugs
+    this.matter.world.drawDebug = true;
+    this.matter.world.debugGraphic.visible = this.matter.world.drawDebug;
+
     this.cameras.main.startFollow(player);
     // smoothMoveCameraTowards(playerController.matterSprite);
+
+    // const create = this.matter.vector.create;
+    // const path1 = [
+    //   create(-100, -100),
+    //   create(0, -50),
+    //   create(100, -50),
+    //   create(50, 25),
+    //   create(50, 50),
+    //   create(50, 75),
+    //   create(75, 100),
+    //   create(0, 100)
+    // ];
+    // const path2 = [
+    //   create(0, 0),
+    //   create(100, 0),
+    //   create(100, 100),
+    //   create(75, 25)
+    // ];
+
+    // const x = 100,
+    //   y = 100;
+    // this.add.circle(0, 0, 4, 0xff0000); // mark 0 0 with red circle
+    // this.add.circle(x, y, 4, 0xffffff); // mark center with white circle
+
+    // const body1 = this.matter.add.fromVertices(x, y, path1, { isStatic: true });
+    // const path_min1 = this.matter.bounds.create(path1).min;
+    // const bound_min1 = body1.bounds.min;
+    // this.matter.body.setPosition(body1, {
+    //   x: x + (x - bound_min1.x) + path_min1.x,
+    //   y: y + (y - bound_min1.y) + path_min1.y
+    // });
+
+    // const poly = this.add.polygon(0, 0, path1, 0xff0000, 1);
+    // const obj = this.matter.add.gameObject(poly, body1);
+
+    // const poly2 = new Phaser.GameObjects.Polygon(
+    //   Game.scene,
+    //   x,
+    //   y,
+    //   path2,
+    //   0xff0000,
+    //   1
+    // );
+
+    // const rect = new Phaser.GameObjects.Rectangle(
+    //   Game.scene,
+    //   100,
+    //   100,
+    //   100,
+    //   100,
+    //   0xff0000,
+    //   1
+    // );
   }
 
   update(time: number, delta: number) {
@@ -98,15 +158,6 @@ function eventEmitter(scene: Phaser.Scene) {
   scene.matter.world.on('afterupdate', function (event: any) {
     Global.event_bus.emit('afterupdate', event);
   });
-
-  scene.input.on(
-    'pointerdown',
-    function (event: any) {
-      scene.matter.world.drawDebug = !scene.matter.world.drawDebug;
-      scene.matter.world.debugGraphic.visible = scene.matter.world.drawDebug;
-    },
-    scene
-  );
 }
 
 function inputEmitter(scene: Phaser.Scene, time: number, delta: number) {
