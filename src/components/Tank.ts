@@ -113,6 +113,9 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
       'afterupdate',
       () => {
         this.updateAnimations();
+        if (this.getBottomCenter().y > 1024) {
+          this.setPosition(this.x, -1024);
+        }
       },
       this
     );

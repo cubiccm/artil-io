@@ -34,7 +34,7 @@ export default class Game extends Phaser.Scene {
     this.matter.world.createDebugGraphic();
 
     cam.setBounds(-1024, -1024, 1024 * 2, 1024 * 2);
-    this.matter.world.setBounds(-1024, -1024, 1024 * 2, 1024 * 2);
+    this.matter.world.setBounds(-1024, -1024, 1024 * 2, 1024 * 3);
 
     this.cameras.main.scrollX = -_w / 2;
     this.cameras.main.scrollY = -_h / 2;
