@@ -67,7 +67,7 @@ export default class Platform {
     poly.controller = this;
     const path_min = this.scene.matter.bounds.create(this.vertices).min;
     const bound_min = body.bounds.min;
-    this.scene.add.circle(this.anchor.x, this.anchor.y, 3, 0xffffff, 0.5);
+    // this.scene.add.circle(this.anchor.x, this.anchor.y, 3, 0xffffff, 0.5);
     this.scene.matter.body.setPosition(body, {
       x: this.anchor.x + (this.anchor.x - bound_min.x) + path_min.x,
       y: this.anchor.y + (this.anchor.y - bound_min.y) + path_min.y
@@ -96,7 +96,7 @@ export default class Platform {
         [destruction_vertices]
       );
     } catch (error) {
-      this.scene.add.circle(coord.x, coord.y, 2, 0xff0000, 1);
+      // this.scene.add.circle(coord.x, coord.y, 2, 0xff0000, 1);
       // console.log(error);
       return;
     }
