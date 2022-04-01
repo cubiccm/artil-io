@@ -1,8 +1,6 @@
-import * as types from '@/types';
 import Global from '@/global';
 import Tank from '@/components/Tank';
-import { BodyFactory } from 'matter';
-import generateTerrain from '@/scripts/terrainGenerator';
+import { TerrainPolygon } from '@/types';
 
 export default class Bullet {
   body: Phaser.Physics.Matter.Sprite;
@@ -25,12 +23,14 @@ export default class Bullet {
     this.body.setVelocity(velocity_x, velocity_y);
 
     // Collision event
-    this.body.setOnCollide((pair: MatterJS.ICollisionData) => {
+    this.body.setOnCollide((pair: any) => {
       this.body.destroy();
       const targetA = pair.bodyA as MatterJS.BodyType;
       switch (targetA.label) {
         case 'terrain':
-          targetA.gameObject.controller.onCollide(pair.collision.supports[0]);
+          (targetA.gameObject as TerrainPolygon).controller.onCollide(
+            pair.collision.supports[0]
+          );
           break;
         case 'bullet':
           break;
@@ -41,7 +41,9 @@ export default class Bullet {
       const targetB = pair.bodyB as MatterJS.BodyType;
       switch (targetB.label) {
         case 'terrain':
-          targetB.gameObject.controller.onCollide(pair.collision.supports[0]);
+          (targetB.gameObject as TerrainPolygon).controller.onCollide(
+            pair.collision.supports[0]
+          );
           break;
         case 'bullet':
           break;

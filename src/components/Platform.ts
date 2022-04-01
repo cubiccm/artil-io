@@ -1,21 +1,14 @@
 import _ from 'lodash';
-import { combineNoise } from '@/scripts/perlin';
-import Game from '@/scenes/Game';
-import { Vector } from 'matter';
 import PolygonClipping from 'polygon-clipping';
-
-interface Vector2 {
-  x: number;
-  y: number;
-}
+import { Vector2, TerrainPolygon } from '@/types';
 
 export default class Platform {
-  public vertices: Vector2[];
+  public scene: Phaser.Scene;
   public anchor: Vector2;
-  public gameObject: Phaser.GameObjects.GameObject;
+  public vertices: Vector2[];
   public fillColor: number;
   public fillAlpha: number;
-  public scene: Phaser.Scene;
+  public gameObject: Phaser.GameObjects.GameObject | null;
 
   constructor(
     scene: Phaser.Scene,
@@ -34,8 +27,11 @@ export default class Platform {
     this.gameObject = this.createPlatform();
   }
 
-  createPlatform() {
+  createPlatform(): Phaser.GameObjects.GameObject | null {
     let body: MatterJS.BodyType;
+    this.vertices = [
+      ...new Set(this.vertices.map((v) => JSON.stringify(v)))
+    ].map((v) => JSON.parse(v));
     try {
       body = this.scene.matter.add.fromVertices(
         this.anchor.x,
@@ -45,13 +41,20 @@ export default class Platform {
           isStatic: true,
           label: 'terrain'
         },
-        undefined,
-        undefined,
-        1
+        true,
+        0,
+        0.1
       );
     } catch (error) {
-      console.log(error);
-      return;
+      // this.scene.add.polygon(
+      //   this.anchor.x,
+      //   this.anchor.y,
+      //   this.vertices,
+      //   0xff00ff,
+      //   1
+      // );
+      // console.log(error);
+      return null;
     }
     const poly = this.scene.add.polygon(
       this.anchor.x,
@@ -59,7 +62,7 @@ export default class Platform {
       this.vertices,
       this.fillColor,
       this.fillAlpha
-    );
+    ) as TerrainPolygon;
     this.scene.matter.add.gameObject(poly, body);
     poly.controller = this;
     const path_min = this.scene.matter.bounds.create(this.vertices).min;
@@ -72,7 +75,7 @@ export default class Platform {
     return poly;
   }
 
-  onCollide(coord) {
+  onCollide(coord: Vector2) {
     const r = 50;
     const angle_div = 30;
     const old_vertices: [number, number][] = _.map(this.vertices, (v) => [
@@ -93,11 +96,12 @@ export default class Platform {
         [destruction_vertices]
       );
     } catch (error) {
+      this.scene.add.circle(coord.x, coord.y, 2, 0xff0000, 1);
       // console.log(error);
       return;
     }
-    if (!this.gameObject.active) return;
-    this.gameObject.destroy();
+    if (!this.gameObject!.active) return;
+    this.gameObject!.destroy();
     _.map(new_vertices, (v) => {
       const vertices = v[0].map((p) => ({ x: p[0], y: p[1] }));
       new Platform(

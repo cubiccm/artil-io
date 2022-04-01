@@ -72,7 +72,7 @@ export default class Game extends Phaser.Scene {
       const cam = this.cameras.main;
       const cursor_x = e.x + cam.scrollX;
       const cursor_y = e.y + cam.scrollY;
-      player.fire(new Phaser.Math.Vector2(cursor_x, cursor_y));
+      player.fire(e.time, e.delta, new Phaser.Math.Vector2(cursor_x, cursor_y));
     });
 
     debugMessage = new DebugMessage(this, player, 16, 16);
@@ -83,62 +83,10 @@ export default class Game extends Phaser.Scene {
 
     this.cameras.main.startFollow(player);
     // smoothMoveCameraTowards(playerController.matterSprite);
-
-    // const create = this.matter.vector.create;
-    // const path1 = [
-    //   create(-100, -100),
-    //   create(0, -50),
-    //   create(100, -50),
-    //   create(50, 25),
-    //   create(50, 50),
-    //   create(50, 75),
-    //   create(75, 100),
-    //   create(0, 100)
-    // ];
-    // const path2 = [
-    //   create(0, 0),
-    //   create(100, 0),
-    //   create(100, 100),
-    //   create(75, 25)
-    // ];
-
-    // const x = 100,
-    //   y = 100;
-    // this.add.circle(0, 0, 4, 0xff0000); // mark 0 0 with red circle
-    // this.add.circle(x, y, 4, 0xffffff); // mark center with white circle
-
-    // const body1 = this.matter.add.fromVertices(x, y, path1, { isStatic: true });
-    // const path_min1 = this.matter.bounds.create(path1).min;
-    // const bound_min1 = body1.bounds.min;
-    // this.matter.body.setPosition(body1, {
-    //   x: x + (x - bound_min1.x) + path_min1.x,
-    //   y: y + (y - bound_min1.y) + path_min1.y
-    // });
-
-    // const poly = this.add.polygon(0, 0, path1, 0xff0000, 1);
-    // const obj = this.matter.add.gameObject(poly, body1);
-
-    // const poly2 = new Phaser.GameObjects.Polygon(
-    //   Game.scene,
-    //   x,
-    //   y,
-    //   path2,
-    //   0xff0000,
-    //   1
-    // );
-
-    // const rect = new Phaser.GameObjects.Rectangle(
-    //   Game.scene,
-    //   100,
-    //   100,
-    //   100,
-    //   100,
-    //   0xff0000,
-    //   1
-    // );
   }
 
   update(time: number, delta: number) {
+    debugMessage.update(time, delta);
     inputEmitter(this, time, delta);
     // smoothMoveCameraTowards(playerController.matterSprite, 0.9);
   }
