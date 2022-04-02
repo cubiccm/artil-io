@@ -29,7 +29,8 @@ export default class Bullet {
       switch (targetA.label) {
         case 'terrain':
           (targetA.gameObject as TerrainPolygon).controller.onCollide(
-            pair.collision.supports[0]
+            pair.collision.supports[0],
+            pair.bodyB.velocity
           );
           break;
         case 'bullet':
@@ -42,7 +43,8 @@ export default class Bullet {
       switch (targetB.label) {
         case 'terrain':
           (targetB.gameObject as TerrainPolygon).controller.onCollide(
-            pair.collision.supports[0]
+            pair.collision.supports[0],
+            pair.bodyA.velocity
           );
           break;
         case 'bullet':
@@ -64,7 +66,7 @@ export default class Bullet {
   drawBody(x: number, y: number): Phaser.Physics.Matter.Sprite {
     const r = 5;
     const texture = this.scene.add.circle(0, 0, r, 0xffffff);
-    const rigid = this.scene.matter.add.circle(x, y, r);
+    const rigid = this.scene.matter.add.circle(x, y, r * 2);
     rigid.label = 'bullet';
     return this.scene.matter.add.gameObject(
       texture,

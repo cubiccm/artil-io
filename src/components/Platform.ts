@@ -75,23 +75,34 @@ export default class Platform {
     return poly;
   }
 
-  onCollide(coord: Vector2) {
-    const r = 50;
-    const angle_div = 30;
+  onCollide(coord: Vector2, velocity: Vector2) {
+    const r = 80;
     const old_vertices: [number, number][] = _.map(this.vertices, (v) => [
       v.x,
       v.y
     ]);
     const destruction_vertices: [number, number][] = [];
-    _.range(0, angle_div).forEach((i) => {
-      const angle = ((Math.PI * 2) / angle_div) * i;
-      const x = coord.x - this.anchor.x + r * Math.cos(angle);
-      const y = coord.y - this.anchor.y + r * Math.sin(angle);
-      destruction_vertices.push([x, y]);
+
+    old_vertices.forEach((value) => {
+      const dist = Math.sqrt(
+        Math.pow(value[0] - coord.x + this.anchor.x, 2) +
+          Math.pow(value[1] - coord.y + this.anchor.y, 2)
+      );
+      let coeff = 0;
+      if (dist <= r) {
+        // Change coeff to adjust explosion intensity
+        coeff = Phaser.Math.Between(0.5, 0.8);
+        coeff *= 1 - dist / r;
+      }
+      destruction_vertices.push([
+        value[0] + velocity.x * coeff,
+        value[1] + velocity.y * coeff
+      ]);
     });
+
     let new_vertices;
     try {
-      new_vertices = PolygonClipping.difference(
+      new_vertices = PolygonClipping.intersection(
         [old_vertices],
         [destruction_vertices]
       );
@@ -100,18 +111,23 @@ export default class Platform {
       // console.log(error);
       return;
     }
-    if (!this.gameObject!.active) return;
-    this.gameObject!.destroy();
+    if (!this.gameObject?.active) return;
+    this.gameObject?.destroy();
+
+    const min_vertices_count = 15;
     _.map(new_vertices, (v) => {
-      const vertices = v[0].map((p) => ({ x: p[0], y: p[1] }));
-      new Platform(
-        this.scene,
-        this.anchor.x,
-        this.anchor.y,
-        vertices,
-        this.fillColor,
-        this.fillAlpha
-      );
+      v.forEach((value) => {
+        if (value.length < min_vertices_count) return;
+        const vertices = value.map((p) => ({ x: p[0], y: p[1] }));
+        new Platform(
+          this.scene,
+          this.anchor.x,
+          this.anchor.y,
+          vertices,
+          this.fillColor,
+          this.fillAlpha
+        );
+      });
     });
   }
 }
