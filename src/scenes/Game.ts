@@ -6,9 +6,6 @@ import Global from '@/global';
 import generateTerrain from '@/scripts/terrainGenerator';
 import _ from 'lodash';
 
-const _w = window.innerWidth,
-  _h = window.innerHeight;
-
 let player: Tank;
 let debugMessage: Phaser.GameObjects.Text;
 let cam: Phaser.Cameras.Scene2D.Camera;
@@ -35,12 +32,18 @@ export default class Game extends Phaser.Scene {
     cam = this.cameras.main;
     this.matter.world.createDebugGraphic();
 
-    cam.setBounds(-1024, -1024 * 2, 1024 * 2, 1024 * 4);
+    cam.setBounds(
+      -Global.WORLD_WIDTH / 2,
+      -Global.WORLD_HEIGHT,
+      Global.WORLD_WIDTH,
+      Global.WORLD_HEIGHT * 2
+    );
+
     this.matter.world.setBounds(
-      -1024,
-      -1024,
-      1024 * 2,
-      1024 * 2,
+      -Global.WORLD_WIDTH,
+      -Global.WORLD_HEIGHT,
+      Global.WORLD_WIDTH * 2,
+      Global.WORLD_HEIGHT * 2,
       undefined,
       true,
       false,
@@ -48,8 +51,8 @@ export default class Game extends Phaser.Scene {
       false
     );
 
-    this.cameras.main.scrollX = -_w / 2;
-    this.cameras.main.scrollY = -_h / 2;
+    this.cameras.main.scrollX = -Global.SCREEN_WIDTH / 2;
+    this.cameras.main.scrollY = -Global.SCREEN_HEIGHT / 2;
     this.input.on(
       'drag',
       (pointer: any, gameObject: any, dragX: any, dragY: any) => {
@@ -63,7 +66,7 @@ export default class Game extends Phaser.Scene {
     generateTerrain(this);
 
     // Generate player
-    player = new Tank(this, 300, 300);
+    player = new Tank(this, 0, 0);
 
     // Player events
     eventEmitter(this);
@@ -94,24 +97,69 @@ export default class Game extends Phaser.Scene {
     this.matter.world.debugGraphic.visible = this.matter.world.drawDebug;
     this.cameras.main.startFollow(player);
 
-    // smoothMoveCameraTowards(playerController.matterSprite);
-    wrapCamB = this.cameras.add(0, 0, _w, _h, false, 'wrapCamB');
-    wrapCamB.setBounds(-1024, -1024 * 2, 1024 * 2, 1024 * 4);
+    wrapCamB = this.cameras.add(
+      0,
+      0,
+      Global.SCREEN_WIDTH,
+      Global.SCREEN_HEIGHT,
+      false,
+      'wrapCamB'
+    );
+    wrapCamB.setBounds(
+      -Global.WORLD_WIDTH / 2,
+      -Global.WORLD_HEIGHT,
+      Global.WORLD_WIDTH,
+      Global.WORLD_HEIGHT * 2
+    );
     wrapCamB.startFollow(player, undefined, 1, 0);
-    wrapCamB.scrollY = -1024;
+    wrapCamB.scrollY = -Global.WORLD_HEIGHT / 2;
     wrapCamB.setAlpha(0.6);
 
-    wrapCamT = this.cameras.add(0, 0, _w, _h, false, 'wrapCamT');
-    wrapCamT.setBounds(-1024, -1024 * 2, 1024 * 2, 1024 * 4);
+    wrapCamT = this.cameras.add(
+      0,
+      0,
+      Global.SCREEN_WIDTH,
+      Global.SCREEN_HEIGHT,
+      false,
+      'wrapCamT'
+    );
+    wrapCamT.setBounds(
+      -Global.WORLD_WIDTH / 2,
+      -Global.WORLD_HEIGHT,
+      Global.WORLD_WIDTH,
+      Global.WORLD_HEIGHT * 2
+    );
     wrapCamT.startFollow(player, undefined, 1, 0);
-    wrapCamT.scrollY = 1024 - _h;
+    wrapCamT.scrollY = Global.WORLD_HEIGHT / 2 - Global.SCREEN_HEIGHT;
     wrapCamT.setAlpha(0.6);
 
-    // this.add.rectangle(0, -1024, 2048, 5, 0xff0000);
-    // this.add.rectangle(0, 1024, 2048, 5, 0xff0000);
+    this.add.rectangle(
+      0,
+      -Global.WORLD_HEIGHT / 2,
+      Global.WORLD_HEIGHT,
+      5,
+      0xff0000
+    );
+    this.add.rectangle(
+      0,
+      Global.WORLD_HEIGHT / 2,
+      Global.WORLD_HEIGHT,
+      5,
+      0xff0000
+    );
 
-    // this.add.rectangle(_w / 2, 0, _w, 5, 0x00ff00).setScrollFactor(0);
-    // this.add.rectangle(_w / 2, _h, _w, 5, 0x00ff00).setScrollFactor(0);
+    this.add
+      .rectangle(Global.SCREEN_WIDTH / 2, 0, Global.SCREEN_WIDTH, 5, 0x00ff00)
+      .setScrollFactor(0);
+    this.add
+      .rectangle(
+        Global.SCREEN_WIDTH / 2,
+        Global.SCREEN_HEIGHT,
+        Global.SCREEN_WIDTH,
+        5,
+        0x00ff00
+      )
+      .setScrollFactor(0);
   }
 
   update(time: number, delta: number) {
@@ -134,8 +182,18 @@ function eventEmitter(scene: Phaser.Scene) {
   // Update over, so now we can determine if any direction is blocked
   scene.matter.world.on('afterupdate', function (event: any) {
     Global.event_bus.emit('afterupdate', event);
-    wrapCamB.setViewport(0, -player.y + (1024 + _h / 2), _w, _h);
-    wrapCamT.setViewport(0, -player.y - (1024 + _h / 2), _w, _h);
+    wrapCamB.setViewport(
+      0,
+      -player.y + (Global.WORLD_HEIGHT + Global.SCREEN_HEIGHT) / 2,
+      Global.SCREEN_WIDTH,
+      Global.SCREEN_HEIGHT
+    );
+    wrapCamT.setViewport(
+      0,
+      -player.y - (Global.WORLD_HEIGHT + Global.SCREEN_HEIGHT) / 2,
+      Global.SCREEN_WIDTH,
+      Global.SCREEN_HEIGHT
+    );
   });
 }
 
@@ -178,16 +236,4 @@ function inputEmitter(scene: Phaser.Scene, time: number, delta: number) {
       y: pointer.y
     });
   }
-}
-
-function smoothMoveCameraTowards(target: any, smoothFactor: any = 0) {
-  if (smoothFactor === undefined) {
-    smoothFactor = 0;
-  }
-  cam.scrollX =
-    smoothFactor * cam.scrollX +
-    (1 - smoothFactor) * (target.x - cam.width * 0.5);
-  cam.scrollY =
-    smoothFactor * cam.scrollY +
-    (1 - smoothFactor) * (target.y - cam.height * 0.5);
 }

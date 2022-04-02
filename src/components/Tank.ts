@@ -55,8 +55,8 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
     const sy = h / 2;
 
     scene.matter.body.translate(this.body as MatterJS.BodyType, {
-      x: sx / 2 - 10,
-      y: sy - 40
+      x: sx,
+      y: sy + 300
     });
     scene.matter.body.set(this.body as MatterJS.BodyType, 'centre', {
       x: sx,
@@ -114,10 +114,10 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
       'afterupdate',
       () => {
         this.updateAnimations();
-        if (this.getCenter().y > 1024) {
-          this.setPosition(this.x, -1024);
-        } else if (this.getCenter().y < -1024) {
-          this.setPosition(this.x, 1024);
+        if (this.getCenter().y > Global.WORLD_HEIGHT / 2) {
+          this.setPosition(this.x, -Global.WORLD_HEIGHT / 2);
+        } else if (this.getCenter().y < -Global.WORLD_HEIGHT / 2) {
+          this.setPosition(this.x, Global.WORLD_HEIGHT / 2);
         }
       },
       this

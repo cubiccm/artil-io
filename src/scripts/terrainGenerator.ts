@@ -3,10 +3,11 @@ import _ from 'lodash';
 import PoissonDiskSampling from 'poisson-disk-sampling';
 import { combineNoise } from '@/scripts/perlin';
 import Platform from '@/components/Platform';
+import Global from '@/global';
 
 function generateTerrain(scene: Phaser.Scene) {
-  const [min_x, max_x] = [-1000, 1000];
-  const [min_y, max_y] = [-1000, 1000];
+  const [min_x, max_x] = [-Global.WORLD_WIDTH / 2, Global.WORLD_WIDTH / 2];
+  const [min_y, max_y] = [-Global.WORLD_HEIGHT / 2, Global.WORLD_HEIGHT / 2];
 
   const w = 750;
   const h = 200;
@@ -14,16 +15,16 @@ function generateTerrain(scene: Phaser.Scene) {
 
   const r = 1 / 3;
 
-  let p = new PoissonDiskSampling({
+  const p = new PoissonDiskSampling({
     shape: [1, 1],
     minDistance: r,
     tries: 10
   });
-  let points = p.fill();
+  const points = p.fill();
 
   points.forEach((p) => {
-    let x = p[0] * (max_x - min_x) + min_x;
-    let y = p[1] * (max_y - min_y) + min_y;
+    const x = p[0] * (max_x - min_x) + min_x;
+    const y = p[1] * (max_y - min_y) + min_y;
 
     const ny = Math.ceil(h / s);
     const nx = Math.ceil(w / s);

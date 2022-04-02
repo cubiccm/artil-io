@@ -76,6 +76,9 @@ export default class Platform {
       x: this.anchor.x + (this.anchor.x - bound_min.x) + path_min.x,
       y: this.anchor.y + (this.anchor.y - bound_min.y) + path_min.y
     });
+    if (body.area < 1000) {
+      body.gameObject.destroy();
+    }
     return poly;
   }
 
