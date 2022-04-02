@@ -1,7 +1,6 @@
-import * as types from '@/types';
 import Global from '@/global';
 import Tank from '@/components/Tank';
-import { BodyFactory } from 'matter';
+import { TerrainPolygon } from '@/types';
 
 export default class Bullet {
   body: Phaser.Physics.Matter.Sprite;
@@ -24,8 +23,34 @@ export default class Bullet {
     this.body.setVelocity(velocity_x, velocity_y);
 
     // Collision event
-    this.body.setOnCollide((pair: MatterJS.ICollisionData) => {
-      this.handleCollision(pair.bodyA as MatterJS.BodyType);
+    this.body.setOnCollide((pair: any) => {
+      this.body.destroy();
+      const targetA = pair.bodyA as MatterJS.BodyType;
+      switch (targetA.label) {
+        case 'terrain':
+          (targetA.gameObject as TerrainPolygon).controller.onCollide(
+            pair.collision.supports[0]
+          );
+          break;
+        case 'bullet':
+          break;
+        case 'tank':
+          break;
+      }
+
+      const targetB = pair.bodyB as MatterJS.BodyType;
+      switch (targetB.label) {
+        case 'terrain':
+          (targetB.gameObject as TerrainPolygon).controller.onCollide(
+            pair.collision.supports[0]
+          );
+          break;
+        case 'bullet':
+          break;
+        case 'tank':
+          break;
+      }
+
       // Remove this bullet from parent
       if (this.parent != null) {
         this.parent.data.values.bullets =
@@ -49,15 +74,5 @@ export default class Bullet {
 
   handleCollision(target: MatterJS.BodyType): void {
     // Deal damage, destroy terrain, etc.
-    this.body.destroy();
-
-    switch (target.label) {
-      case 'terrain':
-        break;
-      case 'bullet':
-        break;
-      case 'tank':
-        break;
-    }
   }
 }

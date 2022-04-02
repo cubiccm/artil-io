@@ -915,6 +915,13 @@
   dependencies:
     "moore" "~1.0.0"
 
+"polygon-clipping@^0.15.3":
+  "integrity" "sha512-ho0Xx5DLkgxRx/+n4O74XyJ67DcyN3Tu9bGYKsnTukGAW6ssnuak6Mwcyb1wHy9MZc9xsUWqIoiazkZB5weECg=="
+  "resolved" "https://registry.npmjs.org/polygon-clipping/-/polygon-clipping-0.15.3.tgz"
+  "version" "0.15.3"
+  dependencies:
+    "splaytree" "^3.1.0"
+
 "postcss@^8.4.6":
   "integrity" "sha512-lg6eITwYe9v6Hr5CncVbK70SoioNQIq81nsaG86ev5hAidQvmOeETBqs7jm43K2F5/Ley3ytDtriImV6TpNiSg=="
   "resolved" "https://registry.npmjs.org/postcss/-/postcss-8.4.12.tgz"
@@ -1049,6 +1056,11 @@
   "integrity" "sha512-9NykojV5Uih4lgo5So5dtw+f0JgJX30KCNI8gwhz2J9A15wD0Ml6tjHKwf6fTSa6fAdVBdZeNOs9eJ71qCk8vA=="
   "resolved" "https://registry.npmjs.org/sourcemap-codec/-/sourcemap-codec-1.4.8.tgz"
   "version" "1.4.8"
+
+"splaytree@^3.1.0":
+  "integrity" "sha512-9FaQ18FF0+sZc/ieEeXHt+Jw2eSpUgUtTLDYB/HXKWvhYVyOc7h1hzkn5MMO3GPib9MmXG1go8+OsBBzs/NMww=="
+  "resolved" "https://registry.npmjs.org/splaytree/-/splaytree-3.1.1.tgz"
+  "version" "3.1.1"
 
 "strip-ansi@^6.0.1":
   "integrity" "sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A=="

@@ -19,8 +19,9 @@ export default class debugMessage extends Phaser.GameObjects.Text {
 
   getDebugMessage() {
     return `
-      x: ${this.player.x}
-      y: ${this.player.y}
+      x: ${Math.round(this.player.x)}, y: ${Math.round(this.player.y)}
+      HP: ${this.player.player_data.HP}
+      XP: ${this.player.player_data.XP}
       `;
   }
 

@@ -13,7 +13,7 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
       shape: scene.cache.json.get('tank_shape').tank
     } as Phaser.Types.Physics.Matter.MatterBodyConfig);
     scene.add.existing(this);
-    this.setData({
+    const data: types.TankData = {
       blocked: {
         left: false,
         right: false,
@@ -34,16 +34,19 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
         rightDown: 0
       },
       lastJumpedAt: 0,
+      lastFiredAt: 0,
       speed: {
         run: 2,
         jump: 6
       },
       HP: 100,
+      XP: 0,
       bullets: [],
       components: {
-        cannon_end: null
+        cannon_end: undefined
       }
-    });
+    };
+    this.setData(data);
     const w = 1100;
     const h = 1100;
 
@@ -102,7 +105,7 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
 
     this.setExistingBody(compoundBody);
     this.setPosition(0, 0);
-    this.setScale(0.15);
+    this.setScale(0.1);
 
     // Setup tank animations
     this.createWheelAnimations();
@@ -110,6 +113,9 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
       'afterupdate',
       () => {
         this.updateAnimations();
+        if (this.getBottomCenter().y > 1024) {
+          this.setPosition(this.x, -1024);
+        }
       },
       this
     );
@@ -183,7 +189,9 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
     }
   }
 
-  fire(cursor: Phaser.Math.Vector2) {
+  fire(time: number, delta: number, cursor: Phaser.Math.Vector2) {
+    const canFire = time - this.data.values.lastFiredAt > 250;
+    if (!canFire) return;
     const origin = this.data.values.components.cannon_end.position;
     const velocity = 30;
     const vx =
@@ -193,6 +201,7 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
     this.data.values.bullets.push(
       new Bullet(this.scene, origin.x, origin.y, vx, vy, this)
     );
+    this.data.values.lastFiredAt = time;
   }
 
   createWheelAnimations() {
@@ -270,6 +279,6 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
   }
 
   public get player_data(): types.TankData {
-    return this.data.values as any;
+    return this.data.values as types.TankData;
   }
 }

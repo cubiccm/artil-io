@@ -4,6 +4,7 @@ import DebugMessage from '@/components/DebugMessage';
 import Global from '@/global';
 
 import generateTerrain from '@/scripts/terrainGenerator';
+import _ from 'lodash';
 
 const _w = window.innerWidth,
   _h = window.innerHeight;
@@ -13,6 +14,7 @@ let debugMessage: Phaser.GameObjects.Text;
 let cam: Phaser.Cameras.Scene2D.Camera;
 
 export default class Game extends Phaser.Scene {
+  public static scene: Game;
   constructor() {
     super('Artilio');
   }
@@ -27,11 +29,12 @@ export default class Game extends Phaser.Scene {
   }
 
   create() {
+    Game.scene = this;
     cam = this.cameras.main;
     this.matter.world.createDebugGraphic();
 
     cam.setBounds(-1024, -1024, 1024 * 2, 1024 * 2);
-    this.matter.world.setBounds(-1024, -1024, 1024 * 2, 1024 * 2);
+    this.matter.world.setBounds(-1024, -1024, 1024 * 2, 1024 * 3);
 
     this.cameras.main.scrollX = -_w / 2;
     this.cameras.main.scrollY = -_h / 2;
@@ -69,16 +72,21 @@ export default class Game extends Phaser.Scene {
       const cam = this.cameras.main;
       const cursor_x = e.x + cam.scrollX;
       const cursor_y = e.y + cam.scrollY;
-      player.fire(new Phaser.Math.Vector2(cursor_x, cursor_y));
+      player.fire(e.time, e.delta, new Phaser.Math.Vector2(cursor_x, cursor_y));
     });
 
     debugMessage = new DebugMessage(this, player, 16, 16);
+
+    // draw debugs
+    this.matter.world.drawDebug = true;
+    this.matter.world.debugGraphic.visible = this.matter.world.drawDebug;
 
     this.cameras.main.startFollow(player);
     // smoothMoveCameraTowards(playerController.matterSprite);
   }
 
   update(time: number, delta: number) {
+    debugMessage.update(time, delta);
     inputEmitter(this, time, delta);
     // smoothMoveCameraTowards(playerController.matterSprite, 0.9);
   }
@@ -98,15 +106,6 @@ function eventEmitter(scene: Phaser.Scene) {
   scene.matter.world.on('afterupdate', function (event: any) {
     Global.event_bus.emit('afterupdate', event);
   });
-
-  scene.input.on(
-    'pointerdown',
-    function (event: any) {
-      scene.matter.world.drawDebug = !scene.matter.world.drawDebug;
-      scene.matter.world.debugGraphic.visible = scene.matter.world.drawDebug;
-    },
-    scene
-  );
 }
 
 function inputEmitter(scene: Phaser.Scene, time: number, delta: number) {

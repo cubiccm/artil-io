@@ -22,14 +22,16 @@ interface TankData {
     rightDown: number;
   };
   lastJumpedAt: number;
+  lastFiredAt: number;
   speed: {
     run: number;
     jump: number;
   };
   HP: number;
+  XP: number;
   bullets: Bullet[];
   components: {
-    cannon_end: MatterJS.BodyType;
+    cannon_end?: MatterJS.BodyType;
   };
 }
 
