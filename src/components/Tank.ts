@@ -6,6 +6,7 @@ import Bullet from '@/components/Bullet';
 
 export default class Tank extends Phaser.Physics.Matter.Sprite {
   public smoothedControls!: SmoothedHorionztalControl;
+  declare body: MatterJS.BodyType;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene.matter.world, x, y, 'tank_1', undefined, {
@@ -113,8 +114,10 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
       'afterupdate',
       () => {
         this.updateAnimations();
-        if (this.getBottomCenter().y > 1024) {
+        if (this.getCenter().y > 1024) {
           this.setPosition(this.x, -1024);
+        } else if (this.getCenter().y < -1024) {
+          this.setPosition(this.x, 1024);
         }
       },
       this

@@ -21,12 +21,26 @@ export default class TankSensor {
     this.part = part;
     this.ignore_movable_object = ignore_movable_object;
     body.onCollideCallback = (pair: MatterJS.ICollisionData) => {
-      if (ignore_movable_object && !pair.bodyA.isStatic) return;
+      if (
+        ignore_movable_object &&
+        !(
+          (pair.bodyA as MatterJS.BodyType).isStatic ||
+          (pair.bodyB as MatterJS.BodyType).isStatic
+        )
+      )
+        return;
       this.touch_count += 1;
       this.blocked = true;
     };
     body.onCollideEndCallback = (pair: MatterJS.ICollisionData) => {
-      if (ignore_movable_object && !pair.bodyA.isStatic) return;
+      if (
+        ignore_movable_object &&
+        !(
+          (pair.bodyA as MatterJS.BodyType).isStatic ||
+          (pair.bodyB as MatterJS.BodyType).isStatic
+        )
+      )
+        return;
       this.touch_count -= 1;
       this.blocked = this.touch_count > 0;
     };

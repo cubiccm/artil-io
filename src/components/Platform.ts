@@ -29,6 +29,10 @@ export default class Platform {
 
   createPlatform(): Phaser.GameObjects.GameObject | null {
     let body: MatterJS.BodyType;
+    this.vertices = this.vertices.map((v) => ({
+      x: Math.round(v.x * 100) / 100,
+      y: Math.round(v.y * 100) / 100
+    }));
     this.vertices = [
       ...new Set(this.vertices.map((v) => JSON.stringify(v)))
     ].map((v) => JSON.parse(v));

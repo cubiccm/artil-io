@@ -12,6 +12,8 @@ const _w = window.innerWidth,
 let player: Tank;
 let debugMessage: Phaser.GameObjects.Text;
 let cam: Phaser.Cameras.Scene2D.Camera;
+let wrapCamB: Phaser.Cameras.Scene2D.Camera;
+let wrapCamT: Phaser.Cameras.Scene2D.Camera;
 
 export default class Game extends Phaser.Scene {
   public static scene: Game;
@@ -33,8 +35,18 @@ export default class Game extends Phaser.Scene {
     cam = this.cameras.main;
     this.matter.world.createDebugGraphic();
 
-    cam.setBounds(-1024, -1024, 1024 * 2, 1024 * 2);
-    this.matter.world.setBounds(-1024, -1024, 1024 * 2, 1024 * 3);
+    cam.setBounds(-1024, -1024 * 2, 1024 * 2, 1024 * 4);
+    this.matter.world.setBounds(
+      -1024,
+      -1024,
+      1024 * 2,
+      1024 * 2,
+      undefined,
+      true,
+      false,
+      false,
+      false
+    );
 
     this.cameras.main.scrollX = -_w / 2;
     this.cameras.main.scrollY = -_h / 2;
@@ -80,9 +92,26 @@ export default class Game extends Phaser.Scene {
     // draw debugs
     this.matter.world.drawDebug = true;
     this.matter.world.debugGraphic.visible = this.matter.world.drawDebug;
-
     this.cameras.main.startFollow(player);
+
     // smoothMoveCameraTowards(playerController.matterSprite);
+    wrapCamB = this.cameras.add(0, 0, _w, _h, false, 'wrapCamB');
+    wrapCamB.setBounds(-1024, -1024 * 2, 1024 * 2, 1024 * 4);
+    wrapCamB.startFollow(player, undefined, 1, 0);
+    wrapCamB.scrollY = -1024;
+    wrapCamB.setAlpha(0.6);
+
+    wrapCamT = this.cameras.add(0, 0, _w, _h, false, 'wrapCamT');
+    wrapCamT.setBounds(-1024, -1024 * 2, 1024 * 2, 1024 * 4);
+    wrapCamT.startFollow(player, undefined, 1, 0);
+    wrapCamT.scrollY = 1024 - _h;
+    wrapCamT.setAlpha(0.6);
+
+    // this.add.rectangle(0, -1024, 2048, 5, 0xff0000);
+    // this.add.rectangle(0, 1024, 2048, 5, 0xff0000);
+
+    // this.add.rectangle(_w / 2, 0, _w, 5, 0x00ff00).setScrollFactor(0);
+    // this.add.rectangle(_w / 2, _h, _w, 5, 0x00ff00).setScrollFactor(0);
   }
 
   update(time: number, delta: number) {
@@ -105,6 +134,8 @@ function eventEmitter(scene: Phaser.Scene) {
   // Update over, so now we can determine if any direction is blocked
   scene.matter.world.on('afterupdate', function (event: any) {
     Global.event_bus.emit('afterupdate', event);
+    wrapCamB.setViewport(0, -player.y + (1024 + _h / 2), _w, _h);
+    wrapCamT.setViewport(0, -player.y - (1024 + _h / 2), _w, _h);
   });
 }
 
