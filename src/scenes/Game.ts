@@ -14,6 +14,8 @@ let wrapCamT: Phaser.Cameras.Scene2D.Camera;
 
 export default class Game extends Phaser.Scene {
   public static scene: Game;
+  public static player: Tank;
+
   constructor() {
     super('Artilio');
   }
@@ -67,6 +69,7 @@ export default class Game extends Phaser.Scene {
 
     // Generate player
     player = new Tank(this, 0, 0);
+    Game.player = player;
 
     // Player events
     eventEmitter(this);
@@ -136,30 +139,30 @@ export default class Game extends Phaser.Scene {
     this.add.rectangle(
       0,
       -Global.WORLD_HEIGHT / 2,
-      Global.WORLD_HEIGHT,
+      Global.WORLD_WIDTH,
       5,
       0xff0000
     );
     this.add.rectangle(
       0,
       Global.WORLD_HEIGHT / 2,
-      Global.WORLD_HEIGHT,
+      Global.WORLD_WIDTH,
       5,
       0xff0000
     );
 
-    this.add
-      .rectangle(Global.SCREEN_WIDTH / 2, 0, Global.SCREEN_WIDTH, 5, 0x00ff00)
-      .setScrollFactor(0);
-    this.add
-      .rectangle(
-        Global.SCREEN_WIDTH / 2,
-        Global.SCREEN_HEIGHT,
-        Global.SCREEN_WIDTH,
-        5,
-        0x00ff00
-      )
-      .setScrollFactor(0);
+    // this.add
+    //   .rectangle(Global.SCREEN_WIDTH / 2, 0, Global.SCREEN_WIDTH, 5, 0x00ff00)
+    //   .setScrollFactor(0);
+    // this.add
+    //   .rectangle(
+    //     Global.SCREEN_WIDTH / 2,
+    //     Global.SCREEN_HEIGHT,
+    //     Global.SCREEN_WIDTH,
+    //     5,
+    //     0x00ff00
+    //   )
+    //   .setScrollFactor(0);
   }
 
   update(time: number, delta: number) {

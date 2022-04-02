@@ -4,27 +4,31 @@ import PoissonDiskSampling from 'poisson-disk-sampling';
 import { combineNoise } from '@/scripts/perlin';
 import Platform from '@/components/Platform';
 import Global from '@/global';
+import Game from '@/scenes/Game';
 
 function generateTerrain(scene: Phaser.Scene) {
   const [min_x, max_x] = [-Global.WORLD_WIDTH / 2, Global.WORLD_WIDTH / 2];
   const [min_y, max_y] = [-Global.WORLD_HEIGHT / 2, Global.WORLD_HEIGHT / 2];
 
-  const w = 750;
+  const w = 1200;
   const h = 200;
-  const s = 25;
+  const s = 50;
 
-  const r = 1 / 3;
+  const eta = h / w;
+  const r = Math.min(w, h);
 
   const p = new PoissonDiskSampling({
-    shape: [1, 1],
-    minDistance: r,
-    tries: 10
+    shape: [eta * Global.WORLD_WIDTH, Global.WORLD_HEIGHT],
+    minDistance: 1.75 * r,
+    tries: 100
   });
   const points = p.fill();
 
+  // Game.scene.cameras.main.setZoom(0.05);
   points.forEach((p) => {
-    const x = p[0] * (max_x - min_x) + min_x;
-    const y = p[1] * (max_y - min_y) + min_y;
+    const x = p[0] / eta - Global.WORLD_WIDTH / 2;
+    const y = p[1] - Global.WORLD_HEIGHT / 2;
+    // Game.scene.add.rectangle(x, y, w, h, 0xffffff);
 
     const ny = Math.ceil(h / s);
     const nx = Math.ceil(w / s);

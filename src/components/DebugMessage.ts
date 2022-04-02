@@ -1,3 +1,5 @@
+import Game from '@/scenes/Game';
+import { index } from '..';
 import Tank from './Tank';
 
 export default class debugMessage extends Phaser.GameObjects.Text {
@@ -25,7 +27,7 @@ export default class debugMessage extends Phaser.GameObjects.Text {
       L: ${this.player.data.values.sensors.left.blocked} R: ${
       this.player.data.values.sensors.right.blocked
     } B: ${this.player.data.values.sensors.bottom.blocked}
-
+      FPS: ${index.loop.actualFps}
       `;
   }
 

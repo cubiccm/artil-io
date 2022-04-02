@@ -7,8 +7,8 @@ export default class Global {
   public static readonly CATEGORY_POINT = Math.pow(2, 4);
   public static readonly CATEGORY_POWERUP = Math.pow(2, 5);
 
-  public static readonly WORLD_WIDTH = 2048;
-  public static readonly WORLD_HEIGHT = 2048;
+  public static readonly WORLD_WIDTH = 2048 * 4;
+  public static readonly WORLD_HEIGHT = 2048 * 2;
 
   public static SCREEN_WIDTH = window.innerWidth;
   public static SCREEN_HEIGHT = window.innerHeight;

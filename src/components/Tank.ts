@@ -107,6 +107,7 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
     this.setExistingBody(compoundBody);
     this.setPosition(0, 0);
     this.setScale(0.1);
+    // this.setIgnoreGravity(true);
 
     // Setup tank animations
     this.createWheelAnimations();
