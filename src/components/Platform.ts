@@ -76,29 +76,52 @@ export default class Platform {
   }
 
   onCollide(coord: Vector2, velocity: Vector2) {
-    const r = 80;
+    const r = 70;
     const old_vertices: [number, number][] = _.map(this.vertices, (v) => [
       v.x,
       v.y
     ]);
     const destruction_vertices: [number, number][] = [];
 
+    // Random explosion intensity, can be adjusted based on bullet damage
+    const explosion_intensity = Phaser.Math.Between(0.6, 1);
     old_vertices.forEach((value) => {
       const dist = Math.sqrt(
         Math.pow(value[0] - coord.x + this.anchor.x, 2) +
           Math.pow(value[1] - coord.y + this.anchor.y, 2)
       );
-      let coeff = 0;
+      let coeff;
       if (dist <= r) {
-        // Change coeff to adjust explosion intensity
-        coeff = Phaser.Math.Between(0.5, 0.8);
-        coeff *= 1 - dist / r;
+        coeff = explosion_intensity * (1 - Math.pow(dist / r, 4));
+      } else {
+        coeff = 0;
       }
       destruction_vertices.push([
         value[0] + velocity.x * coeff,
         value[1] + velocity.y * coeff
       ]);
     });
+
+    // Reduce sawtooth
+    const reduce_sawtooth_strength = 0.33;
+    const _n = destruction_vertices.length;
+    for (let i = 0; i < _n; i++) {
+      if (
+        old_vertices[i][0] == destruction_vertices[i][0] &&
+        old_vertices[i][1] == destruction_vertices[i][1]
+      )
+        continue;
+      destruction_vertices[i][0] =
+        (destruction_vertices[(i + _n - 1) % _n][0] +
+          destruction_vertices[(i + 1) % _n][0] +
+          (1 / reduce_sawtooth_strength) * destruction_vertices[i][0]) /
+        (2 + 1 / reduce_sawtooth_strength);
+      destruction_vertices[i][1] =
+        (destruction_vertices[(i + _n - 1) % _n][1] +
+          destruction_vertices[(i + 1) % _n][1] +
+          (1 / reduce_sawtooth_strength) * destruction_vertices[i][1]) /
+        (2 + 1 / reduce_sawtooth_strength);
+    }
 
     let new_vertices;
     try {

@@ -86,7 +86,7 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
 
     this.data.values.components.cannon_end = scene.matter.bodies.circle(
       850,
-      400,
+      250,
       10,
       { isSensor: true }
     );
