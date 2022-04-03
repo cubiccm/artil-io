@@ -8,13 +8,14 @@ import _ from 'lodash';
 
 let player: Tank;
 let debugMessage: Phaser.GameObjects.Text;
-let cam: Phaser.Cameras.Scene2D.Camera;
 let wrapCamB: Phaser.Cameras.Scene2D.Camera;
 let wrapCamT: Phaser.Cameras.Scene2D.Camera;
 
 export default class Game extends Phaser.Scene {
   public static scene: Game;
   public static player: Tank;
+  public static keyboard: Phaser.Input.Keyboard.KeyboardPlugin;
+  public static keys: any;
 
   constructor() {
     super('Artilio');
@@ -31,15 +32,14 @@ export default class Game extends Phaser.Scene {
 
   create() {
     Game.scene = this;
-    cam = this.cameras.main;
-    this.matter.world.createDebugGraphic();
+    Game.keys = this.input.keyboard.addKeys('LEFT,RIGHT,UP,DOWN,W,A,S,D,SPACE');
 
-    cam.setBounds(
-      -Global.WORLD_WIDTH / 2,
-      -Global.WORLD_HEIGHT,
-      Global.WORLD_WIDTH,
-      Global.WORLD_HEIGHT * 2
-    );
+    // cam.setBounds(
+    //   -Global.WORLD_WIDTH / 2,
+    //   -Global.WORLD_HEIGHT,
+    //   Global.WORLD_WIDTH,
+    //   Global.WORLD_HEIGHT * 2
+    // );
 
     this.matter.world.setBounds(
       -Global.WORLD_WIDTH,
@@ -70,121 +70,65 @@ export default class Game extends Phaser.Scene {
     // Generate player
     player = new Tank(this, 0, 0);
     Game.player = player;
-
-    // Player events
-    eventEmitter(this);
-
-    Global.event_bus.on('keydown-LEFT', (e: any) => {
-      player.moveLeft(e.time, e.delta);
-    });
-
-    Global.event_bus.on('keydown-RIGHT', (e: any) => {
-      player.moveRight(e.time, e.delta);
-    });
-
-    Global.event_bus.on('keydown-UP', (e: any) => {
-      player.jump(e.time, e.delta);
-    });
-
-    Global.event_bus.on('mousedown-LEFT', (e: any) => {
-      const cam = this.cameras.main;
-      const cursor_x = e.x + cam.scrollX;
-      const cursor_y = e.y + cam.scrollY;
-      player.fire(e.time, e.delta, new Phaser.Math.Vector2(cursor_x, cursor_y));
-    });
+    // player.setIgnoreGravity(true);
 
     debugMessage = new DebugMessage(this, player, 16, 16);
 
     // draw debugs
+    this.matter.world.createDebugGraphic();
     this.matter.world.drawDebug = true;
     this.matter.world.debugGraphic.visible = this.matter.world.drawDebug;
     this.cameras.main.startFollow(player);
 
-    wrapCamB = this.cameras.add(
-      0,
-      0,
-      Global.SCREEN_WIDTH,
-      Global.SCREEN_HEIGHT,
-      false,
-      'wrapCamB'
-    );
-    wrapCamB.setBounds(
-      -Global.WORLD_WIDTH / 2,
-      -Global.WORLD_HEIGHT,
-      Global.WORLD_WIDTH,
-      Global.WORLD_HEIGHT * 2
-    );
-    wrapCamB.startFollow(player, undefined, 1, 0);
-    wrapCamB.scrollY = -Global.WORLD_HEIGHT / 2;
-    wrapCamB.setAlpha(0.6);
-
-    wrapCamT = this.cameras.add(
-      0,
-      0,
-      Global.SCREEN_WIDTH,
-      Global.SCREEN_HEIGHT,
-      false,
-      'wrapCamT'
-    );
-    wrapCamT.setBounds(
-      -Global.WORLD_WIDTH / 2,
-      -Global.WORLD_HEIGHT,
-      Global.WORLD_WIDTH,
-      Global.WORLD_HEIGHT * 2
-    );
-    wrapCamT.startFollow(player, undefined, 1, 0);
-    wrapCamT.scrollY = Global.WORLD_HEIGHT / 2 - Global.SCREEN_HEIGHT;
-    wrapCamT.setAlpha(0.6);
-
-    this.add.rectangle(
-      0,
-      -Global.WORLD_HEIGHT / 2,
-      Global.WORLD_WIDTH,
-      5,
-      0xff0000
-    );
-    this.add.rectangle(
-      0,
-      Global.WORLD_HEIGHT / 2,
-      Global.WORLD_WIDTH,
-      5,
-      0xff0000
-    );
-
-    // this.add
-    //   .rectangle(Global.SCREEN_WIDTH / 2, 0, Global.SCREEN_WIDTH, 5, 0x00ff00)
-    //   .setScrollFactor(0);
-    // this.add
-    //   .rectangle(
-    //     Global.SCREEN_WIDTH / 2,
-    //     Global.SCREEN_HEIGHT,
-    //     Global.SCREEN_WIDTH,
-    //     5,
-    //     0x00ff00
-    //   )
-    //   .setScrollFactor(0);
+    addWrapCamera();
+    addWorldBorder();
   }
 
   update(time: number, delta: number) {
-    debugMessage.update(time, delta);
-    inputEmitter(this, time, delta);
-    // smoothMoveCameraTowards(playerController.matterSprite, 0.9);
+    // not used, listen to the Game.scene.events.on(Phaser.Scenes.Events.UPDATE, callback) directly
   }
 }
 
-function eventEmitter(scene: Phaser.Scene) {
-  scene.matter.world.on('beforeupdate', function (event: any) {
-    Global.event_bus.emit('beforeupdate', event);
-  });
+function addWrapCamera() {
+  // Wrap camera causes significant FPS drop, currently disabled
+  return;
+  wrapCamB = Game.scene.cameras.add(
+    0,
+    0,
+    Global.SCREEN_WIDTH,
+    Global.SCREEN_HEIGHT,
+    false,
+    'wrapCamB'
+  );
+  wrapCamB.setBounds(
+    -Global.WORLD_WIDTH / 2,
+    -Global.WORLD_HEIGHT,
+    Global.WORLD_WIDTH,
+    Global.WORLD_HEIGHT * 2
+  );
+  wrapCamB.startFollow(player, undefined, 1, 0);
+  wrapCamB.scrollY = -Global.WORLD_HEIGHT / 2;
+  wrapCamB.setAlpha(0.6);
 
-  // Loop over the active colliding pairs and count the surfaces the player is touching.
-  scene.matter.world.on('collisionactive', function (event: any) {
-    // Not used
-  });
+  wrapCamT = Game.scene.cameras.add(
+    0,
+    0,
+    Global.SCREEN_WIDTH,
+    Global.SCREEN_HEIGHT,
+    false,
+    'wrapCamT'
+  );
+  wrapCamT.setBounds(
+    -Global.WORLD_WIDTH / 2,
+    -Global.WORLD_HEIGHT,
+    Global.WORLD_WIDTH,
+    Global.WORLD_HEIGHT * 2
+  );
+  wrapCamT.startFollow(player, undefined, 1, 0);
+  wrapCamT.scrollY = Global.WORLD_HEIGHT / 2 - Global.SCREEN_HEIGHT;
+  wrapCamT.setAlpha(0.6);
 
-  // Update over, so now we can determine if any direction is blocked
-  scene.matter.world.on('afterupdate', function (event: any) {
-    Global.event_bus.emit('afterupdate', event);
+  Game.scene.events.on(Phaser.Scenes.Events.POST_UPDATE, function (event: any) {
     wrapCamB.setViewport(
       0,
       -player.y + (Global.WORLD_HEIGHT + Global.SCREEN_HEIGHT) / 2,
@@ -200,43 +144,48 @@ function eventEmitter(scene: Phaser.Scene) {
   });
 }
 
-function inputEmitter(scene: Phaser.Scene, time: number, delta: number) {
-  const keyboard = scene.input.keyboard;
-  const keys: any = keyboard.addKeys('LEFT,RIGHT,UP,DOWN,W,A,S,D,SPACE');
+function addWorldBorder() {
+  // return;
+  Game.scene.add.rectangle(
+    0,
+    -Global.WORLD_HEIGHT / 2,
+    Global.WORLD_WIDTH,
+    20,
+    0xff0000
+  );
+  Game.scene.add.rectangle(
+    0,
+    Global.WORLD_HEIGHT / 2,
+    Global.WORLD_WIDTH,
+    20,
+    0xff0000
+  );
+  Game.scene.add.rectangle(
+    -Global.WORLD_WIDTH / 2,
+    0,
+    20,
+    Global.WORLD_HEIGHT,
+    0xff0000
+  );
+  Game.scene.add.rectangle(
+    Global.WORLD_WIDTH / 2,
+    0,
+    20,
+    Global.WORLD_HEIGHT,
+    0xff0000
+  );
+  return;
 
-  if (keyboard.checkDown(keys.LEFT) || keyboard.checkDown(keys.A)) {
-    Global.event_bus.emit('keydown-LEFT', { time: time, delta: delta });
-  }
-
-  if (keyboard.checkDown(keys.RIGHT) || keyboard.checkDown(keys.D)) {
-    Global.event_bus.emit('keydown-RIGHT', { time: time, delta: delta });
-  }
-
-  if (keyboard.checkDown(keys.UP) || keyboard.checkDown(keys.SPACE)) {
-    Global.event_bus.emit('keydown-UP', { time: time, delta: delta });
-  }
-
-  if (keyboard.checkDown(keys.DOWN)) {
-    Global.event_bus.emit('keydown-DOWN', { time: time, delta: delta });
-  }
-
-  const pointer = scene.input.activePointer;
-
-  if (pointer.leftButtonDown()) {
-    Global.event_bus.emit('mousedown-LEFT', {
-      time: time,
-      delta: delta,
-      x: pointer.x,
-      y: pointer.y
-    });
-  }
-
-  if (pointer.rightButtonDown()) {
-    Global.event_bus.emit('mousedown-RIGHT', {
-      time: time,
-      delta: delta,
-      x: pointer.x,
-      y: pointer.y
-    });
-  }
+  Game.scene.add
+    .rectangle(Global.SCREEN_WIDTH / 2, 0, Global.SCREEN_WIDTH, 5, 0x00ff00)
+    .setScrollFactor(0);
+  Game.scene.add
+    .rectangle(
+      Global.SCREEN_WIDTH / 2,
+      Global.SCREEN_HEIGHT,
+      Global.SCREEN_WIDTH,
+      5,
+      0x00ff00
+    )
+    .setScrollFactor(0);
 }

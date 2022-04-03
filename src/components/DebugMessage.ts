@@ -19,7 +19,10 @@ export default class debugMessage extends Phaser.GameObjects.Text {
     this.setScrollFactor(0);
     this.setText(this.getDebugMessage());
 
-    Global.event_bus.on('update', this.update);
+    Game.scene.events.on(
+      Phaser.Scenes.Events.UPDATE,
+      (time: number, delta: number) => this.update(time, delta)
+    );
   }
 
   getDebugMessage() {

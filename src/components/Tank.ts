@@ -3,6 +3,7 @@ import SmoothedHorionztalControl from '@/scripts/control';
 import Global from '@/global';
 import TankSensor from '@/components/TankSensor';
 import Bullet from '@/components/Bullet';
+import Game from '@/scenes/Game';
 
 export default class Tank extends Phaser.Physics.Matter.Sprite {
   public smoothedControls!: SmoothedHorionztalControl;
@@ -56,7 +57,7 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
 
     scene.matter.body.translate(this.body as MatterJS.BodyType, {
       x: sx,
-      y: sy + 300
+      y: sy + 270
     });
     scene.matter.body.set(this.body as MatterJS.BodyType, 'centre', {
       x: sx,
@@ -111,8 +112,8 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
 
     // Setup tank animations
     this.createWheelAnimations();
-    Global.event_bus.on(
-      'afterupdate',
+    Game.scene.events.on(
+      Phaser.Scenes.Events.POST_UPDATE,
       () => {
         this.updateAnimations();
         if (this.getCenter().y > Global.WORLD_HEIGHT / 2) {
@@ -123,8 +124,43 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
       },
       this
     );
+    Game.scene.events.on(
+      Phaser.Scenes.Events.UPDATE,
+      (time: number, delta: number) => {
+        this.update(time, delta);
+      }
+    );
 
     this.smoothedControls = new SmoothedHorionztalControl(this, 0.0005);
+  }
+
+  update(time: number, delta: number) {
+    const keyboard = Game.scene.input.keyboard;
+    const pointer = Game.scene.input.activePointer;
+    const keys: any = Game.keys;
+
+    if (keyboard.checkDown(keys.LEFT) || keyboard.checkDown(keys.A)) {
+      this.moveLeft(time, delta);
+    }
+
+    if (keyboard.checkDown(keys.RIGHT) || keyboard.checkDown(keys.D)) {
+      this.moveRight(time, delta);
+    }
+
+    if (keyboard.checkDown(keys.UP) || keyboard.checkDown(keys.SPACE)) {
+      this.jump(time, delta);
+    }
+
+    if (keyboard.checkDown(keys.DOWN) || keyboard.checkDown(keys.S)) {
+      // not implemented
+    }
+
+    if (pointer.leftButtonDown()) {
+      const cam = Game.scene.cameras.main;
+      const cursor_x = pointer.x + cam.scrollX;
+      const cursor_y = pointer.y + cam.scrollY;
+      this.fire(time, delta, new Phaser.Math.Vector2(cursor_x, cursor_y));
+    }
   }
 
   moveLeft(time: number, delta: number) {
