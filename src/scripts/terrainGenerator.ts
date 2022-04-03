@@ -24,11 +24,12 @@ function generateTerrain(scene: Phaser.Scene) {
   });
   const points = p.fill();
 
-  // Game.scene.cameras.main.setZoom(0.05);
+  // Game.scene.cameras.main.setZoom(0.12);
   points.forEach((p) => {
     const x = p[0] / eta - Global.WORLD_WIDTH / 2;
     const y = p[1] - Global.WORLD_HEIGHT / 2;
     // Game.scene.add.rectangle(x, y, w, h, 0xffffff);
+    // Game.scene.add.circle(x, y, 100, 0xffffff);
 
     const ny = Math.ceil(h / s);
     const nx = Math.ceil(w / s);
@@ -51,20 +52,20 @@ function generateTerrain(scene: Phaser.Scene) {
     const min_noise_l: any = _.min(noise_l);
 
     const vertices_t = _.range(0, nx - 1).map((i) => ({
-      x: (i * w) / nx,
-      y: 0 - (noise_t[i] - min_noise_t)
+      x: (i * w) / nx - w / 2,
+      y: 0 - (noise_t[i] - min_noise_t) - h / 2
     }));
     const vertices_r = _.range(0, ny - 1).map((i) => ({
-      x: w + (noise_r[i] - min_noise_r),
-      y: (i * h) / ny
+      x: w + (noise_r[i] - min_noise_r) - w / 2,
+      y: (i * h) / ny - h / 2
     }));
     const vertices_b = _.range(nx - 1, 0).map((i) => ({
-      x: (i * w) / nx,
-      y: h + (noise_b[i] - min_noise_b)
+      x: (i * w) / nx - w / 2,
+      y: h + (noise_b[i] - min_noise_b) - h / 2
     }));
     const vertices_l = _.range(ny - 1, 0).map((i) => ({
-      x: 0 - (noise_l[i] - min_noise_l),
-      y: (i * h) / ny
+      x: 0 - (noise_l[i] - min_noise_l) - w / 2,
+      y: (i * h) / ny - h / 2
     }));
 
     const vertices: { x: number; y: number }[] = _.flatten([
@@ -75,6 +76,7 @@ function generateTerrain(scene: Phaser.Scene) {
     ]);
 
     const platform = new Platform(scene, x, y, vertices, 0x0000ff, 0.5);
+    // const platform = new Platform(scene, x, y, vertices, 0xffffff, 1);
   });
 }
 
