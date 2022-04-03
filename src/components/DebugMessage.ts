@@ -1,3 +1,4 @@
+import Global from '@/global';
 import Game from '@/scenes/Game';
 import { index } from '..';
 import Tank from './Tank';
@@ -17,6 +18,8 @@ export default class debugMessage extends Phaser.GameObjects.Text {
     this.player = player;
     this.setScrollFactor(0);
     this.setText(this.getDebugMessage());
+
+    Global.event_bus.on('update', this.update);
   }
 
   getDebugMessage() {
