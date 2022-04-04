@@ -5,6 +5,9 @@ export default {
   type: Phaser.AUTO,
   width: Global.SCREEN_WIDTH,
   height: Global.SCREEN_HEIGHT,
+  fps: {
+    target: 60
+  },
   physics: {
     default: 'matter',
     matter: {

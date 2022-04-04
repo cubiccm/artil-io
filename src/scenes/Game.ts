@@ -82,6 +82,9 @@ export default class Game extends Phaser.Scene {
 
     addWrapCamera();
     addWorldBorder();
+
+    // this.matter.set60Hz();
+    this.matter.set30Hz();
   }
 
   update(time: number, delta: number) {
@@ -91,7 +94,7 @@ export default class Game extends Phaser.Scene {
 
 function addWrapCamera() {
   // Wrap camera causes significant FPS drop, currently disabled
-  return;
+  // return;
   wrapCamB = Game.scene.cameras.add(
     0,
     0,

@@ -12,7 +12,6 @@ const index = new Phaser.Game(
 window.addEventListener(
   'resize',
   () => {
-    console.log('resize');
     Global.SCREEN_WIDTH = window.innerWidth;
     Global.SCREEN_HEIGHT = window.innerHeight;
     index.scale.resize(window.innerWidth, window.innerHeight);
