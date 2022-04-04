@@ -1,10 +1,10 @@
 import Global from '@/global';
-import Tank from '@/components/Tank';
+import BaseTank from '@/components/Tank/BaseTank';
 import { TerrainPolygon } from '@/types';
 
 export default class Bullet {
   body: Phaser.Physics.Matter.Sprite;
-  parent: Tank;
+  parent: BaseTank;
   scene: Phaser.Scene;
 
   constructor(
@@ -13,7 +13,7 @@ export default class Bullet {
     y: number,
     velocity_x: number,
     velocity_y: number,
-    parent: Tank
+    parent: BaseTank
   ) {
     this.scene = scene;
     this.parent = parent;
