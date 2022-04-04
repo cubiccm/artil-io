@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import PolygonClipping from 'polygon-clipping';
 import { Vector2, TerrainPolygon } from '@/types';
+import Global from '@/global';
 
 export default class Platform {
   public scene: Phaser.Scene;
@@ -66,9 +67,9 @@ export default class Platform {
       this.vertices,
       this.fillColor,
       this.fillAlpha
-    ) as TerrainPolygon;
-    this.scene.matter.add.gameObject(poly, body);
+    ) as unknown as TerrainPolygon;
     poly.controller = this;
+    this.scene.matter.add.gameObject(poly, body);
     const path_min = this.scene.matter.bounds.create(this.vertices).min;
     const bound_min = body.bounds.min;
     // this.scene.add.circle(this.anchor.x, this.anchor.y, 3, 0xffffff, 0.5);
@@ -76,6 +77,12 @@ export default class Platform {
       x: this.anchor.x + (this.anchor.x - bound_min.x) + path_min.x,
       y: this.anchor.y + (this.anchor.y - bound_min.y) + path_min.y
     });
+    // poly.setCollisionCategory(Global.CATEGORY_TERRAIN);
+    // poly.setCollidesWith([
+    //   Global.CATEGORY_TANK,
+    //   Global.CATEGORY_PROJECTILE,
+    //   Global.CATEGORY_EXPLOSION
+    // ]);
     if (body.area < 1000) {
       body.gameObject.destroy();
     }

@@ -19,7 +19,8 @@ export default class Bullet {
     this.parent = parent;
 
     // Draw bullet
-    this.body = this.drawBody(x, y);
+    this.body = this.drawBody();
+    this.body.setPosition(x, y);
     this.body.setVelocity(velocity_x, velocity_y);
 
     // Collision event
@@ -61,10 +62,10 @@ export default class Bullet {
     });
   }
 
-  drawBody(x: number, y: number): Phaser.Physics.Matter.Sprite {
+  drawBody(): Phaser.Physics.Matter.Sprite {
     const r = 5;
     const texture = this.scene.add.circle(0, 0, r, 0xffffff);
-    const rigid = this.scene.matter.add.circle(x, y, r);
+    const rigid = this.scene.matter.add.circle(0, 0, r);
     rigid.label = 'bullet';
     return this.scene.matter.add.gameObject(
       texture,

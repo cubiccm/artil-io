@@ -9,6 +9,15 @@ import BaseTank from '@/components/Tank/BaseTank';
 export default class PlayerTank extends BaseTank {
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y);
+    // this.setCollisionCategory(Global.CATEGORY_TANK);
+    // this.setCollidesWith([
+    //   Global.CATEGORY_TERRAIN,
+    //   Global.CATEGORY_POINT,
+    //   Global.CATEGORY_PROJECTILE,
+    //   Global.CATEGORY_TANK,
+    //   Global.CATEGORY_POINT,
+    //   Global.CATEGORY_POWERUP
+    // ]);
   }
 
   recive(message: any) {
