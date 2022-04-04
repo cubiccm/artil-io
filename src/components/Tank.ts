@@ -3,6 +3,7 @@ import SmoothedHorionztalControl from '@/scripts/control';
 import Global from '@/global';
 import TankSensor from '@/components/TankSensor';
 import Bullet from '@/components/Bullet';
+import { Vector } from 'matter';
 
 export default class Tank extends Phaser.Physics.Matter.Sprite {
   public smoothedControls!: SmoothedHorionztalControl;
@@ -85,10 +86,12 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
     );
 
     this.data.values.components.cannon_end = scene.matter.bodies.circle(
-      850,
+      555,
       400,
       10,
-      { isSensor: true }
+      {
+        isSensor: true
+      }
     );
 
     const compoundBody = scene.matter.body.create({
@@ -106,6 +109,38 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
     this.setExistingBody(compoundBody);
     this.setPosition(0, 0);
     this.setScale(0.1);
+
+    // Set-up cannon end image
+    var end = scene.add.image(
+      this.data.values.components.cannon_end.position.x,
+      this.data.values.components.cannon_end.position.y,
+      'cannon-end'
+    );
+
+    end.scale = 0.4;
+    end.scaleY = 0.6;
+    Global.event_bus.on('afterupdate', () => {
+      let origin = this.data.values.components.cannon_end.position;
+      let mouse = scene.input.mousePointer;
+      const cam = scene.cameras.main;
+      const cursor_x = mouse.x + cam.scrollX;
+      const cursor_y = mouse.y + cam.scrollY;
+      end.setPosition(origin.x, origin.y);
+      let vec1 = new Phaser.Math.Vector2(100, 0);
+      let vec2 = new Phaser.Math.Vector2(
+        cursor_x - origin.x,
+        cursor_y - origin.y
+      );
+
+      let angle =
+        Math.acos(
+          (vec1.x * vec2.x + vec1.y * vec2.y) /
+            (Math.sqrt(vec1.x ** 2 + vec1.y ** 2) *
+              Math.sqrt(vec2.x ** 2 + vec2.y ** 2))
+        ) + this.rotation;
+      angle = cursor_y > origin.y ? angle : -angle;
+      end.setRotation(angle);
+    });
 
     // Setup tank animations
     this.createWheelAnimations();
