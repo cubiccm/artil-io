@@ -31,7 +31,8 @@ interface TankData {
   XP: number;
   bullets: Bullet[];
   components: {
-    cannon_end?: MatterJS.BodyType;
+    cannon_body?: MatterJS.BodyType;
+    cannon_end?: Phaser.GameObjects.Image;
   };
 }
 

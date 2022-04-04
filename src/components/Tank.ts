@@ -44,6 +44,7 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
       XP: 0,
       bullets: [],
       components: {
+        cannon_body: undefined,
         cannon_end: undefined
       }
     };
@@ -85,7 +86,7 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
       true
     );
 
-    this.data.values.components.cannon_end = scene.matter.bodies.circle(
+    this.data.values.components.cannon_body = scene.matter.bodies.circle(
       555,
       400,
       10,
@@ -97,7 +98,7 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
     const compoundBody = scene.matter.body.create({
       parts: [
         this.body,
-        this.data.values.components.cannon_end,
+        this.data.values.components.cannon_body,
         this.data.values.sensors.bottom.body,
         this.data.values.sensors.left.body,
         this.data.values.sensors.right.body
@@ -110,37 +111,7 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
     this.setPosition(0, 0);
     this.setScale(0.1);
 
-    // Set-up cannon end image
-    var end = scene.add.image(
-      this.data.values.components.cannon_end.position.x,
-      this.data.values.components.cannon_end.position.y,
-      'cannon-end'
-    );
-
-    end.scale = 0.4;
-    end.scaleY = 0.6;
-    Global.event_bus.on('afterupdate', () => {
-      let origin = this.data.values.components.cannon_end.position;
-      let mouse = scene.input.mousePointer;
-      const cam = scene.cameras.main;
-      const cursor_x = mouse.x + cam.scrollX;
-      const cursor_y = mouse.y + cam.scrollY;
-      end.setPosition(origin.x, origin.y);
-      let vec1 = new Phaser.Math.Vector2(100, 0);
-      let vec2 = new Phaser.Math.Vector2(
-        cursor_x - origin.x,
-        cursor_y - origin.y
-      );
-
-      let angle =
-        Math.acos(
-          (vec1.x * vec2.x + vec1.y * vec2.y) /
-            (Math.sqrt(vec1.x ** 2 + vec1.y ** 2) *
-              Math.sqrt(vec2.x ** 2 + vec2.y ** 2))
-        ) + this.rotation;
-      angle = cursor_y > origin.y ? angle : -angle;
-      end.setRotation(angle);
-    });
+    this.data.values.components.cannon_end = this.createCannonEnd();
 
     // Setup tank animations
     this.createWheelAnimations();
@@ -227,7 +198,7 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
   fire(time: number, delta: number, cursor: Phaser.Math.Vector2) {
     const canFire = time - this.data.values.lastFiredAt > 250;
     if (!canFire) return;
-    const origin = this.data.values.components.cannon_end.position;
+    const origin = this.data.values.components.cannon_body.position;
     const velocity = 30;
     const vx =
       velocity * Math.cos(Math.atan2(cursor.y - origin.y, cursor.x - origin.x));
@@ -237,6 +208,33 @@ export default class Tank extends Phaser.Physics.Matter.Sprite {
       new Bullet(this.scene, origin.x, origin.y, vx, vy, this)
     );
     this.data.values.lastFiredAt = time;
+  }
+  createCannonEnd() {
+    let origin = this.data.values.components.cannon_body.position;
+    var end = this.scene.add.image(origin.x, origin.y, 'cannon-end');
+    end.scale = 0.4;
+    end.scaleY = 0.6;
+    Global.event_bus.on('afterupdate', () => {
+      end.setPosition(origin.x, origin.y);
+      const cursor_x =
+        this.scene.input.mousePointer.x + this.scene.cameras.main.scrollX;
+      const cursor_y =
+        this.scene.input.mousePointer.y + this.scene.cameras.main.scrollY;
+      let vec1 = new Phaser.Math.Vector2(100, 0);
+      let vec2 = new Phaser.Math.Vector2(
+        cursor_x - origin.x,
+        cursor_y - origin.y
+      );
+
+      let angle = Math.acos(
+        (vec1.x * vec2.x + vec1.y * vec2.y) /
+          (Math.sqrt(vec1.x ** 2 + vec1.y ** 2) *
+            Math.sqrt(vec2.x ** 2 + vec2.y ** 2))
+      );
+      angle = cursor_y > origin.y ? angle : -angle;
+      end.setRotation(angle);
+    });
+    return end;
   }
 
   createWheelAnimations() {

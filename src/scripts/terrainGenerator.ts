@@ -69,7 +69,7 @@ function generateTerrain(scene: Phaser.Scene) {
       vertices_l
     ]);
 
-    const platform = new Platform(scene, x, y, vertices, 0x0000ff, 0.5);
+    const platform = new Platform(scene, x, y, vertices, 0xff0000, 0.8);
   });
 }
 
