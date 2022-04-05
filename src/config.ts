@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 
-var _w = window.innerWidth, _h = window.innerHeight;
+const _w = window.innerWidth,
+  _h = window.innerHeight;
 
 export default {
   type: Phaser.AUTO,
@@ -13,5 +14,5 @@ export default {
       enableSleep: false,
       debug: true
     }
-  },
+  }
 };
