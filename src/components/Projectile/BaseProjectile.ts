@@ -1,12 +1,12 @@
 import Global from '@/global';
 import BaseTank from '@/components/Tank/BaseTank';
 import Game from '@/scenes/Game';
+import BaseDestruction from '@/components/Destruction/BaseDestruction';
 
 export default abstract class BaseProjectile extends Phaser.GameObjects
   .Container {
-  // body: Phaser.Physics.Matter.Sritpe;
   parent: BaseTank;
-  scene: Phaser.Scene;
+  // terrainExplosion: BaseDestruction;
 
   constructor(
     scene: Phaser.Scene,
@@ -17,7 +17,6 @@ export default abstract class BaseProjectile extends Phaser.GameObjects
     parent: BaseTank
   ) {
     super(scene);
-    this.scene = scene;
     this.parent = parent;
     this.drawObject();
     const body = this.body as MatterJS.BodyType;
@@ -41,6 +40,6 @@ export default abstract class BaseProjectile extends Phaser.GameObjects
   }
 
   drawObject() {
-    // abstract class
+    // abstract class, will be overwritten
   }
 }

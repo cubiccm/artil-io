@@ -4,7 +4,7 @@ import Global from '@/global';
 import TankSensor from '@/components/Tank/TankSensor';
 import Game from '@/scenes/Game';
 
-export default class PlayerTank extends Phaser.Physics.Matter.Sprite {
+export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
   public smoothedControls!: SmoothedHorionztalControl;
   declare body: MatterJS.BodyType;
   public get tank_data(): types.TankData {

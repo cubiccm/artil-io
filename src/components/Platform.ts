@@ -81,7 +81,7 @@ export default class Platform {
     poly.setCollidesWith([
       Global.CATEGORY_TANK,
       Global.CATEGORY_PROJECTILE,
-      Global.CATEGORY_EXPLOSION
+      Global.CATEGORY_DESTRUCTION
     ]);
     body.parts.forEach((part) => {
       part.collisionFilter.category = Global.CATEGORY_TERRAIN;

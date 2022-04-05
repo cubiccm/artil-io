@@ -3,11 +3,7 @@ import BaseTank from '@/components/Tank/BaseTank';
 import Game from '@/scenes/Game';
 import BaseProjectile from './BaseProjectile';
 
-export default class Bullet extends BaseProjectile {
-  // body: Phaser.Physics.Matter.Sritpe;
-  // parent: BaseTank;
-  // scene: Phaser.Scene;
-
+export default class Bullet extends BaseProjectile implements BaseProjectile {
   constructor(
     scene: Phaser.Scene,
     x: number,
