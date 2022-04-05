@@ -27,7 +27,7 @@ export default class Game extends Phaser.Scene {
     this.load.image('tank_3', 'assets/tank-frames/tank_3.png');
     this.load.image('tank_4', 'assets/tank-frames/tank_4.png');
     this.load.image('cannon-end', 'assets/cannon-end.png');
-    this.load.image('background', 'assets/city.jpeg');
+    this.load.image('background', 'assets/city.png');
     this.load.image('rock-tile', 'assets/rock-tile.jpeg');
   }
 
@@ -48,7 +48,9 @@ export default class Game extends Phaser.Scene {
         gameObject.y = dragY;
       }
     );
-    this.add.image(_w / 2, _h / 2, 'background').scale = 2;
+    const bkg = this.add.image(_w / 2, _h / 2, 'background');
+    bkg.scale = 1.8;
+
     this.matter.world.setGravity(0, 1, 0.001);
 
     generateTerrain(this);
