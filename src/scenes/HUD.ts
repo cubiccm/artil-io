@@ -25,14 +25,14 @@ export default class HUD extends Phaser.Scene {
   update() {
     this.graphics.clear();
 
-    if (this.gamescene.player) {
+    if (Game.player) {
       this.drawHealthBar(
-        this.gamescene.player.player_data.HP,
-        200 // this.gamescene.player.player_data.Max_HP
+        Game.player.tank_data.HP,
+        200 // this.gamescene.player.tank_data.Max_HP
       );
       this.drawExpBar(
-        this.gamescene.player.player_data.XP + 20, // +20 only for showcase
-        100 // this.gamescene.player.player_data.Max_XP
+        Game.player.tank_data.XP + 20, // +20 only for showcase
+        100 // this.gamescene.player.tank_data.Max_XP
       );
     }
   }
@@ -58,12 +58,13 @@ export default class HUD extends Phaser.Scene {
     this.graphics.fillRoundedRect(
       (_w - bar_width) / 2,
       _h - bottom_margin - bar_height,
-      bar_width * (current_health / max_health),
+      bar_height + (bar_width - bar_height) * (current_health / max_health),
       bar_height,
       bar_height / 2
     );
 
-    current_health = Math.max(1, Math.floor(current_health));
+    if (current_health != 0)
+      current_health = Math.max(1, Math.floor(current_health));
     max_health = Math.floor(max_health);
     this.add
       .text(
@@ -102,7 +103,7 @@ export default class HUD extends Phaser.Scene {
     this.graphics.fillRoundedRect(
       (_w - bar_width) / 2,
       _h - bottom_margin - bar_height,
-      bar_width * (current_exp / max_exp),
+      bar_height + (bar_width - bar_height) * (current_exp / max_exp),
       bar_height,
       bar_height / 2
     );

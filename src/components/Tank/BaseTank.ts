@@ -146,34 +146,10 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
   createCannonEnd() {
     const body = this.data.values.components.cannon_body;
     const origin = body.position;
-    const end = this.scene.add.image(origin.x, origin.y, 'cannon-end');
-    end.scale = 0.4;
-    end.scaleY = 0.6;
-    this.scene.matter.add.gameObject(end, body);
-
-    Game.scene.events.on(
-      Phaser.Scenes.Events.POST_UPDATE,
-      () => {
-        const cursor_x =
-          this.scene.input.mousePointer.x + this.scene.cameras.main.scrollX;
-        const cursor_y =
-          this.scene.input.mousePointer.y + this.scene.cameras.main.scrollY;
-        const vec1 = new Phaser.Math.Vector2(100, 0);
-        const vec2 = new Phaser.Math.Vector2(
-          cursor_x - origin.x,
-          cursor_y - origin.y
-        );
-
-        let angle = Math.acos(
-          (vec1.x * vec2.x + vec1.y * vec2.y) /
-            (Math.sqrt(vec1.x ** 2 + vec1.y ** 2) *
-              Math.sqrt(vec2.x ** 2 + vec2.y ** 2))
-        );
-        angle = cursor_y > origin.y ? angle : -angle;
-        this.scene.matter.body.setAngle(body, angle);
-      },
-      this
-    );
+    const texture = this.scene.add.image(origin.x, origin.y, 'cannon');
+    texture.scale = 0.4;
+    texture.scaleY = 0.6;
+    this.scene.matter.add.gameObject(texture, body);
   }
 
   createWheelAnimations() {
