@@ -1,8 +1,7 @@
 import * as types from '@/types';
 import SmoothedHorionztalControl from '@/scripts/control';
 import Global from '@/global';
-import TankSensor from '@/components/TankSensor';
-import Bullet from '@/components/Bullet';
+import TankSensor from '@/components/Tank/TankSensor';
 import Game from '@/scenes/Game';
 
 export default class PlayerTank extends Phaser.Physics.Matter.Sprite {

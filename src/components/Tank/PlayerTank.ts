@@ -1,5 +1,5 @@
 import Global from '@/global';
-import Bullet from '@/components/Bullet';
+import Bullet from '@/components/Projectile/Bullet';
 import Game from '@/scenes/Game';
 import BaseTank from '@/components/Tank/BaseTank';
 

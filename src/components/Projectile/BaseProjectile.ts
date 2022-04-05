@@ -2,7 +2,8 @@ import Global from '@/global';
 import BaseTank from '@/components/Tank/BaseTank';
 import Game from '@/scenes/Game';
 
-export default class Bullet extends Phaser.GameObjects.Container {
+export default abstract class BaseProjectile extends Phaser.GameObjects
+  .Container {
   // body: Phaser.Physics.Matter.Sritpe;
   parent: BaseTank;
   scene: Phaser.Scene;
@@ -18,7 +19,6 @@ export default class Bullet extends Phaser.GameObjects.Container {
     super(scene);
     this.scene = scene;
     this.parent = parent;
-    Game.scene.add.existing(this);
     this.drawObject();
     const body = this.body as MatterJS.BodyType;
     Game.scene.matter.body.setPosition(body, { x: x, y: y });
@@ -37,18 +37,10 @@ export default class Bullet extends Phaser.GameObjects.Container {
           });
       }
     };
+    this.scene.add.existing(this);
   }
 
   drawObject() {
-    const r = 5;
-    const texture = this.scene.add.circle(0, 0, r, 0xffffff);
-    this.add(texture);
-    const body = this.scene.matter.add.circle(0, 0, r);
-    body.label = 'Bullet';
-    return this.scene.matter.add.gameObject(this, body);
-  }
-
-  handleCollision(target: MatterJS.BodyType): void {
-    // Deal damage, destroy terrain, etc.
+    // abstract class
   }
 }
