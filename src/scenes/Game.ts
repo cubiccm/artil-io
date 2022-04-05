@@ -9,12 +9,13 @@ import _ from 'lodash';
 const _w = window.innerWidth,
   _h = window.innerHeight;
 
-let player: Tank;
 let debugMessage: Phaser.GameObjects.Text;
 let cam: Phaser.Cameras.Scene2D.Camera;
 
 export default class Game extends Phaser.Scene {
   public static scene: Game;
+  player!: Tank;
+
   constructor() {
     super('Artilio');
   }
@@ -51,37 +52,37 @@ export default class Game extends Phaser.Scene {
     generateTerrain(this);
 
     // Generate player
-    player = new Tank(this, 300, 300);
+    this.player = new Tank(this, 300, 300);
 
     // Player events
     eventEmitter(this);
 
     Global.event_bus.on('keydown-LEFT', (e: any) => {
-      player.moveLeft(e.time, e.delta);
+      this.player.moveLeft(e.time, e.delta);
     });
 
     Global.event_bus.on('keydown-RIGHT', (e: any) => {
-      player.moveRight(e.time, e.delta);
+      this.player.moveRight(e.time, e.delta);
     });
 
     Global.event_bus.on('keydown-UP', (e: any) => {
-      player.jump(e.time, e.delta);
+      this.player.jump(e.time, e.delta);
     });
 
     Global.event_bus.on('mousedown-LEFT', (e: any) => {
       const cam = this.cameras.main;
       const cursor_x = e.x + cam.scrollX;
       const cursor_y = e.y + cam.scrollY;
-      player.fire(e.time, e.delta, new Phaser.Math.Vector2(cursor_x, cursor_y));
+      this.player.fire(e.time, e.delta, new Phaser.Math.Vector2(cursor_x, cursor_y));
     });
 
-    debugMessage = new DebugMessage(this, player, 16, 16);
+    debugMessage = new DebugMessage(this, this.player, 16, 16);
 
     // draw debugs
     this.matter.world.drawDebug = true;
     this.matter.world.debugGraphic.visible = this.matter.world.drawDebug;
 
-    this.cameras.main.startFollow(player);
+    this.cameras.main.startFollow(this.player);
     // smoothMoveCameraTowards(playerController.matterSprite);
   }
 
