@@ -1,4 +1,3 @@
-import { Vector2 } from '@/types';
 import BaseDestruction from './BaseDestruction';
 import * as _ from 'lodash';
 
@@ -6,7 +5,7 @@ export default class CircularDestruction extends BaseDestruction {
   static getVerts(r?: number) {
     if (r === undefined) r = 50;
     const angle_div = 30;
-    const destruction_vertices: Vector2[] = [];
+    const destruction_vertices: MatterJS.Vector[] = [];
     _.range(0, angle_div).forEach((i) => {
       const angle = ((Math.PI * 2) / angle_div) * i;
       const px = r! * Math.cos(angle);
@@ -16,7 +15,12 @@ export default class CircularDestruction extends BaseDestruction {
     return destruction_vertices;
   }
 
-  constructor(scene: Phaser.Scene, x: number, y: number, vertices: Vector2[]) {
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    vertices: MatterJS.Vector[]
+  ) {
     super(scene, x, y, vertices);
   }
 }

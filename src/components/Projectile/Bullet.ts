@@ -30,6 +30,7 @@ export default class Bullet extends BaseProjectile {
   }
 
   createDestruction(x: number, y: number) {
+    // funny bullet
     const verts =
       Math.random() > 0.5
         ? CircularDestruction.getVerts(50)

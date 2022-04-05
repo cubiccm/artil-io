@@ -50,7 +50,7 @@ export default class PlayerTank extends BaseTank {
       const cam = Game.scene.cameras.main;
       const cursor_x = pointer.x + cam.scrollX;
       const cursor_y = pointer.y + cam.scrollY;
-      this.fire(time, delta, new Phaser.Math.Vector2(cursor_x, cursor_y));
+      this.fire(time, delta, { x: cursor_x, y: cursor_y });
     }
   }
 
@@ -120,7 +120,7 @@ export default class PlayerTank extends BaseTank {
     }
   }
 
-  fire(time: number, delta: number, cursor: Phaser.Math.Vector2) {
+  fire(time: number, delta: number, cursor: MatterJS.Vector) {
     const canFire = time - this.data.values.lastFiredAt > 250;
     if (!canFire) return;
     const origin = this.data.values.components.cannon_end.position;
