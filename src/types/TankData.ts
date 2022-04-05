@@ -1,5 +1,5 @@
-import Bullet from '@/components/Bullet';
-import TankSensor from '@/components/TankSensor';
+import Bullet from '@/components/Projectile/Bullet';
+import TankSensor from '@/components/Tank/TankSensor';
 
 interface TankData {
   blocked: {
@@ -27,12 +27,14 @@ interface TankData {
     run: number;
     jump: number;
   };
-  HP: number;
-  XP: number;
-  bullets: Bullet[];
   components: {
     cannon_end?: MatterJS.BodyType;
   };
+  HP: number;
+  XP: number;
+  bullets: Bullet[];
+  id: string;
+  team: string;
 }
 
 export default TankData;

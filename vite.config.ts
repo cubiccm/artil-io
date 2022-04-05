@@ -20,7 +20,11 @@ export default defineConfig({
     }
   },
   server: {
-    port: 4000
+    port: 4000,
+    hmr: {
+      host: 'localhost',
+      port: 4001
+    }
   },
   plugins: [tsconfigPaths()]
 });
