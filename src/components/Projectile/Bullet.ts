@@ -16,7 +16,7 @@ export default class Bullet extends BaseProjectile {
     parent: BaseTank
   ) {
     super(scene, x, y, vx, vy, parent);
-    this.body.gravityScale = { x: 0, y: 5 };
+    this.body.gravityScale = { x: 0, y: 4 };
   }
 
   createObject() {
@@ -31,10 +31,10 @@ export default class Bullet extends BaseProjectile {
 
   createDestruction(x: number, y: number) {
     // funny bullet
-    const verts =
-      Math.random() > 0.5
-        ? CircularDestruction.getVerts(50)
-        : RectangularDestruction.getVerts(100, 50);
+    const verts = CircularDestruction.getVerts(50);
+    // Math.random() > 0.5
+    // ? CircularDestruction.getVerts(50)
+    // : RectangularDestruction.getVerts(100, 50);
 
     const sensor = new CircularDestruction(this.scene, x, y, verts);
   }

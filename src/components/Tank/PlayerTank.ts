@@ -124,11 +124,10 @@ export default class PlayerTank extends BaseTank {
     const canFire = time - this.data.values.lastFiredAt > 250;
     if (!canFire) return;
     const origin = this.data.values.components.cannon_body.position;
+    const angle = this.data.values.components.cannon_body.angle;
     const velocity = 30;
-    const vx =
-      velocity * Math.cos(Math.atan2(cursor.y - origin.y, cursor.x - origin.x));
-    const vy =
-      velocity * Math.sin(Math.atan2(cursor.y - origin.y, cursor.x - origin.x));
+    const vx = velocity * Math.cos(angle);
+    const vy = velocity * Math.sin(angle);
     this.data.values.bullets.push(
       new Bullet(this.scene, origin.x, origin.y, vx, vy, this)
     );
