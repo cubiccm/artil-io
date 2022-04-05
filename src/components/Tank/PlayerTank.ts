@@ -12,7 +12,7 @@ export default class PlayerTank extends BaseTank {
         Global.CATEGORY_TERRAIN |
         Global.CATEGORY_TANK |
         Global.CATEGORY_PROJECTILE |
-        Global.CATEGORY_EXPLOSION |
+        Global.CATEGORY_DESTRUCTION |
         Global.CATEGORY_POWERUP;
     });
   }

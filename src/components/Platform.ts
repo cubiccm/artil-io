@@ -2,6 +2,7 @@ import _ from 'lodash';
 import PolygonClipping from 'polygon-clipping';
 import { Vector2 } from '@/types';
 import Global from '@/global';
+import BaseDestruction from './Destruction/BaseDestruction';
 
 export default class Platform {
   public scene: Phaser.Scene;
@@ -77,20 +78,19 @@ export default class Platform {
       x: this.anchor.x + (this.anchor.x - bound_min.x) + path_min.x,
       y: this.anchor.y + (this.anchor.y - bound_min.y) + path_min.y
     });
-    poly.setCollisionCategory(Global.CATEGORY_TERRAIN);
-    poly.setCollidesWith([
-      Global.CATEGORY_TANK,
-      Global.CATEGORY_PROJECTILE,
-      Global.CATEGORY_DESTRUCTION
-    ]);
     body.parts.forEach((part) => {
       part.collisionFilter.category = Global.CATEGORY_TERRAIN;
+      part.collisionFilter.mask =
+        Global.CATEGORY_TANK |
+        Global.CATEGORY_PROJECTILE |
+        Global.CATEGORY_DESTRUCTION;
       part.onCollideCallback = (pair: MatterJS.ICollisionPair) => {
         const support = pair.collision.supports[0];
         const self = pair.bodyA === part ? pair.bodyA : pair.bodyB;
         const other = pair.bodyA === part ? pair.bodyB : pair.bodyA;
-        if (other.collisionFilter.category === Global.CATEGORY_PROJECTILE) {
-          this.onCollide(support);
+        if (other.collisionFilter.category === Global.CATEGORY_DESTRUCTION) {
+          const destruction = other.gameObject as BaseDestruction;
+          this.onCollide(other.position, other.vertices!);
         }
       };
     });
@@ -101,7 +101,7 @@ export default class Platform {
     return poly;
   }
 
-  onCollide(coord: Vector2) {
+  onCollide(coord: Vector2, destructionVertices: MatterJS.Vector[]) {
     const r = 50;
     const angle_div = 30;
     const old_vertices: [number, number][] = this.vertices.map((v) => [
@@ -109,10 +109,9 @@ export default class Platform {
       v.y
     ]);
     const destruction_vertices: [number, number][] = [];
-    _.range(0, angle_div).forEach((i) => {
-      const angle = ((Math.PI * 2) / angle_div) * i;
-      const x = coord.x - this.anchor.x + r * Math.cos(angle);
-      const y = coord.y - this.anchor.y + r * Math.sin(angle);
+    destructionVertices.forEach((v) => {
+      const x = v.x - this.anchor.x;
+      const y = v.y - this.anchor.y;
       destruction_vertices.push([x, y]);
     });
     let new_vertices;
