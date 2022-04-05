@@ -1,9 +1,9 @@
 import * as types from '@/types';
 import Global from '@/global';
-import Tank from '@/components/Tank';
+import BaseTank from '@/components/Tank/BaseTank';
 
 export default class TankSensor {
-  parent: Tank;
+  parent: BaseTank;
   part: string;
   ignore_movable_object: boolean;
   body: MatterJS.BodyType;
@@ -12,7 +12,7 @@ export default class TankSensor {
 
   constructor(
     body: MatterJS.BodyType,
-    parent: Tank,
+    parent: BaseTank,
     part: string,
     ignore_movable_object: boolean
   ) {
@@ -21,12 +21,26 @@ export default class TankSensor {
     this.part = part;
     this.ignore_movable_object = ignore_movable_object;
     body.onCollideCallback = (pair: MatterJS.ICollisionData) => {
-      if (ignore_movable_object && !pair.bodyA.isStatic) return;
+      if (
+        ignore_movable_object &&
+        !(
+          (pair.bodyA as MatterJS.BodyType).isStatic ||
+          (pair.bodyB as MatterJS.BodyType).isStatic
+        )
+      )
+        return;
       this.touch_count += 1;
       this.blocked = true;
     };
     body.onCollideEndCallback = (pair: MatterJS.ICollisionData) => {
-      if (ignore_movable_object && !pair.bodyA.isStatic) return;
+      if (
+        ignore_movable_object &&
+        !(
+          (pair.bodyA as MatterJS.BodyType).isStatic ||
+          (pair.bodyB as MatterJS.BodyType).isStatic
+        )
+      )
+        return;
       this.touch_count -= 1;
       this.blocked = this.touch_count > 0;
     };

@@ -1,20 +1,20 @@
 import Phaser from 'phaser';
-import Tank from '@/components/Tank';
+import PlayerTank from '@/components/Tank/PlayerTank';
 import DebugMessage from '@/components/DebugMessage';
 import Global from '@/global';
 
 import generateTerrain from '@/scripts/terrainGenerator';
 import _ from 'lodash';
 
-const _w = window.innerWidth,
-  _h = window.innerHeight;
-
 let debugMessage: Phaser.GameObjects.Text;
-let cam: Phaser.Cameras.Scene2D.Camera;
+let wrapCamB: Phaser.Cameras.Scene2D.Camera;
+let wrapCamT: Phaser.Cameras.Scene2D.Camera;
 
 export default class Game extends Phaser.Scene {
   public static scene: Game;
-  player!: Tank;
+  public static player: PlayerTank;
+  public static keyboard: Phaser.Input.Keyboard.KeyboardPlugin;
+  public static keys: any;
 
   constructor() {
     super('Artilio');
@@ -34,14 +34,29 @@ export default class Game extends Phaser.Scene {
 
   create() {
     Game.scene = this;
-    cam = this.cameras.main;
-    this.matter.world.createDebugGraphic();
+    Game.keys = this.input.keyboard.addKeys('LEFT,RIGHT,UP,DOWN,W,A,S,D,SPACE');
 
-    cam.setBounds(-1024, -1024, 1024 * 2, 1024 * 2);
-    this.matter.world.setBounds(-1024, -1024, 1024 * 2, 1024 * 3);
+    // cam.setBounds(
+    //   -Global.WORLD_WIDTH / 2,
+    //   -Global.WORLD_HEIGHT,
+    //   Global.WORLD_WIDTH,
+    //   Global.WORLD_HEIGHT * 2
+    // );
 
-    this.cameras.main.scrollX = -_w / 2;
-    this.cameras.main.scrollY = -_h / 2;
+    this.matter.world.setBounds(
+      -Global.WORLD_WIDTH,
+      -Global.WORLD_HEIGHT,
+      Global.WORLD_WIDTH * 2,
+      Global.WORLD_HEIGHT * 2,
+      undefined,
+      true,
+      false,
+      false,
+      false
+    );
+
+    this.cameras.main.scrollX = -Global.SCREEN_WIDTH / 2;
+    this.cameras.main.scrollY = -Global.SCREEN_HEIGHT / 2;
     this.input.on(
       'drag',
       (pointer: any, gameObject: any, dragX: any, dragY: any) => {
@@ -49,7 +64,11 @@ export default class Game extends Phaser.Scene {
         gameObject.y = dragY;
       }
     );
-    const bkg = this.add.image(_w / 2, _h / 2, 'background');
+    const bkg = this.add.image(
+      Global.SCREEN_WIDTH / 2,
+      Global.SCREEN_HEIGHT / 2,
+      'background'
+    );
     bkg.scale = 1.8;
 
     this.matter.world.setGravity(0, 1, 0.001);
@@ -57,112 +76,126 @@ export default class Game extends Phaser.Scene {
     generateTerrain(this);
 
     // Generate player
-    this.player = new Tank(this, 300, 300);
+    Game.player = new PlayerTank(this, 0, 0);
+    // player.setIgnoreGravity(true);
 
-    // Player events
-    eventEmitter(this);
-
-    Global.event_bus.on('keydown-LEFT', (e: any) => {
-      this.player.moveLeft(e.time, e.delta);
-    });
-
-    Global.event_bus.on('keydown-RIGHT', (e: any) => {
-      this.player.moveRight(e.time, e.delta);
-    });
-
-    Global.event_bus.on('keydown-UP', (e: any) => {
-      this.player.jump(e.time, e.delta);
-    });
-
-    Global.event_bus.on('mousedown-LEFT', (e: any) => {
-      const cam = this.cameras.main;
-      const cursor_x = e.x + cam.scrollX;
-      const cursor_y = e.y + cam.scrollY;
-      this.player.fire(e.time, e.delta, new Phaser.Math.Vector2(cursor_x, cursor_y));
-    });
-
-    debugMessage = new DebugMessage(this, this.player, 16, 16);
+    debugMessage = new DebugMessage(this, Game.player, 16, 16);
 
     // draw debugs
+    this.matter.world.createDebugGraphic();
     this.matter.world.drawDebug = true;
     this.matter.world.debugGraphic.visible = this.matter.world.drawDebug;
+    this.cameras.main.startFollow(Game.player);
 
-    this.cameras.main.startFollow(this.player);
-    // smoothMoveCameraTowards(playerController.matterSprite);
+    addWrapCamera();
+    addWorldBorder();
+
+    // this.matter.set60Hz();
+    this.matter.set30Hz();
   }
 
   update(time: number, delta: number) {
-    debugMessage.update(time, delta);
-    inputEmitter(this, time, delta);
-    // smoothMoveCameraTowards(playerController.matterSprite, 0.9);
+    // not used, listen to the Game.scene.events.on(Phaser.Scenes.Events.UPDATE, callback) directly
   }
 }
 
-function eventEmitter(scene: Phaser.Scene) {
-  scene.matter.world.on('beforeupdate', function (event: any) {
-    Global.event_bus.emit('beforeupdate', event);
-  });
+function addWrapCamera() {
+  // Wrap camera causes significant FPS drop, currently disabled
+  // return;
+  wrapCamB = Game.scene.cameras.add(
+    0,
+    0,
+    Global.SCREEN_WIDTH,
+    Global.SCREEN_HEIGHT,
+    false,
+    'wrapCamB'
+  );
+  wrapCamB.setBounds(
+    -Global.WORLD_WIDTH / 2,
+    -Global.WORLD_HEIGHT,
+    Global.WORLD_WIDTH,
+    Global.WORLD_HEIGHT * 2
+  );
+  wrapCamB.startFollow(Game.player, undefined, 1, 0);
+  wrapCamB.scrollY = -Global.WORLD_HEIGHT / 2;
+  wrapCamB.setAlpha(0.6);
 
-  // Loop over the active colliding pairs and count the surfaces the player is touching.
-  scene.matter.world.on('collisionactive', function (event: any) {
-    // Not used
-  });
+  wrapCamT = Game.scene.cameras.add(
+    0,
+    0,
+    Global.SCREEN_WIDTH,
+    Global.SCREEN_HEIGHT,
+    false,
+    'wrapCamT'
+  );
+  wrapCamT.setBounds(
+    -Global.WORLD_WIDTH / 2,
+    -Global.WORLD_HEIGHT,
+    Global.WORLD_WIDTH,
+    Global.WORLD_HEIGHT * 2
+  );
+  wrapCamT.startFollow(Game.player, undefined, 1, 0);
+  wrapCamT.scrollY = Global.WORLD_HEIGHT / 2 - Global.SCREEN_HEIGHT;
+  wrapCamT.setAlpha(0.6);
 
-  // Update over, so now we can determine if any direction is blocked
-  scene.matter.world.on('afterupdate', function (event: any) {
-    Global.event_bus.emit('afterupdate', event);
+  Game.scene.events.on(Phaser.Scenes.Events.POST_UPDATE, function (event: any) {
+    wrapCamB.setViewport(
+      0,
+      -Game.player.y + (Global.WORLD_HEIGHT + Global.SCREEN_HEIGHT) / 2,
+      Global.SCREEN_WIDTH,
+      Global.SCREEN_HEIGHT
+    );
+    wrapCamT.setViewport(
+      0,
+      -Game.player.y - (Global.WORLD_HEIGHT + Global.SCREEN_HEIGHT) / 2,
+      Global.SCREEN_WIDTH,
+      Global.SCREEN_HEIGHT
+    );
   });
 }
 
-function inputEmitter(scene: Phaser.Scene, time: number, delta: number) {
-  const keyboard = scene.input.keyboard;
-  const keys: any = keyboard.addKeys('LEFT,RIGHT,UP,DOWN,W,A,S,D,SPACE');
+function addWorldBorder() {
+  // return;
+  Game.scene.add.rectangle(
+    0,
+    -Global.WORLD_HEIGHT / 2,
+    Global.WORLD_WIDTH,
+    20,
+    0xff0000
+  );
+  Game.scene.add.rectangle(
+    0,
+    Global.WORLD_HEIGHT / 2,
+    Global.WORLD_WIDTH,
+    20,
+    0xff0000
+  );
+  Game.scene.add.rectangle(
+    -Global.WORLD_WIDTH / 2,
+    0,
+    20,
+    Global.WORLD_HEIGHT,
+    0xff0000
+  );
+  Game.scene.add.rectangle(
+    Global.WORLD_WIDTH / 2,
+    0,
+    20,
+    Global.WORLD_HEIGHT,
+    0xff0000
+  );
+  return;
 
-  if (keyboard.checkDown(keys.LEFT) || keyboard.checkDown(keys.A)) {
-    Global.event_bus.emit('keydown-LEFT', { time: time, delta: delta });
-  }
-
-  if (keyboard.checkDown(keys.RIGHT) || keyboard.checkDown(keys.D)) {
-    Global.event_bus.emit('keydown-RIGHT', { time: time, delta: delta });
-  }
-
-  if (keyboard.checkDown(keys.UP) || keyboard.checkDown(keys.SPACE)) {
-    Global.event_bus.emit('keydown-UP', { time: time, delta: delta });
-  }
-
-  if (keyboard.checkDown(keys.DOWN)) {
-    Global.event_bus.emit('keydown-DOWN', { time: time, delta: delta });
-  }
-
-  const pointer = scene.input.activePointer;
-
-  if (pointer.leftButtonDown()) {
-    Global.event_bus.emit('mousedown-LEFT', {
-      time: time,
-      delta: delta,
-      x: pointer.x,
-      y: pointer.y
-    });
-  }
-
-  if (pointer.rightButtonDown()) {
-    Global.event_bus.emit('mousedown-RIGHT', {
-      time: time,
-      delta: delta,
-      x: pointer.x,
-      y: pointer.y
-    });
-  }
-}
-
-function smoothMoveCameraTowards(target: any, smoothFactor: any = 0) {
-  if (smoothFactor === undefined) {
-    smoothFactor = 0;
-  }
-  cam.scrollX =
-    smoothFactor * cam.scrollX +
-    (1 - smoothFactor) * (target.x - cam.width * 0.5);
-  cam.scrollY =
-    smoothFactor * cam.scrollY +
-    (1 - smoothFactor) * (target.y - cam.height * 0.5);
+  Game.scene.add
+    .rectangle(Global.SCREEN_WIDTH / 2, 0, Global.SCREEN_WIDTH, 5, 0x00ff00)
+    .setScrollFactor(0);
+  Game.scene.add
+    .rectangle(
+      Global.SCREEN_WIDTH / 2,
+      Global.SCREEN_HEIGHT,
+      Global.SCREEN_WIDTH,
+      5,
+      0x00ff00
+    )
+    .setScrollFactor(0);
 }
