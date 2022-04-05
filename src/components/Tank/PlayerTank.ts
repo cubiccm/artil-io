@@ -123,7 +123,7 @@ export default class PlayerTank extends BaseTank {
   fire(time: number, delta: number, cursor: MatterJS.Vector) {
     const canFire = time - this.data.values.lastFiredAt > 250;
     if (!canFire) return;
-    const origin = this.data.values.components.cannon_end.position;
+    const origin = this.data.values.components.cannon_body.position;
     const velocity = 30;
     const vx =
       velocity * Math.cos(Math.atan2(cursor.y - origin.y, cursor.x - origin.x));

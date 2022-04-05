@@ -28,7 +28,7 @@ interface TankData {
     jump: number;
   };
   components: {
-    cannon_end?: MatterJS.BodyType;
+    cannon_body?: MatterJS.BodyType;
   };
   HP: number;
   XP: number;

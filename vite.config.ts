@@ -23,7 +23,7 @@ export default defineConfig({
     port: 4000,
     hmr: {
       host: 'localhost',
-      port: 4001
+      port: 4000
     }
   },
   plugins: [tsconfigPaths()]

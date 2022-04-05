@@ -6,7 +6,6 @@ import Global from '@/global';
 import generateTerrain from '@/scripts/terrainGenerator';
 import _ from 'lodash';
 
-let player: PlayerTank;
 let debugMessage: Phaser.GameObjects.Text;
 let wrapCamB: Phaser.Cameras.Scene2D.Camera;
 let wrapCamT: Phaser.Cameras.Scene2D.Camera;
@@ -28,6 +27,9 @@ export default class Game extends Phaser.Scene {
     this.load.image('tank_2', 'assets/tank-frames/tank_2.png');
     this.load.image('tank_3', 'assets/tank-frames/tank_3.png');
     this.load.image('tank_4', 'assets/tank-frames/tank_4.png');
+    this.load.image('cannon-end', 'assets/cannon-end.png');
+    this.load.image('background', 'assets/city.png');
+    this.load.image('rock-tile', 'assets/rock-tile.jpeg');
   }
 
   create() {
@@ -62,23 +64,28 @@ export default class Game extends Phaser.Scene {
         gameObject.y = dragY;
       }
     );
+    const bkg = this.add.image(
+      Global.SCREEN_WIDTH / 2,
+      Global.SCREEN_HEIGHT / 2,
+      'background'
+    );
+    bkg.scale = 1.8;
 
     this.matter.world.setGravity(0, 1, 0.001);
 
     generateTerrain(this);
 
     // Generate player
-    player = new PlayerTank(this, 0, 0);
-    Game.player = player;
+    Game.player = new PlayerTank(this, 0, 0);
     // player.setIgnoreGravity(true);
 
-    debugMessage = new DebugMessage(this, player, 16, 16);
+    debugMessage = new DebugMessage(this, Game.player, 16, 16);
 
     // draw debugs
     this.matter.world.createDebugGraphic();
     this.matter.world.drawDebug = true;
     this.matter.world.debugGraphic.visible = this.matter.world.drawDebug;
-    this.cameras.main.startFollow(player);
+    this.cameras.main.startFollow(Game.player);
 
     addWrapCamera();
     addWorldBorder();
@@ -109,7 +116,7 @@ function addWrapCamera() {
     Global.WORLD_WIDTH,
     Global.WORLD_HEIGHT * 2
   );
-  wrapCamB.startFollow(player, undefined, 1, 0);
+  wrapCamB.startFollow(Game.player, undefined, 1, 0);
   wrapCamB.scrollY = -Global.WORLD_HEIGHT / 2;
   wrapCamB.setAlpha(0.6);
 
@@ -127,20 +134,20 @@ function addWrapCamera() {
     Global.WORLD_WIDTH,
     Global.WORLD_HEIGHT * 2
   );
-  wrapCamT.startFollow(player, undefined, 1, 0);
+  wrapCamT.startFollow(Game.player, undefined, 1, 0);
   wrapCamT.scrollY = Global.WORLD_HEIGHT / 2 - Global.SCREEN_HEIGHT;
   wrapCamT.setAlpha(0.6);
 
   Game.scene.events.on(Phaser.Scenes.Events.POST_UPDATE, function (event: any) {
     wrapCamB.setViewport(
       0,
-      -player.y + (Global.WORLD_HEIGHT + Global.SCREEN_HEIGHT) / 2,
+      -Game.player.y + (Global.WORLD_HEIGHT + Global.SCREEN_HEIGHT) / 2,
       Global.SCREEN_WIDTH,
       Global.SCREEN_HEIGHT
     );
     wrapCamT.setViewport(
       0,
-      -player.y - (Global.WORLD_HEIGHT + Global.SCREEN_HEIGHT) / 2,
+      -Game.player.y - (Global.WORLD_HEIGHT + Global.SCREEN_HEIGHT) / 2,
       Global.SCREEN_WIDTH,
       Global.SCREEN_HEIGHT
     );
