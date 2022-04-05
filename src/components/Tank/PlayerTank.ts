@@ -1,7 +1,4 @@
-import * as types from '@/types';
-import SmoothedHorionztalControl from '@/scripts/control';
 import Global from '@/global';
-import TankSensor from '@/components/TankSensor';
 import Bullet from '@/components/Bullet';
 import Game from '@/scenes/Game';
 import BaseTank from '@/components/Tank/BaseTank';
@@ -9,18 +6,18 @@ import BaseTank from '@/components/Tank/BaseTank';
 export default class PlayerTank extends BaseTank {
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y);
-    // this.setCollisionCategory(Global.CATEGORY_TANK);
-    // this.setCollidesWith([
-    //   Global.CATEGORY_TERRAIN,
-    //   Global.CATEGORY_POINT,
-    //   Global.CATEGORY_PROJECTILE,
-    //   Global.CATEGORY_TANK,
-    //   Global.CATEGORY_POINT,
-    //   Global.CATEGORY_POWERUP
-    // ]);
+    this.body.parts.forEach((part: any) => {
+      part.collisionFilter.category = Global.CATEGORY_TANK;
+      part.collisionFilter.mask =
+        Global.CATEGORY_TERRAIN |
+        Global.CATEGORY_TANK |
+        Global.CATEGORY_PROJECTILE |
+        Global.CATEGORY_EXPLOSION |
+        Global.CATEGORY_POWERUP;
+    });
   }
 
-  recive(message: any) {
+  receive(message: any) {
     // sync data
   }
 
