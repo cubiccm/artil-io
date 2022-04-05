@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import PolygonClipping from 'polygon-clipping';
-import { Vector2, TerrainPolygon } from '@/types';
+import { Vector2 } from '@/types';
+import Global from '@/global';
 
 export default class Platform {
   public scene: Phaser.Scene;
@@ -66,9 +67,9 @@ export default class Platform {
       this.vertices,
       this.fillColor,
       this.fillAlpha
-    ) as TerrainPolygon;
+    ) as unknown as Phaser.Physics.Matter.Sprite;
+    // poly.controller = this;
     this.scene.matter.add.gameObject(poly, body);
-    poly.controller = this;
     const path_min = this.scene.matter.bounds.create(this.vertices).min;
     const bound_min = body.bounds.min;
     // this.scene.add.circle(this.anchor.x, this.anchor.y, 3, 0xffffff, 0.5);
@@ -76,6 +77,24 @@ export default class Platform {
       x: this.anchor.x + (this.anchor.x - bound_min.x) + path_min.x,
       y: this.anchor.y + (this.anchor.y - bound_min.y) + path_min.y
     });
+    poly.setCollisionCategory(Global.CATEGORY_TERRAIN);
+    poly.setCollidesWith([
+      Global.CATEGORY_TANK,
+      Global.CATEGORY_PROJECTILE,
+      Global.CATEGORY_EXPLOSION
+    ]);
+    body.parts.forEach((part) => {
+      part.collisionFilter.category = Global.CATEGORY_TERRAIN;
+      part.onCollideCallback = (pair: MatterJS.ICollisionPair) => {
+        const support = pair.collision.supports[0];
+        const self = pair.bodyA === part ? pair.bodyA : pair.bodyB;
+        const other = pair.bodyA === part ? pair.bodyB : pair.bodyA;
+        if (other.collisionFilter.category === Global.CATEGORY_PROJECTILE) {
+          this.onCollide(support);
+        }
+      };
+    });
+
     if (body.area < 1000) {
       body.gameObject.destroy();
     }
@@ -85,7 +104,7 @@ export default class Platform {
   onCollide(coord: Vector2) {
     const r = 50;
     const angle_div = 30;
-    const old_vertices: [number, number][] = _.map(this.vertices, (v) => [
+    const old_vertices: [number, number][] = this.vertices.map((v) => [
       v.x,
       v.y
     ]);
@@ -109,7 +128,7 @@ export default class Platform {
     }
     if (!this.gameObject!.active) return;
     this.gameObject!.destroy();
-    _.map(new_vertices, (v) => {
+    new_vertices.map((v) => {
       const vertices = v[0].map((p) => ({ x: p[0], y: p[1] }));
       new Platform(
         this.scene,

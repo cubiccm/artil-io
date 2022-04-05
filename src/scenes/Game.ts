@@ -1,19 +1,19 @@
 import Phaser from 'phaser';
-import Tank from '@/components/Tank';
+import PlayerTank from '@/components/Tank/PlayerTank';
 import DebugMessage from '@/components/DebugMessage';
 import Global from '@/global';
 
 import generateTerrain from '@/scripts/terrainGenerator';
 import _ from 'lodash';
 
-let player: Tank;
+let player: PlayerTank;
 let debugMessage: Phaser.GameObjects.Text;
 let wrapCamB: Phaser.Cameras.Scene2D.Camera;
 let wrapCamT: Phaser.Cameras.Scene2D.Camera;
 
 export default class Game extends Phaser.Scene {
   public static scene: Game;
-  public static player: Tank;
+  public static player: PlayerTank;
   public static keyboard: Phaser.Input.Keyboard.KeyboardPlugin;
   public static keys: any;
 
@@ -68,7 +68,7 @@ export default class Game extends Phaser.Scene {
     generateTerrain(this);
 
     // Generate player
-    player = new Tank(this, 0, 0);
+    player = new PlayerTank(this, 0, 0);
     Game.player = player;
     // player.setIgnoreGravity(true);
 

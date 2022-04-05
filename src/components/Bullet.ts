@@ -1,10 +1,10 @@
 import Global from '@/global';
-import Tank from '@/components/Tank';
-import { TerrainPolygon } from '@/types';
+import BaseTank from '@/components/Tank/BaseTank';
+import Game from '@/scenes/Game';
 
-export default class Bullet {
-  body: Phaser.Physics.Matter.Sprite;
-  parent: Tank;
+export default class Bullet extends Phaser.GameObjects.Container {
+  // body: Phaser.Physics.Matter.Sritpe;
+  parent: BaseTank;
   scene: Phaser.Scene;
 
   constructor(
@@ -13,44 +13,22 @@ export default class Bullet {
     y: number,
     velocity_x: number,
     velocity_y: number,
-    parent: Tank
+    parent: BaseTank
   ) {
+    super(scene);
     this.scene = scene;
     this.parent = parent;
-
-    // Draw bullet
-    this.body = this.drawBody(x, y);
-    this.body.setVelocity(velocity_x, velocity_y);
-
+    Game.scene.add.existing(this);
+    this.drawObject();
+    const body = this.body as MatterJS.BodyType;
+    Game.scene.matter.body.setPosition(body, { x: x, y: y });
+    Game.scene.matter.body.setVelocity(body, { x: velocity_x, y: velocity_y });
+    body.collisionFilter.category = Global.CATEGORY_PROJECTILE;
+    body.collisionFilter.mask =
+      Global.CATEGORY_TERRAIN | Global.CATEGORY_TANK | Global.CATEGORY_POINT;
     // Collision event
-    this.body.setOnCollide((pair: any) => {
-      this.body.destroy();
-      const targetA = pair.bodyA as MatterJS.BodyType;
-      switch (targetA.label) {
-        case 'terrain':
-          (targetA.gameObject as TerrainPolygon).controller.onCollide(
-            pair.collision.supports[0]
-          );
-          break;
-        case 'bullet':
-          break;
-        case 'tank':
-          break;
-      }
-
-      const targetB = pair.bodyB as MatterJS.BodyType;
-      switch (targetB.label) {
-        case 'terrain':
-          (targetB.gameObject as TerrainPolygon).controller.onCollide(
-            pair.collision.supports[0]
-          );
-          break;
-        case 'bullet':
-          break;
-        case 'tank':
-          break;
-      }
-
+    body.onCollideCallback = (pair: MatterJS.IPair) => {
+      this.destroy();
       // Remove this bullet from parent
       if (this.parent != null) {
         this.parent.data.values.bullets =
@@ -58,18 +36,16 @@ export default class Bullet {
             return v != this;
           });
       }
-    });
+    };
   }
 
-  drawBody(x: number, y: number): Phaser.Physics.Matter.Sprite {
+  drawObject() {
     const r = 5;
     const texture = this.scene.add.circle(0, 0, r, 0xffffff);
-    const rigid = this.scene.matter.add.circle(x, y, r);
-    rigid.label = 'bullet';
-    return this.scene.matter.add.gameObject(
-      texture,
-      rigid
-    ) as Phaser.Physics.Matter.Sprite;
+    this.add(texture);
+    const body = this.scene.matter.add.circle(0, 0, r);
+    body.label = 'Bullet';
+    return this.scene.matter.add.gameObject(this, body);
   }
 
   handleCollision(target: MatterJS.BodyType): void {

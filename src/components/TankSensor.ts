@@ -1,9 +1,9 @@
 import * as types from '@/types';
 import Global from '@/global';
-import Tank from '@/components/Tank';
+import BaseTank from '@/components/Tank/BaseTank';
 
 export default class TankSensor {
-  parent: Tank;
+  parent: BaseTank;
   part: string;
   ignore_movable_object: boolean;
   body: MatterJS.BodyType;
@@ -12,7 +12,7 @@ export default class TankSensor {
 
   constructor(
     body: MatterJS.BodyType,
-    parent: Tank,
+    parent: BaseTank,
     part: string,
     ignore_movable_object: boolean
   ) {
