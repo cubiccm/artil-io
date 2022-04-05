@@ -15,6 +15,34 @@ export default class PlayerTank extends BaseTank {
         Global.CATEGORY_DESTRUCTION |
         Global.CATEGORY_POWERUP;
     });
+
+    Game.scene.events.on(
+      Phaser.Scenes.Events.POST_UPDATE,
+      () => {
+        const cursor_x =
+          this.scene.input.mousePointer.x + this.scene.cameras.main.scrollX;
+        const cursor_y =
+          this.scene.input.mousePointer.y + this.scene.cameras.main.scrollY;
+        const cannon = this.data.values.components.cannon_body;
+
+        let angle = Math.atan2(
+          cursor_y - cannon.position.y,
+          cursor_x - cannon.position.x
+        );
+        const tank_angle = this.body.angle;
+        const max_angle = (15 / 180) * Math.PI;
+        if (
+          tank_angle - angle < -max_angle &&
+          tank_angle - angle > max_angle - Math.PI
+        ) {
+          if (tank_angle - angle >= -Math.PI / 2)
+            angle = tank_angle + max_angle;
+          else angle = tank_angle + Math.PI - max_angle;
+        }
+        this.scene.matter.body.setAngle(cannon, angle);
+      },
+      this
+    );
   }
 
   receive(message: any) {
@@ -125,11 +153,19 @@ export default class PlayerTank extends BaseTank {
     if (!canFire) return;
     const origin = this.data.values.components.cannon_body.position;
     const angle = this.data.values.components.cannon_body.angle;
+    const cannon_length = 30;
     const velocity = 30;
     const vx = velocity * Math.cos(angle);
     const vy = velocity * Math.sin(angle);
     this.data.values.bullets.push(
-      new Bullet(this.scene, origin.x, origin.y, vx, vy, this)
+      new Bullet(
+        this.scene,
+        origin.x + Math.cos(angle) * cannon_length,
+        origin.y + Math.sin(angle) * cannon_length,
+        vx,
+        vy,
+        this
+      )
     );
     this.data.values.lastFiredAt = time;
   }
