@@ -23,7 +23,8 @@ export default class Bullet extends BaseProjectile {
     const r = 5;
     const texture = this.scene.add.circle(0, 0, r, 0xff0000);
     this.add(texture);
-    const body = this.scene.matter.add.circle(0, 0, r);
+    // avoid clipping
+    const body = this.scene.matter.add.circle(0, 0, 2 * r);
     body.label = 'Base Bullet';
     this.scene.matter.add.gameObject(this, body);
   }
