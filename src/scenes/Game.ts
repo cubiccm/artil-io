@@ -77,6 +77,10 @@ export default class Game extends Phaser.Scene {
     Game.player = new PlayerTank(this, 0, 0);
     // player.setIgnoreGravity(true);
 
+    // draw debugs
+    this.matter.world.createDebugGraphic();
+    this.matter.world.drawDebug = true;
+    this.matter.world.debugGraphic.visible = this.matter.world.drawDebug;
     this.cameras.main.startFollow(Game.player);
 
     addWrapCamera();
