@@ -4,7 +4,7 @@ import Game from './Game';
 import DebugMessage from '@/components/DebugMessage';
 
 export default class HUD extends Phaser.Scene {
-  show_debug_info = false;
+  show_debug_info = true;
 
   health_bar_graphics!: Phaser.GameObjects.Graphics;
   health_bar_text!: Phaser.GameObjects.Text;
@@ -25,10 +25,6 @@ export default class HUD extends Phaser.Scene {
     this.xp_bar_graphics = this.add.graphics();
     this.gamescene = this.scene.get('Artilio') as Game;
 
-    // Temporary initial value for demo
-    this.drawHealthBar(160, 200);
-    this.drawExpBar(30, 100);
-
     Global.event_bus.on(
       'player-health-update',
       () => {
@@ -45,12 +41,27 @@ export default class HUD extends Phaser.Scene {
       this
     );
 
+    // This event will also be triggered at first loading
+    this.scale.on(
+      'resize',
+      () => {
+        this.redrawAll();
+      },
+      this
+    );
+
     if (this.show_debug_info)
       this.debug_message = new DebugMessage(this, 16, 16);
   }
 
   update() {
     // Not used
+  }
+
+  redrawAll() {
+    // 160, 30 are temporary initial values for demo
+    this.drawHealthBar(Game.player?.get('HP') || 160, 200);
+    this.drawExpBar(Game.player?.get('XP') || 30, 100);
   }
 
   drawHealthBar(current_health: number, max_health: number) {
