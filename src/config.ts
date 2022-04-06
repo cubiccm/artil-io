@@ -1,11 +1,13 @@
 import Phaser from 'phaser';
-
-var _w = window.innerWidth, _h = window.innerHeight;
+import Global from './global';
 
 export default {
   type: Phaser.AUTO,
-  width: _w,
-  height: _h,
+  width: Global.SCREEN_WIDTH,
+  height: Global.SCREEN_HEIGHT,
+  fps: {
+    target: 60
+  },
   physics: {
     default: 'matter',
     matter: {
@@ -13,5 +15,5 @@ export default {
       enableSleep: false,
       debug: true
     }
-  },
+  }
 };
