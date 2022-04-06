@@ -9,7 +9,7 @@ export default class NaturalDestruction extends BaseDestruction {
     velocity: MatterJS.Vector,
     terrain: Platform,
     intensity = 1,
-    r = 75
+    r = 100
   ) {
     const old_vertices: [number, number][] = _.map(terrain.vertices, (v) => [
       v.x,

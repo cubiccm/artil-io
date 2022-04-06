@@ -38,21 +38,21 @@ export default class Bullet extends BaseProjectile {
     terrain: Platform
   ) {
     // Temporary solution, refactor later
-    terrain.onCollide(
-      NaturalDestruction.getNewTerrain(position, velocity, terrain, 2, 75)
+    terrain?.onCollide(
+      NaturalDestruction.getNewTerrain(position, velocity, terrain, 1.5, 100)
     );
 
     // funny bullet
-    const verts = CircularDestruction.getVerts(50);
+    // const verts = CircularDestruction.getVerts(50);
     // Math.random() > 0.5
     // ? CircularDestruction.getVerts(50)
     // : RectangularDestruction.getVerts(100, 50);
 
-    const sensor = new CircularDestruction(
-      this.scene,
-      position.x,
-      position.y,
-      verts
-    );
+    // const sensor = new CircularDestruction(
+    //   this.scene,
+    //   position.x,
+    //   position.y,
+    //   verts
+    // );
   }
 }
