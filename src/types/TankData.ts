@@ -24,7 +24,8 @@ interface TankData {
   lastJumpedAt: number;
   lastFiredAt: number;
   speed: {
-    run: number;
+    ground: number;
+    air: number;
     jump: number;
   };
   components: {

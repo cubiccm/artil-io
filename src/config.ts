@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import Global from './global';
 
 export default {
-  type: Phaser.AUTO,
+  type: Phaser.CANVAS,
   width: Global.SCREEN_WIDTH,
   height: Global.SCREEN_HEIGHT,
   fps: {
