@@ -1,13 +1,12 @@
 import _ from 'lodash';
 import PolygonClipping from 'polygon-clipping';
-import { Vector2 } from '@/types';
 import Global from '@/global';
 import BaseDestruction from './Destruction/BaseDestruction';
 
 export default class Platform {
   public scene: Phaser.Scene;
-  public anchor: Vector2;
-  public vertices: Vector2[];
+  public anchor: MatterJS.Vector;
+  public vertices: MatterJS.Vector[];
   public fillColor: number;
   public fillAlpha: number;
   public gameObject: Phaser.GameObjects.GameObject | null;
@@ -16,7 +15,7 @@ export default class Platform {
     scene: Phaser.Scene,
     x: number,
     y: number,
-    vertices: Vector2[],
+    vertices: MatterJS.Vector[],
     fillColor?: number,
     fillAlpha?: number
   ) {
@@ -30,7 +29,7 @@ export default class Platform {
   }
 
   createPlatform(): Phaser.GameObjects.GameObject | null {
-    let body: MatterJS.BodyType;
+    let rigid: MatterJS.BodyType;
     this.vertices = this.vertices.map((v) => ({
       x: Math.round(v.x * 100) / 100,
       y: Math.round(v.y * 100) / 100
@@ -39,7 +38,7 @@ export default class Platform {
       ...new Set(this.vertices.map((v) => JSON.stringify(v)))
     ].map((v) => JSON.parse(v));
     try {
-      body = this.scene.matter.add.fromVertices(
+      rigid = this.scene.matter.add.fromVertices(
         this.anchor.x,
         this.anchor.y,
         this.vertices,
@@ -52,58 +51,71 @@ export default class Platform {
         0.1
       );
     } catch (error) {
-      // this.scene.add.polygon(
-      //   this.anchor.x,
-      //   this.anchor.y,
-      //   this.vertices,
-      //   0xff00ff,
-      //   1
-      // );
-      // console.log(error);
       return null;
     }
-    const poly = this.scene.add.polygon(
+    const texture = this.scene.add.polygon(
       this.anchor.x,
       this.anchor.y,
       this.vertices,
       this.fillColor,
       this.fillAlpha
     ) as unknown as Phaser.Physics.Matter.Sprite;
-    // poly.controller = this;
-    this.scene.matter.add.gameObject(poly, body);
+    this.scene.matter.add.gameObject(texture, rigid);
+    // Temporary solution, refactor later
+    texture.controller = this;
+
     const path_min = this.scene.matter.bounds.create(this.vertices).min;
-    const bound_min = body.bounds.min;
-    // this.scene.add.circle(this.anchor.x, this.anchor.y, 3, 0xffffff, 0.5);
-    this.scene.matter.body.setPosition(body, {
+    const bound_min = rigid.bounds.min;
+    this.scene.matter.body.setPosition(rigid, {
       x: this.anchor.x + (this.anchor.x - bound_min.x) + path_min.x,
       y: this.anchor.y + (this.anchor.y - bound_min.y) + path_min.y
     });
-    body.parts.forEach((part) => {
+
+    rigid.parts.forEach((part) => {
       part.collisionFilter.category = Global.CATEGORY_TERRAIN;
       part.collisionFilter.mask =
         Global.CATEGORY_TANK |
         Global.CATEGORY_PROJECTILE |
         Global.CATEGORY_DESTRUCTION;
       part.onCollideCallback = (pair: MatterJS.ICollisionPair) => {
-        const support = pair.collision.supports[0];
-        const self = pair.bodyA === part ? pair.bodyA : pair.bodyB;
-        const other = pair.bodyA === part ? pair.bodyB : pair.bodyA;
-        if (other.collisionFilter.category === Global.CATEGORY_DESTRUCTION) {
-          const destruction = other.gameObject as BaseDestruction;
-          this.onCollide(other.position, other.vertices!);
-        }
+        // const support = pair.collision.supports[0];
+        // const self = (
+        //   pair.bodyA === part ? pair.bodyA : pair.bodyB
+        // ) as MatterJS.BodyType;
+        // const other = (
+        //   pair.bodyA === part ? pair.bodyB : pair.bodyA
+        // ) as MatterJS.BodyType;
+        // if (other.collisionFilter.category === Global.CATEGORY_DESTRUCTION) {
+        //   const destruction = other.gameObject as BaseDestruction;
+        //   this.onCollide(other.vertices);
+        // }
       };
     });
 
-    if (body.area < 1000) {
-      body.gameObject.destroy();
+    if (rigid.area < 1000) {
+      rigid.gameObject.destroy();
     }
-    return poly;
+    return texture;
   }
 
-  onCollide(coord: Vector2, destructionVertices: MatterJS.Vector[]) {
-    const r = 50;
-    const angle_div = 30;
+  onCollide(new_vertices: PolygonClipping.MultiPolygon) {
+    if (!this.gameObject?.active) return;
+    this.gameObject?.destroy();
+    new_vertices.map((v) => {
+      const vertices = v[0].map((p) => ({ x: p[0], y: p[1] }));
+      new Platform(
+        this.scene,
+        this.anchor.x,
+        this.anchor.y,
+        vertices,
+        this.fillColor,
+        this.fillAlpha
+      );
+    });
+  }
+
+  /*
+  onCollide(coord: MatterJS.Vector, destructionVertices: MatterJS.Vector[]) {
     const old_vertices: [number, number][] = this.vertices.map((v) => [
       v.x,
       v.y
@@ -121,12 +133,11 @@ export default class Platform {
         [destruction_vertices]
       );
     } catch (error) {
-      // this.scene.add.circle(coord.x, coord.y, 2, 0xff0000, 1);
       // console.log(error);
       return;
     }
-    if (!this.gameObject!.active) return;
-    this.gameObject!.destroy();
+    if (!this.gameObject?.active) return;
+    this.gameObject?.destroy();
     new_vertices.map((v) => {
       const vertices = v[0].map((p) => ({ x: p[0], y: p[1] }));
       new Platform(
@@ -139,4 +150,5 @@ export default class Platform {
       );
     });
   }
+  */
 }

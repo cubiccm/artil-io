@@ -1,7 +1,7 @@
 import Global from '@/global';
 import BaseTank from '@/components/Tank/BaseTank';
+import Platform from '@/components/Platform';
 import Game from '@/scenes/Game';
-import { Vector2 } from '@/types';
 
 export default abstract class BaseProjectile extends Phaser.GameObjects
   .Container {
@@ -28,8 +28,12 @@ export default abstract class BaseProjectile extends Phaser.GameObjects
     // Collision event
     body.onCollideCallback = (pair: MatterJS.ICollisionPair) => {
       if (!this.active) return;
-      const support = pair.collision.supports[0];
-      this.createDestruction(support.x, support.y);
+      const position = pair.collision.supports[0];
+      const velocity = this.body.velocity;
+      const terrain = (
+        pair.bodyA == this.body ? pair.bodyB : pair.bodyA
+      ) as MatterJS.BodyType;
+      this.createDestruction(position, velocity, terrain.gameObject.controller);
       this.destroy();
       // Remove this bullet from parent
       if (this.parent != null) {
@@ -47,7 +51,11 @@ export default abstract class BaseProjectile extends Phaser.GameObjects
     return;
   }
 
-  createDestruction(x: number, y: number) {
+  createDestruction(
+    position: MatterJS.Vector,
+    velocity: MatterJS.Vector,
+    terrain: Platform
+  ) {
     // abstract class, will be overwritten
     return;
   }

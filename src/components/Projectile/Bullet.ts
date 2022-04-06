@@ -5,6 +5,9 @@ import BaseProjectile from './BaseProjectile';
 import CircularDestruction from '../Destruction/CircularDestruction';
 import RectangularDestruction from '../Destruction/RectangularDestruction';
 import BaseDestruction from '../Destruction/BaseDestruction';
+import { Vector } from 'matter';
+import NaturalDestruction from '@/components/Destruction/NaturalDestruction';
+import Platform from '@/components/Platform';
 
 export default class Bullet extends BaseProjectile {
   constructor(
@@ -29,13 +32,27 @@ export default class Bullet extends BaseProjectile {
     this.scene.matter.add.gameObject(this, body);
   }
 
-  createDestruction(x: number, y: number) {
+  createDestruction(
+    position: MatterJS.Vector,
+    velocity: MatterJS.Vector,
+    terrain: Platform
+  ) {
+    // Temporary solution, refactor later
+    terrain.onCollide(
+      NaturalDestruction.getNewTerrain(position, velocity, terrain, 2, 75)
+    );
+
     // funny bullet
     const verts = CircularDestruction.getVerts(50);
     // Math.random() > 0.5
     // ? CircularDestruction.getVerts(50)
     // : RectangularDestruction.getVerts(100, 50);
 
-    const sensor = new CircularDestruction(this.scene, x, y, verts);
+    const sensor = new CircularDestruction(
+      this.scene,
+      position.x,
+      position.y,
+      verts
+    );
   }
 }
