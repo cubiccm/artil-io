@@ -104,7 +104,6 @@ export default class HUD extends Phaser.Scene {
           {
             fontSize: '14pt',
             fontFamily: 'consolas', // TODO: Select a font for the game
-            // fontStyle: 'bold'
             align: 'center',
             color: 'rgba(255, 255, 255, 1)',
             stroke: '#000000',
@@ -113,6 +112,10 @@ export default class HUD extends Phaser.Scene {
         )
         .setOrigin(0.5);
     }
+    this.health_bar_text.setPosition(
+      Global.SCREEN_WIDTH / 2,
+      Global.SCREEN_HEIGHT - bottom_margin - bar_height / 2
+    );
     this.health_bar_text.setText(`Health: ${current_health} / ${max_health}`);
   }
 
