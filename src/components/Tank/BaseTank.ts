@@ -7,6 +7,8 @@ import Game from '@/scenes/Game';
 export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
   public smoothedControls!: SmoothedHorionztalControl;
   declare body: MatterJS.BodyType;
+
+  // Avoid using this method: please use get() or set() to trigger events
   public get tank_data(): types.TankData {
     return this.data.values as types.TankData;
   }
@@ -141,6 +143,31 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
     );
 
     this.smoothedControls = new SmoothedHorionztalControl(this, 0.0005);
+  }
+
+  set(attribute: string, value: any) {
+    if (!(attribute in this.data.values)) {
+      // eslint-disable-next-line no-console
+      console.warn('Failed to set attribute ' + attribute);
+      return false;
+    }
+    this.data.values[attribute] = value;
+    switch (attribute) {
+      case 'HP':
+        Global.event_bus.emit('player-health-update');
+        break;
+      case 'XP':
+        Global.event_bus.emit('player-xp-update');
+        break;
+    }
+    return true;
+  }
+
+  get(attribute: string) {
+    if (!(attribute in this.data.values))
+      // eslint-disable-next-line no-console
+      console.warn('Failed to set attribute ' + attribute);
+    else return this.data.values[attribute];
   }
 
   createCannonEnd() {

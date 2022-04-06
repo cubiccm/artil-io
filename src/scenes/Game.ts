@@ -1,12 +1,10 @@
 import Phaser from 'phaser';
 import PlayerTank from '@/components/Tank/PlayerTank';
-import DebugMessage from '@/components/DebugMessage';
 import Global from '@/global';
 
 import generateTerrain from '@/scripts/terrainGenerator';
 import _ from 'lodash';
 
-let debugMessage: Phaser.GameObjects.Text;
 let wrapCamB: Phaser.Cameras.Scene2D.Camera;
 let wrapCamT: Phaser.Cameras.Scene2D.Camera;
 
@@ -18,6 +16,7 @@ export default class Game extends Phaser.Scene {
 
   constructor() {
     super('Artilio');
+    Game.scene = this;
   }
 
   preload() {
@@ -33,7 +32,6 @@ export default class Game extends Phaser.Scene {
   }
 
   create() {
-    Game.scene = this;
     Game.keys = this.input.keyboard.addKeys('LEFT,RIGHT,UP,DOWN,W,A,S,D,SPACE');
 
     // cam.setBounds(
@@ -78,8 +76,6 @@ export default class Game extends Phaser.Scene {
     // Generate player
     Game.player = new PlayerTank(this, 0, 0);
     // player.setIgnoreGravity(true);
-
-    debugMessage = new DebugMessage(this, Game.player, 16, 16);
 
     // draw debugs
     this.matter.world.createDebugGraphic();
