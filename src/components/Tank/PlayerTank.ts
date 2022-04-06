@@ -88,7 +88,9 @@ export default class PlayerTank extends BaseTank {
       // matterSprite.anims.play('left', true);
 
       const oldVelocityX = this.body.velocity.x;
-      const targetVelocityX = -this.data.values.speed.run;
+      const targetVelocityX = this.data.values.sensors.bottom.blocked
+        ? -this.data.values.speed.ground
+        : -this.data.values.speed.air;
       const newVelocityX = Phaser.Math.Linear(
         oldVelocityX,
         targetVelocityX,
@@ -111,7 +113,9 @@ export default class PlayerTank extends BaseTank {
       // matterSprite.anims.play('right', true);
 
       const oldVelocityX = this.body.velocity.x;
-      const targetVelocityX = this.data.values.speed.run;
+      const targetVelocityX = this.data.values.sensors.bottom.blocked
+        ? this.data.values.speed.ground
+        : this.data.values.speed.air;
       const newVelocityX = Phaser.Math.Linear(
         oldVelocityX,
         targetVelocityX,
@@ -137,12 +141,12 @@ export default class PlayerTank extends BaseTank {
       } else if (this.data.values.sensors.left.blocked) {
         // Jump up and away from the wall
         this.setVelocityY(-this.data.values.speed.jump);
-        this.setVelocityX(this.data.values.speed.run);
+        this.setVelocityX(this.data.values.speed.ground);
         this.data.values.lastJumpedAt = time;
       } else if (this.data.values.sensors.right.blocked) {
         // Jump up and away from the wall
         this.setVelocityY(-this.data.values.speed.jump);
-        this.setVelocityX(-this.data.values.speed.run);
+        this.setVelocityX(-this.data.values.speed.ground);
         this.data.values.lastJumpedAt = time;
       }
     }

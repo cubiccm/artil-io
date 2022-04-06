@@ -42,7 +42,8 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
       lastJumpedAt: 0,
       lastFiredAt: 0,
       speed: {
-        run: 2,
+        ground: 2,
+        air: 1.5,
         jump: 6
       },
       HP: 0,
@@ -76,22 +77,29 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
       'B',
       false
     );
-    this.data.values.sensors.left = new TankSensor(
-      scene.matter.bodies.rectangle(sx - w * 0.45, sy + 400, 5, h * 0.2, {
+    let rect = scene.matter.bodies.rectangle(
+      sx - w * 0.43,
+      sy + 440,
+      10,
+      h * 0.18,
+      {
         isSensor: true
-      }),
-      this,
-      'L',
-      true
+      }
     );
-    this.data.values.sensors.right = new TankSensor(
-      scene.matter.bodies.rectangle(sx + w * 0.47, sy + 400, 5, h * 0.2, {
+    this.scene.matter.body.rotate(rect, -(25 / 180) * Math.PI);
+    this.data.values.sensors.left = new TankSensor(rect, this, 'L', true);
+
+    rect = scene.matter.bodies.rectangle(
+      sx + w * 0.44,
+      sy + 440,
+      10,
+      h * 0.18,
+      {
         isSensor: true
-      }),
-      this,
-      'R',
-      true
+      }
     );
+    this.scene.matter.body.rotate(rect, (30 / 180) * Math.PI);
+    this.data.values.sensors.right = new TankSensor(rect, this, 'R', true);
 
     this.data.values.components.cannon_body = scene.matter.bodies.circle(
       555,
@@ -218,7 +226,7 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
     const max_frame_rate = 24; // Frame rate in full speed
     const frame_rate_step = 6; // Step between different frame rate levels
     const frame_rate_level =
-      Math.abs(this.body.velocity.x / this.data.values.speed.run) *
+      Math.abs(this.body.velocity.x / this.data.values.speed.ground) *
       (max_frame_rate / frame_rate_step);
     const new_frame_rate = Math.min(
       Math.round(frame_rate_level) * frame_rate_step,
