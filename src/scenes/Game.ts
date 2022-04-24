@@ -1,9 +1,11 @@
 import Phaser from 'phaser';
 import PlayerTank from '@/components/Tank/PlayerTank';
+import GeneralTank from '@/components/Tank/GeneralTank';
 import Global from '@/global';
 
 import generateTerrain from '@/scripts/terrainGenerator';
 import _ from 'lodash';
+import BaseTank from '@/components/Tank/BaseTank';
 
 let wrapCamB: Phaser.Cameras.Scene2D.Camera;
 let wrapCamT: Phaser.Cameras.Scene2D.Camera;
@@ -13,10 +15,12 @@ export default class Game extends Phaser.Scene {
   public static player: PlayerTank;
   public static keyboard: Phaser.Input.Keyboard.KeyboardPlugin;
   public static keys: any;
+  public static players: BaseTank[];
 
   constructor() {
     super('Artilio');
     Game.scene = this;
+    Game.players = [];
   }
 
   preload() {
@@ -33,13 +37,6 @@ export default class Game extends Phaser.Scene {
 
   create() {
     Game.keys = this.input.keyboard.addKeys('LEFT,RIGHT,UP,DOWN,W,A,S,D,SPACE');
-
-    // cam.setBounds(
-    //   -Global.WORLD_WIDTH / 2,
-    //   -Global.WORLD_HEIGHT,
-    //   Global.WORLD_WIDTH,
-    //   Global.WORLD_HEIGHT * 2
-    // );
 
     this.matter.world.setBounds(
       -Global.WORLD_WIDTH,
@@ -75,6 +72,7 @@ export default class Game extends Phaser.Scene {
 
     // Generate player
     Game.player = new PlayerTank(this, 0, 0);
+    Game.players.push(new GeneralTank(this, -500, 0));
     // player.setIgnoreGravity(true);
 
     // draw debugs

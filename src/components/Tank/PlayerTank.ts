@@ -6,15 +6,6 @@ import BaseTank from '@/components/Tank/BaseTank';
 export default class PlayerTank extends BaseTank {
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y);
-    this.body.parts.forEach((part: any) => {
-      part.collisionFilter.category = Global.CATEGORY_TANK;
-      part.collisionFilter.mask =
-        Global.CATEGORY_TERRAIN |
-        Global.CATEGORY_TANK |
-        Global.CATEGORY_PROJECTILE |
-        Global.CATEGORY_DESTRUCTION |
-        Global.CATEGORY_POWERUP;
-    });
 
     Game.scene.events.on(
       Phaser.Scenes.Events.POST_UPDATE,
@@ -83,7 +74,10 @@ export default class PlayerTank extends BaseTank {
   }
 
   moveLeft(time: number, delta: number) {
-    if (!this.data.values.sensors.left.blocked) {
+    if (
+      !this.data.values.sensors.left.blocked &&
+      this.data.values.sensors.bottom.blocked
+    ) {
       this.smoothedControls.moveLeft(delta);
       // matterSprite.anims.play('left', true);
 
@@ -108,7 +102,10 @@ export default class PlayerTank extends BaseTank {
   }
 
   moveRight(time: number, delta: number) {
-    if (!this.data.values.sensors.right.blocked) {
+    if (
+      !this.data.values.sensors.right.blocked &&
+      this.data.values.sensors.bottom.blocked
+    ) {
       this.smoothedControls.moveRight(delta);
       // matterSprite.anims.play('right', true);
 

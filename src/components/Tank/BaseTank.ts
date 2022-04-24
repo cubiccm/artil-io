@@ -14,7 +14,8 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
   }
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene.matter.world, x, y, 'tank_1', undefined, {
+    // (x, y) is used to set the initial position after all parts constructed at (0, 0)
+    super(scene.matter.world, 0, 0, 'tank_1', undefined, {
       label: 'tank',
       shape: scene.cache.json.get('tank_shape').tank
     } as Phaser.Types.Physics.Matter.MatterBodyConfig);
@@ -129,6 +130,18 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
 
     this.createCannonEnd();
 
+    this.body.parts.forEach((part: any) => {
+      part.collisionFilter.category = Global.CATEGORY_TANK;
+      part.collisionFilter.mask =
+        Global.CATEGORY_TERRAIN |
+        Global.CATEGORY_TANK |
+        Global.CATEGORY_PROJECTILE |
+        Global.CATEGORY_DESTRUCTION |
+        Global.CATEGORY_POWERUP;
+    });
+
+    this.setPosition(x, y);
+
     // Setup tank animations
     this.createWheelAnimations();
     Game.scene.events.on(
@@ -151,6 +164,10 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
     );
 
     this.smoothedControls = new SmoothedHorionztalControl(this, 0.0005);
+  }
+
+  moveTo(x: number, y: number) {
+    this.setPosition(x, y);
   }
 
   set(attribute: string, value: any) {
