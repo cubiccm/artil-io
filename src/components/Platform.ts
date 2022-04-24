@@ -3,6 +3,10 @@ import PolygonClipping from 'polygon-clipping';
 import Global from '@/global';
 import BaseDestruction from './Destruction/BaseDestruction';
 
+export class PlatformTexture extends Phaser.Physics.Matter.Sprite {
+  public controller?: Platform;
+}
+
 export default class Platform {
   public scene: Phaser.Scene;
   public anchor: MatterJS.Vector;
@@ -19,7 +23,7 @@ export default class Platform {
     fillColor?: number,
     fillAlpha?: number
   ) {
-    // const poly = scene.add.polygon(x, y, vertices, 0x0000ff, 0.5); // wierd bug sometimes the shape skips some vertices?
+    // const poly = scene.add.polygon(x, y, vertices, 0x0000ff, 0.5); // weird bug sometimes the shape skips some vertices?
     this.scene = scene;
     this.anchor = { x: x, y: y };
     this.vertices = vertices;
@@ -59,9 +63,8 @@ export default class Platform {
       this.vertices,
       this.fillColor,
       this.fillAlpha
-    ) as unknown as Phaser.Physics.Matter.Sprite;
+    ) as unknown as PlatformTexture;
     this.scene.matter.add.gameObject(texture, rigid);
-    // Temporary solution, refactor later
     texture.controller = this;
 
     const path_min = this.scene.matter.bounds.create(this.vertices).min;
@@ -113,42 +116,4 @@ export default class Platform {
       );
     });
   }
-
-  /*
-  onCollide(coord: MatterJS.Vector, destructionVertices: MatterJS.Vector[]) {
-    const old_vertices: [number, number][] = this.vertices.map((v) => [
-      v.x,
-      v.y
-    ]);
-    const destruction_vertices: [number, number][] = [];
-    destructionVertices.forEach((v) => {
-      const x = v.x - this.anchor.x;
-      const y = v.y - this.anchor.y;
-      destruction_vertices.push([x, y]);
-    });
-    let new_vertices;
-    try {
-      new_vertices = PolygonClipping.difference(
-        [old_vertices],
-        [destruction_vertices]
-      );
-    } catch (error) {
-      // console.log(error);
-      return;
-    }
-    if (!this.gameObject?.active) return;
-    this.gameObject?.destroy();
-    new_vertices.map((v) => {
-      const vertices = v[0].map((p) => ({ x: p[0], y: p[1] }));
-      new Platform(
-        this.scene,
-        this.anchor.x,
-        this.anchor.y,
-        vertices,
-        this.fillColor,
-        this.fillAlpha
-      );
-    });
-  }
-  */
 }

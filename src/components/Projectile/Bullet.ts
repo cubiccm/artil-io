@@ -2,9 +2,9 @@ import Global from '@/global';
 import BaseTank from '@/components/Tank/BaseTank';
 import Game from '@/scenes/Game';
 import BaseProjectile from './BaseProjectile';
-import CircularDestruction from '../Destruction/CircularDestruction';
-import RectangularDestruction from '../Destruction/RectangularDestruction';
-import BaseDestruction from '../Destruction/BaseDestruction';
+import CircularDestruction from '@/components/Destruction/CircularDestruction';
+import RectangularDestruction from '@/components/Destruction/RectangularDestruction';
+import BaseDestruction from '@/components/Destruction/BaseDestruction';
 import { Vector } from 'matter';
 import NaturalDestruction from '@/components/Destruction/NaturalDestruction';
 import Platform from '@/components/Platform';
@@ -37,9 +37,25 @@ export default class Bullet extends BaseProjectile {
     velocity: MatterJS.Vector,
     terrain: Platform
   ) {
-    // Temporary solution, refactor later
+    // Natural Destruction
+    const natural_destruction = new NaturalDestruction(this.scene, {
+      r: 100,
+      intensity: 1.5
+    });
+
+    // Circular Destruction
+    const circular_destruction = new CircularDestruction(this.scene, {
+      r: 50
+    });
+
+    // Rectangular Destruction
+    const rectangular_destruction = new RectangularDestruction(this.scene, {
+      w: 100,
+      r: 50
+    });
+
     terrain?.onCollide(
-      NaturalDestruction.getNewTerrain(position, velocity, terrain, 1.5, 100)
+      natural_destruction.getNewTerrain(position, velocity, terrain)
     );
 
     // funny bullet

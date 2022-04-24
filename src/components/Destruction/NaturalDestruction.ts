@@ -4,13 +4,14 @@ import Platform from '@/components/Platform';
 import _ from 'lodash';
 
 export default class NaturalDestruction extends BaseDestruction {
-  static getNewTerrain(
+  r: number;
+  intensity: number;
+  getNewTerrain(
     position: MatterJS.Vector,
     velocity: MatterJS.Vector,
-    terrain: Platform,
-    intensity = 1,
-    r = 100
+    terrain: Platform
   ) {
+    const r = this.r;
     const old_vertices: [number, number][] = _.map(terrain.vertices, (v) => [
       v.x,
       v.y
@@ -25,7 +26,7 @@ export default class NaturalDestruction extends BaseDestruction {
       );
       let coeff;
       if (dist <= r) {
-        coeff = intensity * (1 - Math.pow(dist / r, 4));
+        coeff = this.intensity * (1 - Math.pow(dist / r, 4));
       } else {
         coeff = 0;
       }
@@ -59,12 +60,9 @@ export default class NaturalDestruction extends BaseDestruction {
     return PolygonClipping.intersection([old_vertices], [new_vertices]);
   }
 
-  constructor(
-    scene: Phaser.Scene,
-    x: number,
-    y: number,
-    vertices: MatterJS.Vector[]
-  ) {
-    super(scene, x, y, vertices);
+  constructor(scene: Phaser.Scene, properties: any) {
+    super(scene, properties);
+    this.r = properties.r || 75;
+    this.intensity = properties.intensity || 1.0;
   }
 }

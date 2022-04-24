@@ -1,24 +1,27 @@
 import BaseDestruction from './BaseDestruction';
 import * as _ from 'lodash';
+import Platform from '@/components/Platform';
 
 export default class RectangularDestruction extends BaseDestruction {
-  static getVerts(w: number, h: number) {
-    const angle_div = 30;
+  w: number;
+  h: number;
+  getNewTerrain(
+    position: MatterJS.Vector,
+    velocity: MatterJS.Vector,
+    terrain: Platform
+  ) {
     const destruction_vertices: MatterJS.Vector[] = [
-      { x: 0, y: 0 },
-      { x: w, y: 0 },
-      { x: w, y: h },
-      { x: 0, y: h }
+      { x: -this.w / 2, y: -this.h / 2 },
+      { x: this.w / 2, y: -this.h / 2 },
+      { x: this.w / 2, y: this.h / 2 },
+      { x: -this.w / 2, y: this.h / 2 }
     ];
-    return destruction_vertices;
+    return this.destruct(position, terrain, destruction_vertices);
   }
 
-  constructor(
-    scene: Phaser.Scene,
-    x: number,
-    y: number,
-    vertices: MatterJS.Vector[]
-  ) {
-    super(scene, x, y, vertices);
+  constructor(scene: Phaser.Scene, properties: any) {
+    super(scene, properties);
+    this.w = properties.w || 50;
+    this.h = properties.h || 50;
   }
 }

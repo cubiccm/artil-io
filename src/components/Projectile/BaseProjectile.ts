@@ -35,7 +35,7 @@ export default abstract class BaseProjectile extends Phaser.GameObjects
       ) as MatterJS.BodyType;
       this.createDestruction(position, velocity, terrain.gameObject.controller);
       this.destroy();
-      // Remove this bullet from parent
+      // Remove this bullet from parent tank
       if (this.parent != null) {
         this.parent.data.values.bullets =
           this.parent.data.values.bullets.filter((v: any) => {
