@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
 import Global from '@/global';
 import Game from './Game';
+import Login from './Login';
 
-const _w = window.innerWidth,
-  _h = window.innerHeight;
+const _w = Global.SCREEN_WIDTH,
+  _h = Global.SCREEN_HEIGHT;
 
 export default class HUD extends Phaser.Scene {
   graphics!: Phaser.GameObjects.Graphics;

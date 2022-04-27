@@ -3,10 +3,10 @@ import config from './config';
 import Global from './global';
 import GameScene from './scenes/Game';
 import HUDScene from './scenes/HUD';
-
+import LoginScene from './scenes/Login';
 const index = new Phaser.Game(
   Object.assign(config, {
-    scene: [GameScene, HUDScene]
+    scene: [LoginScene, GameScene, HUDScene]
   })
 );
 

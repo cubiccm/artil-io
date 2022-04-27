@@ -21,6 +21,7 @@ export default class Game extends Phaser.Scene {
   }
 
   preload() {
+    this.load.image('background', 'assets/city.png');
     this.load.image('tank', 'assets/tank.png');
     this.load.json('tank_shape', 'assets/tank_shape.json');
     this.load.image('tank_1', 'assets/tank-frames/tank_1.png');
@@ -28,8 +29,14 @@ export default class Game extends Phaser.Scene {
     this.load.image('tank_3', 'assets/tank-frames/tank_3.png');
     this.load.image('tank_4', 'assets/tank-frames/tank_4.png');
     this.load.image('cannon', 'assets/cannon-end.png');
-    this.load.image('background', 'assets/city.png');
     this.load.image('rock-tile', 'assets/rock-tile.jpeg');
+    const bkg = this.add.image(
+      Global.SCREEN_WIDTH / 2,
+      Global.SCREEN_HEIGHT / 2,
+      'background'
+    );
+
+    this.progressBar();
   }
 
   create() {
@@ -70,7 +77,6 @@ export default class Game extends Phaser.Scene {
       'background'
     );
     bkg.scale = 1.8;
-
     this.matter.world.setGravity(0, 1, 0.001);
 
     generateTerrain(this);
@@ -96,6 +102,45 @@ export default class Game extends Phaser.Scene {
 
   update(time: number, delta: number) {
     // not used, listen to the Game.scene.events.on(Phaser.Scenes.Events.UPDATE, callback) directly
+  }
+
+  progressBar() {
+    var progressBar = this.add.graphics();
+    var progressBox = this.add.graphics();
+    progressBox.fillStyle(0x222222, 0.8);
+    progressBox.fillRect(
+      Global.SCREEN_WIDTH / 2 - 160,
+      Global.SCREEN_HEIGHT / 2 - 25,
+      320,
+      50
+    );
+    var loadingText = this.make.text({
+      x: Global.SCREEN_WIDTH / 2,
+      y: Global.SCREEN_HEIGHT / 2 - 50,
+      text: 'Loading...',
+      style: {
+        font: '20px monospace',
+        color: '#ffffff'
+      }
+    });
+    loadingText.setOrigin(0.5, 0.5);
+    this.load.on('progress', function (value: any) {
+      console.log(value);
+      progressBar.clear();
+      progressBar.fillStyle(0xffffff, 1);
+      progressBar.fillRect(
+        Global.SCREEN_WIDTH / 2 - 150,
+        Global.SCREEN_HEIGHT / 2 - 15,
+        300 * value,
+        30
+      );
+    });
+
+    this.load.on('complete', function () {
+      progressBar.destroy();
+      progressBox.destroy();
+      loadingText.destroy();
+    });
   }
 }
 
