@@ -50,11 +50,11 @@ export default class PlayerTank extends BaseTank {
     const keys: any = Game.keys;
 
     if (keyboard.checkDown(keys.LEFT) || keyboard.checkDown(keys.A)) {
-      this.moveLeft(time, delta);
+      this.moveLeft();
     }
 
     if (keyboard.checkDown(keys.RIGHT) || keyboard.checkDown(keys.D)) {
-      this.moveRight(time, delta);
+      this.moveRight();
     }
 
     if (keyboard.checkDown(keys.UP) || keyboard.checkDown(keys.SPACE)) {
@@ -73,25 +73,16 @@ export default class PlayerTank extends BaseTank {
     }
   }
 
-  moveLeft(time: number, delta: number) {
+  moveLeft() {
     if (
       !this.data.values.sensors.left.blocked &&
       this.data.values.sensors.bottom.blocked
     ) {
-      this.smoothedControls.moveLeft(delta);
-      // matterSprite.anims.play('left', true);
+      const newVelocityX = this.data.values.sensors.bottom.blocked
+        ? this.data.values.speed.ground
+        : this.data.values.speed.air;
 
-      const oldVelocityX = this.body.velocity.x;
-      const targetVelocityX = this.data.values.sensors.bottom.blocked
-        ? -this.data.values.speed.ground
-        : -this.data.values.speed.air;
-      const newVelocityX = Phaser.Math.Linear(
-        oldVelocityX,
-        targetVelocityX,
-        -this.smoothedControls.value
-      );
-
-      this.setVelocityX(newVelocityX);
+      this.setVelocityX(-newVelocityX);
     }
 
     if (!this.data.values.sensors.bottom.blocked) {
@@ -101,23 +92,14 @@ export default class PlayerTank extends BaseTank {
     }
   }
 
-  moveRight(time: number, delta: number) {
+  moveRight() {
     if (
       !this.data.values.sensors.right.blocked &&
       this.data.values.sensors.bottom.blocked
     ) {
-      this.smoothedControls.moveRight(delta);
-      // matterSprite.anims.play('right', true);
-
-      const oldVelocityX = this.body.velocity.x;
-      const targetVelocityX = this.data.values.sensors.bottom.blocked
+      const newVelocityX = this.data.values.sensors.bottom.blocked
         ? this.data.values.speed.ground
         : this.data.values.speed.air;
-      const newVelocityX = Phaser.Math.Linear(
-        oldVelocityX,
-        targetVelocityX,
-        this.smoothedControls.value
-      );
 
       this.setVelocityX(newVelocityX);
     }

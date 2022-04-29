@@ -17,10 +17,6 @@ interface TankData {
     left?: TankSensor;
     right?: TankSensor;
   };
-  time: {
-    leftDown: number;
-    rightDown: number;
-  };
   lastJumpedAt: number;
   lastFiredAt: number;
   speed: {

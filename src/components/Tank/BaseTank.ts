@@ -1,11 +1,9 @@
 import * as types from '@/types';
-import SmoothedHorionztalControl from '@/scripts/control';
 import Global from '@/global';
 import TankSensor from '@/components/Tank/TankSensor';
 import Game from '@/scenes/Game';
 
 export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
-  public smoothedControls!: SmoothedHorionztalControl;
   declare body: MatterJS.BodyType;
 
   // Avoid using this method: please use get() or set() to trigger events
@@ -35,10 +33,6 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
         bottom: undefined,
         left: undefined,
         right: undefined
-      },
-      time: {
-        leftDown: 0,
-        rightDown: 0
       },
       lastJumpedAt: 0,
       lastFiredAt: 0,
@@ -162,12 +156,15 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
         this.update(time, delta);
       }
     );
-
-    this.smoothedControls = new SmoothedHorionztalControl(this, 0.0005);
   }
 
   moveTo(x: number, y: number) {
     this.setPosition(x, y);
+  }
+
+  rotateCannon(angle: number) {
+    const cannon = this.data.values.components.cannon_body;
+    this.scene.matter.body.setAngle(cannon, angle);
   }
 
   set(attribute: string, value: any) {
