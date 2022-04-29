@@ -2,6 +2,10 @@ import Phaser from 'phaser';
 import Global from '@/global';
 import Game from './Game';
 import DebugMessage from '@/components/DebugMessage';
+import Login from './Login';
+
+const _w = Global.SCREEN_WIDTH,
+  _h = Global.SCREEN_HEIGHT;
 
 export default class HUD extends Phaser.Scene {
   show_debug_info = true;
