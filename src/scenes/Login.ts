@@ -28,17 +28,18 @@ export default class Login extends Phaser.Scene {
     const logo = this.add.image(_w / 2, 200, 'logo');
     logo.scale = 0.7;
 
-    var element = this.add.dom(_w / 2, 0).createFromCache('loginform');
+    const element = this.add.dom(_w / 2, 0).createFromCache('loginform');
 
     element.addListener('click');
     element.on('click', function (event: any) {
       if (event.target.name == 'loginButton') {
-        var inputUsername = element.getChildByName(
+        const inputUsername = element.getChildByName(
           'username'
         ) as HTMLInputElement;
 
         if (inputUsername.value.trim() != '') {
           element.removeListener('click');
+          element.removeListener('keydown');
           element.setVisible(false);
 
           Login.playerName = inputUsername.value.trim();
@@ -47,10 +48,28 @@ export default class Login extends Phaser.Scene {
       }
     });
 
+    element.addListener('keydown');
+    element.on('keydown', function (event: any) {
+      if (event.code != 'Enter') return;
+      const inputUsername = element.getChildByName(
+        'username'
+      ) as HTMLInputElement;
+      if (inputUsername.value.trim() != '') {
+        element.removeListener('click');
+        element.removeListener('keydown');
+        element.setVisible(false);
+
+        Login.playerName = inputUsername.value.trim();
+        Login.scene.scene.start('Artilio');
+      }
+    });
+
+    document.getElementById('username')?.focus();
+
     this.tweens.add({
       targets: element,
       y: _h - _h / 2.5,
-      duration: 3000,
+      duration: 1500,
       ease: 'Power3'
     });
   }
