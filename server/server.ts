@@ -1,15 +1,16 @@
 import { createServer } from 'http';
-const server = createServer();
 import { Server, Socket } from 'socket.io';
+
+const server = createServer();
 const io = new Server(server, {});
 
 // import './register';
 import 'global-jsdom/register';
 
 import config from './config';
-import Core from '../src/scenes/Core';
+import Core from '@/scenes/Core';
 import 'phaser';
-import Global from '../src/global';
+import Global from '@/global';
 Global.disable_graphics = true;
 
 const game = new Phaser.Game(config);
@@ -18,6 +19,7 @@ game.scene.start('Artilio-server');
 
 io.on('connection', (socket: Socket) => {
   if (Core.scene.initiated == false) {
+    console.log('Game not initiated');
     socket.emit('server_error');
     return;
   }
