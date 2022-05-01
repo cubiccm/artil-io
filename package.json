@@ -3,14 +3,14 @@
   "version": "1.1.0",
   "description": "Phaser 3 TypeScript Starter",
   "main": "dist/index.js",
-  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
     "lint": "eslint . --ext .ts",
     "dev_server": "nodemon -w ./server -w src/scenes/Core.ts -e ts --exec \"yarn run_server\" ",
-    "run_server": "tsc -p ./server/tsconfig.json && node ./server/build/server/server.js"
+    "run_server": "tsc -p ./server/tsconfig.json && node ./server/build/server/server.js",
+    "dev:server": "nodemon --watch './**/*.ts' --exec 'node -r tsconfig-paths/register --experimental-specifier-resolution=node --loader ts-node/esm' server/test.ts"
   },
   "repository": "git+https://github.com/geocine/phaser3-rollup-typescript.git",
   "author": "Aivan Monceller",
@@ -33,7 +33,9 @@
     "nodemon": "^2.0.16",
     "prettier": "^2.6.1",
     "vite": "^2.0.0-beta.65",
-    "vite-tsconfig-paths": "^3.4.1"
+    "vite-tsconfig-paths": "^3.4.1",
+    "tsconfig-paths": "^3.14.1",
+    "ts-node": "^10.7.0"
   },
   "dependencies": {
     "@types/express": "^4.17.13",

@@ -1,3 +1,4 @@
+// @ts-ignore
 import jsdom from 'global-jsdom';
 jsdom(
   '<!DOCTYPE html><html><head></head><body><div id="phaser-container"></div></body></html>',
