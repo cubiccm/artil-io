@@ -4,12 +4,11 @@ import { Server, Socket } from 'socket.io';
 const server = createServer();
 const io = new Server(server, {});
 
-// import './register';
-import 'global-jsdom/register';
+import './register';
 
 import config from './config';
 import Core from '@/scenes/Core';
-import 'phaser';
+import Phaser from 'phaser';
 import Global from '@/global';
 Global.disable_graphics = true;
 
