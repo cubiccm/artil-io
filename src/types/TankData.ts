@@ -32,6 +32,8 @@ interface TankData {
   };
   HP: number;
   XP: number;
+  regen_factor: number;
+  reload: number;
   bullets: Bullet[];
   id: string;
   team: string;

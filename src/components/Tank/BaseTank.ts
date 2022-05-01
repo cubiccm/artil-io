@@ -3,6 +3,7 @@ import SmoothedHorionztalControl from '@/scripts/control';
 import Global from '@/global';
 import TankSensor from '@/components/Tank/TankSensor';
 import Game from '@/scenes/Game';
+import Login from '@/scenes/Login';
 
 export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
   public smoothedControls!: SmoothedHorionztalControl;
@@ -43,8 +44,10 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
         run: 2,
         jump: 6
       },
-      HP: 0,
+      HP: 100,
       XP: 0,
+      regen_factor: 1,
+      reload: 300,
       id: 'player',
       team: 'blue',
       bullets: [],

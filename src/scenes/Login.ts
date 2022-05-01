@@ -37,11 +37,13 @@ export default class Login extends Phaser.Scene {
           'username'
         ) as HTMLInputElement;
 
-        if (inputUsername.value.trim() != '') {
+        if (inputUsername.value != '') {
           element.removeListener('click');
-          element.setVisible(false);
-
-          Login.playerName = inputUsername.value.trim();
+          // element.setVisible(false);
+          element.destroy();
+          Login.scene.scene.start('HUDScene', {
+            playerName: inputUsername.value
+          });
           Login.scene.scene.start('Artilio');
         }
       }
@@ -50,7 +52,7 @@ export default class Login extends Phaser.Scene {
     this.tweens.add({
       targets: element,
       y: _h - _h / 2.5,
-      duration: 3000,
+      duration: 1500,
       ease: 'Power3'
     });
   }

@@ -2,7 +2,6 @@ import Phaser from 'phaser';
 import PlayerTank from '@/components/Tank/PlayerTank';
 import DebugMessage from '@/components/DebugMessage';
 import Global from '@/global';
-
 import generateTerrain from '@/scripts/terrainGenerator';
 import _ from 'lodash';
 
@@ -13,6 +12,7 @@ let wrapCamT: Phaser.Cameras.Scene2D.Camera;
 export default class Game extends Phaser.Scene {
   public static scene: Game;
   public static player: PlayerTank;
+  public static playerName: string;
   public static keyboard: Phaser.Input.Keyboard.KeyboardPlugin;
   public static keys: any;
 
@@ -30,7 +30,7 @@ export default class Game extends Phaser.Scene {
     this.load.image('tank_4', 'assets/tank-frames/tank_4.png');
     this.load.image('cannon', 'assets/cannon-end.png');
     this.load.image('rock-tile', 'assets/rock-tile.jpeg');
-    const bkg = this.add.image(
+    this.add.image(
       Global.SCREEN_WIDTH / 2,
       Global.SCREEN_HEIGHT / 2,
       'background'
@@ -77,6 +77,7 @@ export default class Game extends Phaser.Scene {
       'background'
     );
     bkg.scale = 1.8;
+
     this.matter.world.setGravity(0, 1, 0.001);
 
     generateTerrain(this);
@@ -140,6 +141,7 @@ export default class Game extends Phaser.Scene {
       progressBar.destroy();
       progressBox.destroy();
       loadingText.destroy();
+      Global.event_bus.emit('loading_finished');
     });
   }
 }

@@ -1,0 +1,237 @@
+<style>  
+  .HUD {
+    /* width: 1000;
+    height: 1000; */
+    display:flex;
+    align-items: center;
+  }
+
+  .HUD-select {
+    width: 50;
+    height: 175;
+    /* display:block; */
+    background: lightyellow;
+    border: 1px solid #42464b;
+    border-radius: 6px;
+    align-content: center;
+    padding: 10px 10px;
+    margin-right: 10px;
+  }
+  
+  .select-buttons {
+    width: 50;
+    height: 50;
+    display: block;
+    border: 2px solid #42464b;
+    border-radius: 6px;
+    align-content: center;
+    padding: 5px 5px;
+    margin-bottom: 12px; 
+  }
+
+  .select-buttons:hover {
+    background: darkgray;
+  }
+
+  .upgrade-container {
+    height: 300;
+    width: 300;
+  }
+
+  .tank-upgrades {
+    height: 275px;
+    width: 270px;
+    position: absolute;
+    top: 0%;
+    display: block;
+    background: #eceeee;
+    border: 1px solid #42464b;
+    border-radius: 6px;
+    padding: 10px 10px;
+    align-content: center;
+    visibility: hidden;
+  }
+
+  .bar {
+    width: 270px;
+    height: 30px;
+    display: flex;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius:10px;
+    stroke-width: 8px;
+    stroke: black;
+    margin-bottom: 10px; 
+  }
+  
+  .fill {
+    border: solid 0.5px black;
+    width: 270px;
+    height: 28px;
+    stroke-width: 8px;
+    stroke: black;
+    font-size: 19px;
+    font-family: monospace;
+    text-align: center;
+    font-weight:bold;
+    /* color: black; */
+    color:white;
+    -webkit-text-stroke: 0.9px black;
+    padding-top: 5px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius:10px;
+  }
+  
+  .add {
+    width: 35;
+    height: 35;
+    align-self:flex-end;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    color: red;
+    font-size: 10px;
+    font-family: monospace;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-bottom: -5px;
+  }
+
+.weapons {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  position:absolute;
+  top: 20%;
+  width: 210;
+  height: 210;
+  background: #eceeee;
+  border: 1px solid #42464b;
+  border-radius: 6px;
+  padding: 10px 10px;
+  visibility: hidden;
+}
+
+.skins {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  position:absolute;
+  top: 26%;
+  width: 310;
+  height: 280;
+  background: #eceeee;
+  border: 1px solid #42464b;
+  border-radius: 6px;
+  padding: 10px 10px;
+  visibility: hidden;
+}
+
+.skin-item {
+  width: 80;
+  height: 70;
+  border: 1px solid #42464b;
+  border-radius: 6px;
+  padding: 10px 5px 10px 5px;
+  filter: opacity(80%);
+  position: relative;
+  background-color: lightgrey;
+}
+
+.skin-item:hover {
+  background-color: darkgray;
+}
+
+/* input[type='image'] {
+  width: 80;
+  height: 70;
+  border: 1px solid #42464b;
+  border-radius: 6px;
+  padding: 10px 5px 10px 5px;
+  filter: opacity(80%);
+  position: relative;
+  text-align: center;
+} */
+
+</style>
+<div class="HUD">
+  <div class="HUD-select">
+    <input type=image class="select-buttons" id="tank-upgrades" open="tank-options" src="assets/hud-elements/tank.png">
+    <button class="select-buttons" id="weapons" open="weapon-options"></button>
+    <button class="select-buttons" id="skins" open="skin-options"></button>
+  </div>
+  
+  <div class="upgrade-container">
+    <div class="tank-upgrades" id="tank-options" style="visibility:hidden">
+      <div class="bar" id="health-regen" color="coral">
+        <div class="fill" name="health-regen-fill" data-amount="0" style="background: linear-gradient(to right, coral 0%, rgb(78, 74, 74) 0%);">Health Regeneration</div>
+        <button class="add" name="health-regen-button">100</button>
+      </div>
+      <div class="bar" id="body-damage" color="yellow">
+        <div class="fill" id="amount" data-amount="0" style="background: linear-gradient(to right, yellow 0%, rgb(78, 74, 74) 0%);">Body Damage</div>
+        <button class="add" name="body-damage-button">100</button>
+      </div>
+      <div class="bar" id="movement-speed" color="pink">
+        <div class="fill" id="amount" data-amount="0" style="background: linear-gradient(to right, pink 0%, rgb(78, 74, 74) 0%);">Bullet Damage</div>
+        <button class="add" name="movement-speed-button">100</button>
+      </div>
+      <div class="bar" id="body-speed" color="lightgreen">
+        <div class="fill" id="amount" data-amount="0" style="background: linear-gradient(to right, lightgreen 0%, rgb(78, 74, 74) 0%);">Body Speed</div>
+        <button class="add" name="body-speed-button">100</button>
+      </div>
+      <div class="bar" id="bullet-speed" color="lightblue">
+        <div class="fill" id="amount" data-amount="0" style="background: linear-gradient(to right, lightblue 0%, rgb(78, 74, 74) 0%);">Bullet Speed</div>
+        <button class="add" name="bullet-speed-button">100</button>
+      </div>
+      <div class="bar" id="jump" color="orange">
+        <div class="fill" id="amount" data-amount="0" style="background: linear-gradient(to right, orange 0%, rgb(78, 74, 74) 0%);">Jump</div>
+        <button class="add" name="jump-button">100</button>
+      </div>
+      <div class="bar" id="reload" color="cyan">
+        <div class="fill" id="amount" data-amount="0" style="background: linear-gradient(to right, cyan 0%, rgb(78, 74, 74) 0%);">Reload</div>
+        <button class="add" name="reload-button">100</button>
+      </div>
+    </div>
+  
+    <div class="weapons" id="weapon-options"></div>
+  
+    <div class="skins" id="skin-options">
+      <input class="skin-item" name="greentank" type=image unlocked="true" style="background-color: bisque;" src="assets/hud-elements/tank-skins/greentank.png"></input>
+      <input class="skin-item" name="orangetank" type=image unlocked="false" src="assets/hud-elements/tank-lock/orangetank-lock.png"></input>
+      <input class="skin-item" name="yellowtank" type=image unlocked="false" src="assets/hud-elements/tank-lock/yellowtank-lock.png"></input>
+      <input class="skin-item" name="bluetank" type=image unlocked="false" src="assets/hud-elements/tank-lock/bluetank-lock.png"></input>
+      <input class="skin-item" name="purpletank" type=image unlocked="false" src="assets/hud-elements/tank-lock/purpletank-lock.png"></input>
+      <input class="skin-item" name="pinktank" type=image unlocked="false" src="assets/hud-elements/tank-lock/pinktank-lock.png"></input>
+    </div>
+      
+  </div>
+  
+</div>
+
+
+<script>
+  function incBar(parent, color) {
+    let bar = document.getElementById(parent).childNodes[1];
+    let amount = parseInt(bar.getAttribute('data-amount')) + 20;
+    if (amount !== 120) {
+      bar.style.background = 'linear-gradient(to right, ' + color + ' ' + (amount) + '%, white ' + amount + '%)';
+      bar.setAttribute('data-amount', amount);
+    }
+  }
+
+  function setVisibility(name) {
+    let element = document.getElementById(name);
+    if (element.style.visibility === 'visible') {
+      element.style.visibility = 'hidden';
+    }
+    else {
+      document.getElementById('tank-options').style.visibility = 'hidden';
+      document.getElementById('weapon-options').style.visibility = 'hidden';
+      document.getElementById('skin-options').style.visibility = 'hidden';
+      element.style.visibility = 'visible';
+    }
+  }
+
+  function changeIcon(element) {
+    element.setAttribute('src', '../tank.png');
+    element.style.filter = 'opacity(100%)'
+  }
+</script>

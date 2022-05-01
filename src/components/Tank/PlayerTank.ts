@@ -80,6 +80,10 @@ export default class PlayerTank extends BaseTank {
       const cursor_y = pointer.y + cam.scrollY;
       this.fire(time, delta, { x: cursor_x, y: cursor_y });
     }
+
+    if (time % 60 == 0) {
+      this.data.values.HP += 1 * this.data.values.regen_factor;
+    }
   }
 
   moveLeft(time: number, delta: number) {
@@ -149,7 +153,8 @@ export default class PlayerTank extends BaseTank {
   }
 
   fire(time: number, delta: number, cursor: MatterJS.Vector) {
-    const canFire = time - this.data.values.lastFiredAt > 250;
+    const canFire =
+      time - this.data.values.lastFiredAt > this.data.values.reload;
     if (!canFire) return;
     const origin = this.data.values.components.cannon_body.position;
     const angle = this.data.values.components.cannon_body.angle;
