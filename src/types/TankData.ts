@@ -30,10 +30,12 @@ interface TankData {
   components: {
     cannon_body?: MatterJS.BodyType;
   };
+  max_health: number;
   HP: number;
   XP: number;
   regen_factor: number;
   reload: number;
+  bullet_speed: number;
   bullets: Bullet[];
   id: string;
   team: string;

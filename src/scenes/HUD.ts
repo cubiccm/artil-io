@@ -48,108 +48,30 @@ export default class HUD extends Phaser.Scene {
         }
       );
       const upgradeBox = this.add
-        .dom(50, _h - _h / 3)
+        .dom(25, _h - _h / 2)
         .createFromCache('upgrade_box');
-
-      const tank_options = upgradeBox.getChildByID(
-        'tank-options'
-      ) as HTMLDivElement;
-      const weapon_options = upgradeBox.getChildByID(
-        'weapon-options'
-      ) as HTMLDivElement;
-      const skin_options = upgradeBox.getChildByID(
-        'skin-options'
-      ) as HTMLDivElement;
 
       HUD.upgradeBox = upgradeBox;
       upgradeBox.addListener('click');
       upgradeBox.on('click', function (event: any) {
+        Global.event_bus.emit('HUD_clicked');
         // Clicking Tank, Weapon, Skin upgrades:
-        if (event.target.className == 'select-buttons') {
-          let element = event.target as HTMLDivElement;
-          let open = upgradeBox.getChildByID(
-            element.getAttribute('open') as string
-          ) as HTMLInputElement;
-          if (open.style.visibility == 'visible') {
-            open.style.setProperty('visibility', 'hidden');
-          } else {
-            tank_options.style.visibility = 'hidden';
-            weapon_options.style.visibility = 'hidden';
-            skin_options.style.visibility = 'hidden';
-            open.style.setProperty('visibility', 'visible');
+        switch (event.target.className) {
+          case 'select-buttons': {
+            let element = event.target as HTMLDivElement;
+            HUD.selectUpgrade(upgradeBox, element);
+            break;
           }
-        }
-
-        // Clicking to upgrade tank:
-        else if (event.target.className == 'add') {
-          let button = upgradeBox.getChildByName(
-            event.target.name
-          ) as HTMLButtonElement;
-          let parent = button.parentElement as HTMLDivElement;
-          let bar = parent.childNodes[1] as HTMLDivElement;
-          // Increment bar
-          // TODO: ONLY INCREMENT IF ENOUGH XP
-          let amount = parseInt(bar.getAttribute('data-amount') as string) + 20;
-          if (amount != 120) {
-            bar.style.setProperty(
-              'background',
-              'linear-gradient(to right, ' +
-                parent.getAttribute('color') +
-                ' ' +
-                amount +
-                '%, rgb(78, 74, 74) ' +
-                amount +
-                '%)'
-            );
-            bar.setAttribute('data-amount', amount.toString());
-            const player_data = Game.player.data.values;
-            switch (event.target.id) {
-              case 'health-regen': {
-                player_data.regen_factor += 1;
-              }
-              case 'body-damage': {
-              }
-              case 'bullet-damage': {
-              }
-              case 'body-speed': {
-                player_data.speed.run += 1;
-              }
-              case 'bullet-speed': {
-              }
-              case 'jump': {
-                player_data.speed.jump += 1;
-              }
-              case 'reload': {
-                player_data.reload -= 30;
-              }
-            }
-            // TODO: only increment if enough EXP
+          case 'add': {
+            HUD.upgradeTank(upgradeBox, event.target.name);
+            break;
           }
-        }
-        // Clicking to unlock skins
-        else if (event.target.className == 'skin-item') {
-          let button = event.target as HTMLInputElement;
-          let items = button.parentElement?.childNodes;
-          let unlocked = button.getAttribute('unlocked');
-          if (unlocked == 'true') {
-            // Set player tank texture accordingly
-            items?.forEach((e) => {
-              if (e.nodeName == 'INPUT') {
-                let child = e as HTMLInputElement;
-                child.style.setProperty('background-color', 'lightgray');
-              }
-            });
-            button.style.setProperty('background-color', 'bisque');
-          } else if (unlocked == 'false') {
-            button.setAttribute(
-              'src',
-              'assets/hud-elements/tank-skins/' +
-                button.getAttribute('name') +
-                '.png'
-            );
-            button.setAttribute('unlocked', 'true');
-            button.style.setProperty('background-color', 'bisque');
+          case 'skin-item': {
+            HUD.selectSkin(event.target as HTMLInputElement);
+            break;
           }
+          default:
+            break;
         }
       });
     });
@@ -157,22 +79,136 @@ export default class HUD extends Phaser.Scene {
 
   update() {
     this.graphics.clear();
-
     if (Game.player) {
       this.drawHealthBar(
         Game.player.tank_data.HP,
-        200 // this.gamescene.player.tank_data.Max_HP
+        Game.player.tank_data.max_health
       );
       this.drawExpBar(
         Game.player.tank_data.XP + 20, // +20 only for showcase
         100 // this.gamescene.player.tank_data.Max_XP
       );
-      // Draw upgrade box
+
       var exp = Game.player.tank_data.XP;
+      // Update upgrade cost colors if enough XP
     }
   }
 
-  drawUpgradeBox() {}
+  private static selectUpgrade(
+    upgradeBox: Phaser.GameObjects.DOMElement,
+    element: HTMLDivElement
+  ) {
+    const options = ['tank-options', 'weapon-options', 'skin-options'];
+    const upgrade_types = ['tank-upgrades', 'weapon-upgrades', 'skin-upgrades'];
+
+    upgrade_types.forEach((e) => {
+      (upgradeBox.getChildByID(e) as HTMLDivElement).style.setProperty(
+        'background-color',
+        'gray'
+      );
+    });
+    element.style.setProperty('background-color', 'lightgray');
+    let open = upgradeBox.getChildByID(
+      element.getAttribute('open') as string
+    ) as HTMLInputElement;
+
+    if (open.style.visibility == 'visible') {
+      open.style.setProperty('visibility', 'hidden');
+      element.style.setProperty('background-color', 'gray');
+    } else {
+      options.forEach((o) => {
+        (upgradeBox.getChildByID(o) as HTMLDivElement).style.setProperty(
+          'visibility',
+          'hidden'
+        );
+      });
+      open.style.setProperty('visibility', 'visible');
+    }
+  }
+  private static upgradeTank(
+    upgradeBox: Phaser.GameObjects.DOMElement,
+    name: string
+  ) {
+    let button = upgradeBox.getChildByName(name) as HTMLButtonElement;
+    let parent = button.parentElement as HTMLDivElement;
+    let bar = parent.childNodes[1] as HTMLDivElement;
+    // Increment bar
+    // TODO: ONLY INCREMENT IF ENOUGH XP
+    let amount = parseInt(bar.getAttribute('data-amount') as string) + 20;
+    if (amount != 120) {
+      bar.style.setProperty(
+        'background',
+        'linear-gradient(to right, ' +
+          parent.getAttribute('color') +
+          ' ' +
+          amount +
+          '%, rgb(78, 74, 74) ' +
+          amount +
+          '%)'
+      );
+      bar.setAttribute('data-amount', amount.toString());
+      this.upgrade(parent.id);
+
+      // TODO: only increment if enough EXP
+    }
+  }
+  private static upgrade(attr: string) {
+    const player_data = Game.player.tank_data;
+    switch (attr) {
+      case 'health-regen': {
+        player_data.regen_factor += 2;
+        break;
+      }
+      case 'max-health': {
+        player_data.max_health += 25;
+        break;
+      }
+      case 'bullet-damage': {
+        break;
+      }
+      case 'body-speed': {
+        player_data.speed.run += 1.5;
+        break;
+      }
+      case 'bullet-speed': {
+        player_data.bullets.forEach((b) => {
+          player_data.bullet_speed += 0.1;
+        });
+        break;
+      }
+      case 'jump': {
+        player_data.speed.jump += 1.5;
+        break;
+      }
+      case 'reload': {
+        player_data.reload -= 30;
+        break;
+      }
+      default:
+        break;
+    }
+  }
+  private static selectSkin(button: HTMLInputElement) {
+    let items = button.parentElement?.childNodes;
+    items?.forEach((e) => {
+      if (e.nodeName == 'INPUT') {
+        let child = e as HTMLInputElement;
+        child.style.setProperty('background-color', 'lightgray');
+      }
+    });
+    let unlocked = button.getAttribute('unlocked');
+    if (unlocked == 'true') {
+      // Set player tank texture accordingly
+      button.style.setProperty('background-color', 'bisque');
+    } else if (unlocked == 'false') {
+      button.setAttribute(
+        'src',
+        'assets/hud-elements/tank-skins/' + button.getAttribute('name') + '.png'
+      );
+      button.setAttribute('unlocked', 'true');
+      button.style.setProperty('background-color', 'bisque');
+    }
+  }
 
   drawHealthBar(current_health: number, max_health: number) {
     const bar_width = 300,

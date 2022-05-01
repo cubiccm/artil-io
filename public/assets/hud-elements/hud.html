@@ -1,7 +1,7 @@
 <style>  
   .HUD {
-    /* width: 1000;
-    height: 1000; */
+    width: 1000;
+    height: 1000;
     display:flex;
     align-items: center;
   }
@@ -10,7 +10,7 @@
     width: 50;
     height: 175;
     /* display:block; */
-    background: lightyellow;
+    background: gray;
     border: 1px solid #42464b;
     border-radius: 6px;
     align-content: center;
@@ -99,7 +99,7 @@
 
 .weapons {
   display: grid;
-  grid-template-columns: auto auto auto;
+  grid-template-columns: auto auto;
   position:absolute;
   top: 20%;
   width: 210;
@@ -109,6 +109,20 @@
   border-radius: 6px;
   padding: 10px 10px;
   visibility: hidden;
+}
+.weapon-item {
+  width: 80;
+  height: 70;
+  border: 1px solid #42464b;
+  border-radius: 6px;
+  padding: 10px 5px 10px 5px;
+  filter: opacity(80%);
+  position: relative;
+  background-color: lightgrey;
+}
+
+.weapon-item:hover {
+  background-color: darkgray;
 }
 
 .skins {
@@ -140,23 +154,12 @@
   background-color: darkgray;
 }
 
-/* input[type='image'] {
-  width: 80;
-  height: 70;
-  border: 1px solid #42464b;
-  border-radius: 6px;
-  padding: 10px 5px 10px 5px;
-  filter: opacity(80%);
-  position: relative;
-  text-align: center;
-} */
-
 </style>
 <div class="HUD">
   <div class="HUD-select">
-    <input type=image class="select-buttons" id="tank-upgrades" open="tank-options" src="assets/hud-elements/tank.png">
-    <button class="select-buttons" id="weapons" open="weapon-options"></button>
-    <button class="select-buttons" id="skins" open="skin-options"></button>
+    <input type=image class="select-buttons" id="tank-upgrades" open="tank-options" src="assets/hud-elements/upgrade-type/tank.png">
+    <input type=image class="select-buttons" id="weapon-upgrades" open="weapon-options" src="assets/hud-elements/upgrade-type/bullet.png">
+    <input type=image class="select-buttons" id="skin-upgrades" open="skin-options" src="assets/hud-elements/upgrade-type/tank.png">
   </div>
   
   <div class="upgrade-container">
@@ -165,9 +168,9 @@
         <div class="fill" name="health-regen-fill" data-amount="0" style="background: linear-gradient(to right, coral 0%, rgb(78, 74, 74) 0%);">Health Regeneration</div>
         <button class="add" name="health-regen-button">100</button>
       </div>
-      <div class="bar" id="body-damage" color="yellow">
-        <div class="fill" id="amount" data-amount="0" style="background: linear-gradient(to right, yellow 0%, rgb(78, 74, 74) 0%);">Body Damage</div>
-        <button class="add" name="body-damage-button">100</button>
+      <div class="bar" id="max-health" color="yellow">
+        <div class="fill" id="amount" data-amount="0" style="background: linear-gradient(to right, yellow 0%, rgb(78, 74, 74) 0%);">Max Health</div>
+        <button class="add" name="max-health-button">100</button>
       </div>
       <div class="bar" id="movement-speed" color="pink">
         <div class="fill" id="amount" data-amount="0" style="background: linear-gradient(to right, pink 0%, rgb(78, 74, 74) 0%);">Bullet Damage</div>
@@ -191,7 +194,12 @@
       </div>
     </div>
   
-    <div class="weapons" id="weapon-options"></div>
+    <div class="weapons" id="weapon-options">
+      <input class="weapon-item" name="bullet" type="image" style="background-color: bisque;" src="assets/hud-elements/upgrade-type/bullet.png"></input>
+      <input class="weapon-item" name="bullet" type="image" src="assets/hud-elements/upgrade-type/bullet.png"></input>
+      <input class="weapon-item" name="bullet" type="image" src="assets/hud-elements/upgrade-type/bullet.png"></input>
+      <input class="weapon-item" name="bullet" type="image" src="assets/hud-elements/upgrade-type/bullet.png"></input>
+    </div>
   
     <div class="skins" id="skin-options">
       <input class="skin-item" name="greentank" type=image unlocked="true" style="background-color: bisque;" src="assets/hud-elements/tank-skins/greentank.png"></input>

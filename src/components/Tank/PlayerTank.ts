@@ -81,8 +81,11 @@ export default class PlayerTank extends BaseTank {
       this.fire(time, delta, { x: cursor_x, y: cursor_y });
     }
 
-    if (time % 60 == 0) {
-      this.data.values.HP += 1 * this.data.values.regen_factor;
+    if (time % 5 == 0) {
+      this.tank_data.HP = Math.min(
+        this.data.values.regen_factor + this.tank_data.HP,
+        this.tank_data.max_health
+      );
     }
   }
 
@@ -153,8 +156,10 @@ export default class PlayerTank extends BaseTank {
   }
 
   fire(time: number, delta: number, cursor: MatterJS.Vector) {
-    const canFire =
-      time - this.data.values.lastFiredAt > this.data.values.reload;
+    var canFire = time - this.data.values.lastFiredAt > this.data.values.reload;
+    Global.event_bus.once('HUD_clicked', () => {
+      canFire = false;
+    });
     if (!canFire) return;
     const origin = this.data.values.components.cannon_body.position;
     const angle = this.data.values.components.cannon_body.angle;
@@ -169,6 +174,7 @@ export default class PlayerTank extends BaseTank {
         origin.y + Math.sin(angle) * cannon_length,
         vx,
         vy,
+        this.tank_data.bullet_speed,
         this
       )
     );

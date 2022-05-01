@@ -13,9 +13,10 @@ export default class Bullet extends BaseProjectile {
     y: number,
     vx: number,
     vy: number,
+    speed_factor: number,
     parent: BaseTank
   ) {
-    super(scene, x, y, vx, vy, parent);
+    super(scene, x, y, vx, vy, speed_factor, parent);
     this.body.gravityScale = { x: 0, y: 4 };
   }
 
