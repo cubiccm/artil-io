@@ -1,10 +1,10 @@
 import _ from 'lodash';
 
 import PoissonDiskSampling from 'poisson-disk-sampling';
-import * as perlin from './perlin.js';
-import Platform from '../components/Platform.js';
-import Global from '../global.js';
-import Game from '../scenes/Game.js';
+import * as perlin from './perlin';
+import Platform from '@/components/Platform';
+import Global from '@/global';
+import Game from '@/scenes/Game';
 
 function generateTerrain(scene: Phaser.Scene) {
   const [min_x, max_x] = [-Global.WORLD_WIDTH / 2, Global.WORLD_WIDTH / 2];

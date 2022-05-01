@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
 import Global from '@/global';
-import Game from './Game';
+import Game from '@/scenes/Game';
 import DebugMessage from '@/components/DebugMessage';
-import Login from './Login';
+import Login from '@/scenes/Login';
 
 const _w = Global.SCREEN_WIDTH,
   _h = Global.SCREEN_HEIGHT;

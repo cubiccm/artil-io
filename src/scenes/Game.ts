@@ -1,11 +1,11 @@
 import 'phaser';
 import _ from 'lodash';
-import Global from '../global.js';
-import PlayerTank from '../components/Tank/PlayerTank.js';
-import Platform from '../components/Platform.js';
-import RawGameData, { RawTankData } from '../types/RawData.js';
-import BaseTank from '../components/Tank/BaseTank.js';
-import GeneralTank from '../components/Tank/GeneralTank.js';
+import Global from '@/global';
+import PlayerTank from '@/components/Tank/PlayerTank';
+import Platform from '@/components/Platform';
+import RawGameData, { RawTankData } from '@/types/RawData';
+import BaseTank from '@/components/Tank/BaseTank';
+import GeneralTank from '@/components/Tank/GeneralTank';
 
 let wrapCamB: Phaser.Cameras.Scene2D.Camera;
 let wrapCamT: Phaser.Cameras.Scene2D.Camera;

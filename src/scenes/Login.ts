@@ -3,7 +3,7 @@ import Global from '@/global';
 import $ from 'jquery';
 import NetworkController from '@/NetworkController';
 import Console from '@/components/Console';
-import Game from './Game';
+import Game from '@/scenes/Game';
 
 const _w = Global.SCREEN_WIDTH,
   _h = Global.SCREEN_HEIGHT;

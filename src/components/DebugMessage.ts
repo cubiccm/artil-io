@@ -1,7 +1,7 @@
-import Global from '../global/js';
-import Game from '../scenes/Game.js';
+import Global from '@/global';
+import Game from '@/scenes/Game';
 import { index } from '..';
-import PlayerTank from './Tank/PlayerTank.js';
+import PlayerTank from '@/components/Tank/PlayerTank';
 
 export default class debugMessage extends Phaser.GameObjects.Text {
   constructor(scene: Phaser.Scene, x: number, y: number) {

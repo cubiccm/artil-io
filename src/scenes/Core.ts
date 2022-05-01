@@ -2,13 +2,13 @@ const assets_url_base = 'http://localhost:4000/';
 
 import 'phaser';
 import _ from 'lodash';
-import Global from '../global.js';
-import BaseTank from '../components/Tank/BaseTank.js';
-import generateTerrain from '../scripts/terrainGenerator.js';
-import Platform from '../components/Platform.js';
-import RawGameData from '../types/RawData.js';
-import Player from '../components/Player.js';
-import GeneralTank from '../components/Tank/GeneralTank.js';
+import Global from '@/global';
+import BaseTank from '@/components/Tank/BaseTank';
+import generateTerrain from '@/scripts/terrainGenerator';
+import Platform from '@/components/Platform';
+import RawGameData from '@/types/RawData';
+import Player from '@/components/Player';
+import GeneralTank from '@/components/Tank/GeneralTank';
 import { Socket } from 'socket.io';
 
 export default class Core extends Phaser.Scene {

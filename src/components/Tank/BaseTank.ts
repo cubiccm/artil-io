@@ -1,6 +1,6 @@
-import * as types from '../../types';
-import Global from '../../global.js';
-import TankSensor from '../../components/Tank/TankSensor.js';
+import * as types from '@/types';
+import Global from '@/global';
+import TankSensor from '@/components/Tank/TankSensor';
 import { Game } from 'phaser';
 
 export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
