@@ -16,7 +16,7 @@
     "noEmit": true,
     "baseUrl": ".",
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDir": ".",
     "paths": {
       "@/*": ["./src/*"], // @ to resolve src folder
       // "@server/*": ["./server/*"], // @ to resolve src folder

@@ -3,11 +3,13 @@ const server = createServer();
 import { Server, Socket } from 'socket.io';
 const io = new Server(server, {});
 
-import './register.js';
-import config from './config.js';
-import Core from '../src/scenes/Core.js';
+// import './register';
+import 'global-jsdom/register';
+
+import config from './config';
+import Core from '../src/scenes/Core';
 import 'phaser';
-import Global from '../src/global.js';
+import Global from '../src/global';
 Global.disable_graphics = true;
 
 const game = new Phaser.Game(config);
