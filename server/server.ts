@@ -40,11 +40,7 @@ io.on('connection', (socket: Socket) => {
     const data = msg[2] as any;
     switch (msg[1]) {
       case 'move':
-        // player.tank.setMovingSpeed(data);
-        // console.log(`Tank position: ${player.raw.x}, ${player.raw.y}`);
-        player.tank.setPosition(data[0], data[1]);
-        player.tank.setVelocity(data[2], data[3]);
-        player.tank.setAngularVelocity(data[4]);
+        player.tank.setThrustSpeed(data);
         break;
     }
   });

@@ -95,34 +95,18 @@ export default class Game extends Phaser.Scene {
     // not used, listen to the Game.scene.events.on(Phaser.Scenes.Events.UPDATE, callback) directly
   }
 
+  terrain_generated = false;
   sync(remote_data?: RawGameData) {
     if (!remote_data) remote_data = this.remote_data;
-    remote_data?.map?.terrain?.forEach((data: any) => {
-      new Platform(this, data[0][0], data[0][1], data[1], 0x192841, 0.85);
-    });
+    if (!this.terrain_generated) {
+      this.terrain_generated = true;
+      remote_data?.map?.terrain?.forEach((data: any) => {
+        new Platform(this, data[0][0], data[0][1], data[1], 0x192841, 0.85);
+      });
+    }
     if (remote_data?.self) {
       if ('x' in remote_data.self) {
-        console.log(
-          'Remote: ' +
-            [
-              remote_data.self.x,
-              remote_data.self.y,
-              remote_data.self.vx,
-              remote_data.self.vy,
-              remote_data.self.vang
-            ]
-        );
-        Game.player.moveTo(
-          remote_data.self?.x || 0,
-          remote_data.self?.y || 0,
-          100
-        );
-        Game.player.setSpeed(
-          remote_data.self.vx || 0,
-          remote_data.self.vy || 0
-        );
-        Game.player.setAngularVelocity(remote_data.self.vang || 0);
-        // Game.player.rotateBody(remote_data.self.body_angle || 0);
+        Game.player.syncRemote(remote_data.self);
       }
       if ('health' in remote_data.self) {
         Game.player.set('HP', remote_data.self?.health);
@@ -132,14 +116,11 @@ export default class Game extends Phaser.Scene {
       remote_data?.players.forEach((player: RawTankData) => {
         if (player.id && player.id in this.players) {
           // Update existing tank
+          const proximity = 40;
           const tank = this.players[player.id] as BaseTank;
-          if ('x' in player) {
-            tank.moveTo(player.x || 0, player.y || 0, 50);
-            tank.setSpeed(player.vx || 0, player.vy || 0);
-            tank.setAngularVelocity(player.vang || 0);
-            // tank.rotateBody(player.body_angle || 0);
-            // tank.rotateCannon(player.cannon_angle || 0);
-          }
+          tank.setThrustSpeed(player.thrust || 0);
+          tank.rotateCannon(player.cannon_angle || 0);
+          if ('x' in player) tank.syncRemote(player);
         } else {
           // Create new tank
           if (player.id) {

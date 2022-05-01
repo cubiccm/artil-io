@@ -55,7 +55,7 @@ export default class Core extends Phaser.Scene {
   last_update_interval = 0;
   update(time: number, delta: number) {
     this.last_update_interval += delta;
-    if (this.last_update_interval >= 2000) {
+    if (this.last_update_interval >= 200) {
       this.last_update_interval = 0;
       Object.keys(this.players).forEach((key) => {
         const player = this.players[key];

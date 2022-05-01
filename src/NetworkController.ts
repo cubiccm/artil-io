@@ -38,8 +38,8 @@ export default class NetworkController {
     this.sync_callback = sync_callback;
   }
 
-  move(x: number, y: number, vx: number, vy: number, vang: number) {
-    console.log('Local: ' + [x, y, vx, vy, vang]);
-    this.send('move', [x, y, vx, vy, vang]);
+  move(speed: number) {
+    // console.log('Local: ' + [x, y, vx, vy, vang]);
+    this.send('move', speed);
   }
 }

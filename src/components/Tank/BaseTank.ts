@@ -2,6 +2,7 @@ import * as types from '../../types';
 import Global from '../../global.js';
 import TankSensor from '../../components/Tank/TankSensor.js';
 import { Game } from 'phaser';
+import { RawTankData } from '../../types/RawData';
 
 export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
   declare body: MatterJS.BodyType;
@@ -158,16 +159,31 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
     );
   }
 
-  moveTo(x: number, y: number, proximity?: number) {
-    if (
-      typeof proximity != 'undefined' &&
-      Phaser.Math.Distance.BetweenPointsSquared(
-        { x: x, y: y },
-        this.body.position
-      ) <
-        proximity * proximity
-    )
-      return;
+  syncRemote(player: RawTankData) {
+    // Estimates location displacement based on velocity and network delay
+    const exp_delay = 400;
+    const velocity = new Phaser.Math.Vector2();
+    velocity.set(player.vx || 0, player.vy || 0);
+    const proximity = Math.max(
+      ((exp_delay * 60) / 1000) * velocity.length(),
+      20
+    );
+    const difference = Phaser.Math.Distance.BetweenPointsSquared(
+      { x: player.x, y: player.y },
+      this.body.position
+    );
+    console.log(
+      `PROX ${proximity.toFixed(4)} DIFF ${Math.sqrt(difference).toFixed(4)}`
+    );
+    if (difference > proximity * proximity) {
+      this.moveTo(player.x || 0, player.y || 0);
+      this.setSpeed(player.vx || 0, player.vy || 0);
+      this.rotateBody(player.body_angle || 0);
+      this.setAngularVelocity(player.vang || 0);
+    }
+  }
+
+  moveTo(x: number, y: number) {
     this.setPosition(x, y);
   }
 
@@ -183,7 +199,13 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
     else if (this.moving_right) this.moveRight();
   }
 
-  setMovingSpeed(speed: number) {
+  getThrustSpeed() {
+    if (this.moving_left) return -1;
+    if (this.moving_right) return 1;
+    return 0;
+  }
+
+  setThrustSpeed(speed: number) {
     if (speed == 0) this.moving_left = this.moving_right = false;
     if (speed > 0) this.moving_right = true;
     if (speed < 0) this.moving_left = true;

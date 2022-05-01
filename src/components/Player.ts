@@ -35,6 +35,7 @@ export default class Player {
       vang: this.tank.body.angularVelocity,
       body_angle: this.tank.body.angle,
       cannon_angle: this.tank.getCannonAngle(),
+      thrust: this.tank.getThrustSpeed(),
       name: this.name,
       id: this.ID,
       health: Phaser.Math.Between(1, 200)

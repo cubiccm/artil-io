@@ -62,13 +62,7 @@ export default class PlayerTank extends BaseTank {
     }
 
     if (this.move_direction != prev_direction) {
-      Global.socket.move(
-        this.body.position.x,
-        this.body.position.y,
-        this.body.velocity.x,
-        this.body.velocity.y,
-        this.body.angularVelocity
-      );
+      Global.socket.move(this.move_direction);
     }
 
     if (keyboard.checkDown(keys.UP) || keyboard.checkDown(keys.SPACE)) {

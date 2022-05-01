@@ -14,7 +14,7 @@ export interface RawTankData {
   vang?: number;
   body_angle?: number;
   cannon_angle?: number;
-  speed?: number;
+  thrust?: number;
   type?: number;
   name?: string;
   id?: string;
