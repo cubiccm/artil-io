@@ -24,6 +24,14 @@ export default defineConfig({
     hmr: {
       host: 'localhost',
       port: 4000
+    },
+    proxy: {
+      // Proxying socket.io
+      '/socket.io': {
+        target: 'ws://localhost:8964',
+        ws: true,
+        changeOrigin: true
+      }
     }
   },
   plugins: [tsconfigPaths()]

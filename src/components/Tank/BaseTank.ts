@@ -1,7 +1,7 @@
-import * as types from '@/types';
-import Global from '@/global';
-import TankSensor from '@/components/Tank/TankSensor';
-import Game from '@/scenes/Game';
+import * as types from '../../types';
+import Global from '../../global.js';
+import TankSensor from '../../components/Tank/TankSensor.js';
+import { Game } from 'phaser';
 
 export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
   declare body: MatterJS.BodyType;
@@ -138,7 +138,7 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
 
     // Setup tank animations
     this.createWheelAnimations();
-    Game.scene.events.on(
+    this.scene.events.on(
       Phaser.Scenes.Events.POST_UPDATE,
       () => {
         this.updateAnimations();
@@ -150,7 +150,7 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
       },
       this
     );
-    Game.scene.events.on(
+    this.scene.events.on(
       Phaser.Scenes.Events.UPDATE,
       (time: number, delta: number) => {
         this.update(time, delta);
@@ -158,8 +158,82 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
     );
   }
 
-  moveTo(x: number, y: number) {
+  moveTo(x: number, y: number, proximity?: number) {
+    if (
+      typeof proximity != 'undefined' &&
+      Phaser.Math.Distance.BetweenPointsSquared(
+        { x: x, y: y },
+        this.body.position
+      ) <
+        proximity * proximity
+    )
+      return;
     this.setPosition(x, y);
+  }
+
+  setSpeed(vx: number, vy: number) {
+    this.setVelocity(vx, vy);
+  }
+
+  moving_left = false;
+  moving_right = false;
+
+  update(time: number, delta: number) {
+    if (this.moving_left) this.moveLeft();
+    else if (this.moving_right) this.moveRight();
+  }
+
+  setMovingSpeed(speed: number) {
+    if (speed == 0) this.moving_left = this.moving_right = false;
+    if (speed > 0) this.moving_right = true;
+    if (speed < 0) this.moving_left = true;
+  }
+
+  moveLeft() {
+    if (
+      !this.data.values.sensors.left.blocked &&
+      this.data.values.sensors.bottom.blocked
+    ) {
+      const newVelocityX = this.data.values.sensors.bottom.blocked
+        ? this.data.values.speed.ground
+        : this.data.values.speed.air;
+
+      this.setVelocityX(-newVelocityX);
+    }
+
+    if (!this.data.values.sensors.bottom.blocked) {
+      this.setAngularVelocity(-0.005); // For rotating in the air
+    } else if (this.data.values.sensors.left.blocked) {
+      this.setAngularVelocity(0.01); // For climbing
+    }
+  }
+
+  moveRight() {
+    if (
+      !this.data.values.sensors.right.blocked &&
+      this.data.values.sensors.bottom.blocked
+    ) {
+      const newVelocityX = this.data.values.sensors.bottom.blocked
+        ? this.data.values.speed.ground
+        : this.data.values.speed.air;
+
+      this.setVelocityX(newVelocityX);
+    }
+
+    if (!this.data.values.sensors.bottom.blocked) {
+      this.setAngularVelocity(0.005);
+    } else if (this.data.values.sensors.right.blocked) {
+      this.setAngularVelocity(-0.01);
+    }
+  }
+
+  getCannonAngle() {
+    const cannon = this.data.values.components.cannon_body as MatterJS.BodyType;
+    return cannon.angle;
+  }
+
+  rotateBody(angle: number) {
+    this.scene.matter.body.setAngle(this.body, angle);
   }
 
   rotateCannon(angle: number) {
@@ -202,6 +276,7 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
   }
 
   createWheelAnimations() {
+    if (Global.disable_graphics == true) return;
     this.anims.create({
       key: 'moving_right',
       frames: [
@@ -236,6 +311,7 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
   anim_state = 'idle';
   frame_rate: integer = 0;
   updateAnimations() {
+    if (Global.disable_graphics == true) return;
     let new_anim_state = '';
     const max_frame_rate = 24; // Frame rate in full speed
     const frame_rate_step = 6; // Step between different frame rate levels

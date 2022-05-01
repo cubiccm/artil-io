@@ -1,5 +1,5 @@
-import Bullet from '@/components/Projectile/Bullet';
-import TankSensor from '@/components/Tank/TankSensor';
+import Bullet from '../components/Projectile/Bullet';
+import TankSensor from '../components/Tank/TankSensor';
 
 interface TankData {
   blocked: {

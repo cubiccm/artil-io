@@ -1,11 +1,11 @@
-import Phaser from 'phaser';
-import PlayerTank from '@/components/Tank/PlayerTank';
-import GeneralTank from '@/components/Tank/GeneralTank';
-import Global from '@/global';
-
-import generateTerrain from '@/scripts/terrainGenerator';
+import 'phaser';
 import _ from 'lodash';
-import BaseTank from '@/components/Tank/BaseTank';
+import Global from '../global.js';
+import PlayerTank from '../components/Tank/PlayerTank.js';
+import Platform from '../components/Platform.js';
+import RawGameData, { RawTankData } from '../types/RawData.js';
+import BaseTank from '../components/Tank/BaseTank.js';
+import GeneralTank from '../components/Tank/GeneralTank.js';
 
 let wrapCamB: Phaser.Cameras.Scene2D.Camera;
 let wrapCamT: Phaser.Cameras.Scene2D.Camera;
@@ -15,12 +15,13 @@ export default class Game extends Phaser.Scene {
   public static player: PlayerTank;
   public static keyboard: Phaser.Input.Keyboard.KeyboardPlugin;
   public static keys: any;
-  public static players: BaseTank[];
+
+  remote_data: any;
+  players = {} as any;
 
   constructor() {
     super('Artilio');
     Game.scene = this;
-    Game.players = [];
   }
 
   preload() {
@@ -59,13 +60,7 @@ export default class Game extends Phaser.Scene {
 
     this.cameras.main.scrollX = -Global.SCREEN_WIDTH / 2;
     this.cameras.main.scrollY = -Global.SCREEN_HEIGHT / 2;
-    this.input.on(
-      'drag',
-      (pointer: any, gameObject: any, dragX: any, dragY: any) => {
-        gameObject.x = dragX;
-        gameObject.y = dragY;
-      }
-    );
+
     const bkg = this.add.image(
       Global.SCREEN_WIDTH / 2,
       Global.SCREEN_HEIGHT / 2,
@@ -74,12 +69,9 @@ export default class Game extends Phaser.Scene {
     bkg.scale = 1.8;
     this.matter.world.setGravity(0, 1, 0.001);
 
-    generateTerrain(this);
-
     // Generate player
     Game.player = new PlayerTank(this, 0, 0);
-    Game.players.push(new GeneralTank(this, -500, 0));
-    // player.setIgnoreGravity(true);
+    Game.player.setIgnoreGravity(true);
 
     // draw debugs
     this.matter.world.createDebugGraphic();
@@ -92,10 +84,75 @@ export default class Game extends Phaser.Scene {
 
     // this.matter.set60Hz();
     this.matter.set30Hz();
+
+    this.sync();
+    Global.socket.onSync((m: any) => {
+      this.sync(m);
+    });
   }
 
   update(time: number, delta: number) {
     // not used, listen to the Game.scene.events.on(Phaser.Scenes.Events.UPDATE, callback) directly
+  }
+
+  sync(remote_data?: RawGameData) {
+    if (!remote_data) remote_data = this.remote_data;
+    remote_data?.map?.terrain?.forEach((data: any) => {
+      new Platform(this, data[0][0], data[0][1], data[1], 0x192841, 0.85);
+    });
+    if (remote_data?.self) {
+      if ('x' in remote_data.self) {
+        console.log(
+          'Remote: ' +
+            [
+              remote_data.self.x,
+              remote_data.self.y,
+              remote_data.self.vx,
+              remote_data.self.vy,
+              remote_data.self.vang
+            ]
+        );
+        Game.player.moveTo(
+          remote_data.self?.x || 0,
+          remote_data.self?.y || 0,
+          100
+        );
+        Game.player.setSpeed(
+          remote_data.self.vx || 0,
+          remote_data.self.vy || 0
+        );
+        Game.player.setAngularVelocity(remote_data.self.vang || 0);
+        // Game.player.rotateBody(remote_data.self.body_angle || 0);
+      }
+      if ('health' in remote_data.self) {
+        Game.player.set('HP', remote_data.self?.health);
+      }
+    }
+    if (remote_data?.players?.length) {
+      remote_data?.players.forEach((player: RawTankData) => {
+        if (player.id && player.id in this.players) {
+          // Update existing tank
+          const tank = this.players[player.id] as BaseTank;
+          if ('x' in player) {
+            tank.moveTo(player.x || 0, player.y || 0, 50);
+            tank.setSpeed(player.vx || 0, player.vy || 0);
+            tank.setAngularVelocity(player.vang || 0);
+            // tank.rotateBody(player.body_angle || 0);
+            // tank.rotateCannon(player.cannon_angle || 0);
+          }
+        } else {
+          // Create new tank
+          if (player.id) {
+            this.players[player.id] = new GeneralTank(
+              this,
+              player.x || 0,
+              player.y || 0
+            );
+          }
+        }
+      });
+    }
+    Game.player.setIgnoreGravity(false);
   }
 
   progressBar() {

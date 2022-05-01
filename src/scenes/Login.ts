@@ -1,7 +1,10 @@
 import Phaser from 'phaser';
 import Global from '@/global';
+import $ from 'jquery';
+import NetworkController from '@/NetworkController';
+import Console from '@/components/Console';
 import Game from './Game';
-import config from '../config';
+
 const _w = Global.SCREEN_WIDTH,
   _h = Global.SCREEN_HEIGHT;
 export default class Login extends Phaser.Scene {
@@ -22,6 +25,8 @@ export default class Login extends Phaser.Scene {
   }
 
   create() {
+    Global._console = new Console();
+
     Login.scene = this;
     const bkg = this.add.image(_w / 2, _h / 2, 'background');
     // bkg.scale = 1.8;
@@ -30,41 +35,30 @@ export default class Login extends Phaser.Scene {
 
     const element = this.add.dom(_w / 2, 0).createFromCache('loginform');
 
-    element.addListener('click');
-    element.on('click', function (event: any) {
-      if (event.target.name == 'loginButton') {
-        const inputUsername = element.getChildByName(
-          'username'
-        ) as HTMLInputElement;
-
-        if (inputUsername.value.trim() != '') {
-          element.removeListener('click');
-          element.removeListener('keydown');
-          element.setVisible(false);
-
-          Login.playerName = inputUsername.value.trim();
-          Login.scene.scene.start('Artilio');
-        }
+    const submit_login = function () {
+      let username = $('#username').val() as string;
+      username = username?.trim();
+      if (username != '') {
+        if (!Global.socket) Global.socket = new NetworkController();
+        Global.socket
+          .login(username)
+          .then((msg) => {
+            element.setVisible(false);
+            Game.scene.remote_data = msg;
+            Login.scene.scene.start('Artilio');
+          })
+          .catch((msg) => {
+            Global._console.error('Failed to login: ' + msg);
+          });
       }
-    });
+    };
 
-    element.addListener('keydown');
-    element.on('keydown', function (event: any) {
+    $('#loginButton').on('click', submit_login);
+    $('#username').on('keydown', function (event: any) {
       if (event.code != 'Enter') return;
-      const inputUsername = element.getChildByName(
-        'username'
-      ) as HTMLInputElement;
-      if (inputUsername.value.trim() != '') {
-        element.removeListener('click');
-        element.removeListener('keydown');
-        element.setVisible(false);
-
-        Login.playerName = inputUsername.value.trim();
-        Login.scene.scene.start('Artilio');
-      }
+      submit_login();
     });
-
-    document.getElementById('username')?.focus();
+    $('#username')[0].focus();
 
     this.tweens.add({
       targets: element,

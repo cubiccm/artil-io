@@ -1,13 +1,13 @@
-import Global from '@/global';
-import Bullet from '@/components/Projectile/Bullet';
-import Game from '@/scenes/Game';
-import BaseTank from '@/components/Tank/BaseTank';
+import Global from '../../global.js';
+import Bullet from '../../components/Projectile/Bullet.js';
+import Game from '../../scenes/Game.js';
+import BaseTank from '../../components/Tank/BaseTank.js';
 
 export default class PlayerTank extends BaseTank {
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y);
 
-    Game.scene.events.on(
+    scene.events.on(
       Phaser.Scenes.Events.POST_UPDATE,
       () => {
         const cursor_x =
@@ -44,17 +44,31 @@ export default class PlayerTank extends BaseTank {
     // sync data
   }
 
+  move_direction = 0;
   update(time: number, delta: number) {
-    const keyboard = Game.scene.input.keyboard;
-    const pointer = Game.scene.input.activePointer;
+    const keyboard = this.scene.input.keyboard;
+    const pointer = this.scene.input.activePointer;
     const keys: any = Game.keys;
 
+    const prev_direction = this.move_direction;
     if (keyboard.checkDown(keys.LEFT) || keyboard.checkDown(keys.A)) {
+      this.move_direction = -1;
       this.moveLeft();
+    } else if (keyboard.checkDown(keys.RIGHT) || keyboard.checkDown(keys.D)) {
+      this.move_direction = 1;
+      this.moveRight();
+    } else {
+      this.move_direction = 0;
     }
 
-    if (keyboard.checkDown(keys.RIGHT) || keyboard.checkDown(keys.D)) {
-      this.moveRight();
+    if (this.move_direction != prev_direction) {
+      Global.socket.move(
+        this.body.position.x,
+        this.body.position.y,
+        this.body.velocity.x,
+        this.body.velocity.y,
+        this.body.angularVelocity
+      );
     }
 
     if (keyboard.checkDown(keys.UP) || keyboard.checkDown(keys.SPACE)) {
@@ -66,48 +80,10 @@ export default class PlayerTank extends BaseTank {
     }
 
     if (pointer.leftButtonDown()) {
-      const cam = Game.scene.cameras.main;
+      const cam = this.scene.cameras.main;
       const cursor_x = pointer.x + cam.scrollX;
       const cursor_y = pointer.y + cam.scrollY;
       this.fire(time, delta, { x: cursor_x, y: cursor_y });
-    }
-  }
-
-  moveLeft() {
-    if (
-      !this.data.values.sensors.left.blocked &&
-      this.data.values.sensors.bottom.blocked
-    ) {
-      const newVelocityX = this.data.values.sensors.bottom.blocked
-        ? this.data.values.speed.ground
-        : this.data.values.speed.air;
-
-      this.setVelocityX(-newVelocityX);
-    }
-
-    if (!this.data.values.sensors.bottom.blocked) {
-      this.setAngularVelocity(-0.005); // For rotating in the air
-    } else if (this.data.values.sensors.left.blocked) {
-      this.setAngularVelocity(0.01); // For climbing
-    }
-  }
-
-  moveRight() {
-    if (
-      !this.data.values.sensors.right.blocked &&
-      this.data.values.sensors.bottom.blocked
-    ) {
-      const newVelocityX = this.data.values.sensors.bottom.blocked
-        ? this.data.values.speed.ground
-        : this.data.values.speed.air;
-
-      this.setVelocityX(newVelocityX);
-    }
-
-    if (!this.data.values.sensors.bottom.blocked) {
-      this.setAngularVelocity(0.005);
-    } else if (this.data.values.sensors.right.blocked) {
-      this.setAngularVelocity(-0.01);
     }
   }
 

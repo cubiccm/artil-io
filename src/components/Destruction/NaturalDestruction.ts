@@ -1,6 +1,6 @@
-import BaseDestruction from './BaseDestruction';
+import BaseDestruction from './BaseDestruction.js';
 import PolygonClipping from 'polygon-clipping';
-import Platform from '@/components/Platform';
+import Platform from '../../components/Platform.js';
 import _ from 'lodash';
 
 export default class NaturalDestruction extends BaseDestruction {

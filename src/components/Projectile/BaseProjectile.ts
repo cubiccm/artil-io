@@ -1,7 +1,7 @@
-import Global from '@/global';
-import BaseTank from '@/components/Tank/BaseTank';
-import Platform from '@/components/Platform';
-import Game from '@/scenes/Game';
+import Global from '../../global.js';
+import BaseTank from '../../components/Tank/BaseTank.js';
+import Platform from '../../components/Platform.js';
+import Game from '../../scenes/Game.js';
 
 export default abstract class BaseProjectile extends Phaser.GameObjects
   .Container {

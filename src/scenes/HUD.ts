@@ -63,9 +63,8 @@ export default class HUD extends Phaser.Scene {
   }
 
   redrawAll() {
-    // 160, 30 are temporary initial values for demo
-    this.drawHealthBar(Game.player?.get('HP') || 160, 200);
-    this.drawExpBar(Game.player?.get('XP') || 30, 100);
+    this.drawHealthBar(Game.player?.get('HP') || 200, 200);
+    this.drawExpBar(Game.player?.get('XP') || 100, 100);
   }
 
   drawHealthBar(current_health: number, max_health: number) {

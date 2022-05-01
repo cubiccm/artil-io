@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext", "ScriptHost"],
+    "module": "ESNext",
+    "esModuleInterop": true,
+    "downlevelIteration": true,
+    "moduleResolution": "Node",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["../src/*", "src/*"] // @ to resolve src folder
+    },
+    "outDir": "./build"
+  }
+}

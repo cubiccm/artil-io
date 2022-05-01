@@ -1,3 +1,6 @@
+import NetworkController from './NetworkController.js';
+import Console from './components/Console.js';
+
 export default class Global {
   public static readonly event_bus = new Phaser.Events.EventEmitter();
 
@@ -14,4 +17,9 @@ export default class Global {
 
   public static SCREEN_WIDTH = window.innerWidth;
   public static SCREEN_HEIGHT = window.innerHeight;
+
+  public static disable_graphics = false;
+
+  public static socket: NetworkController;
+  public static _console: Console;
 }

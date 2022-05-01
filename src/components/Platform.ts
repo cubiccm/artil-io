@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import PolygonClipping from 'polygon-clipping';
-import Global from '@/global';
-import BaseDestruction from './Destruction/BaseDestruction';
+import Global from '../global.js';
+import BaseDestruction from './Destruction/BaseDestruction.js';
 
 export class PlatformTexture extends Phaser.Physics.Matter.Sprite {
   public controller?: Platform;
@@ -30,6 +30,10 @@ export default class Platform {
     this.fillColor = fillColor || 0x0000ff;
     this.fillAlpha = fillAlpha || 0.5;
     this.gameObject = this.createPlatform();
+  }
+
+  get raw(): any {
+    return [[this.anchor.x, this.anchor.y], this.vertices];
   }
 
   createPlatform(): Phaser.GameObjects.GameObject | null {

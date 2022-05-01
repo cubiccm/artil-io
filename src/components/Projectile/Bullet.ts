@@ -1,13 +1,12 @@
-import Global from '@/global';
-import BaseTank from '@/components/Tank/BaseTank';
-import Game from '@/scenes/Game';
-import BaseProjectile from './BaseProjectile';
-import CircularDestruction from '@/components/Destruction/CircularDestruction';
-import RectangularDestruction from '@/components/Destruction/RectangularDestruction';
-import BaseDestruction from '@/components/Destruction/BaseDestruction';
-import { Vector } from 'matter';
-import NaturalDestruction from '@/components/Destruction/NaturalDestruction';
-import Platform from '@/components/Platform';
+import Global from '../../global.js';
+import BaseTank from '../../components/Tank/BaseTank.js';
+import Game from '../../scenes/Game.js';
+import BaseProjectile from './BaseProjectile.js';
+import CircularDestruction from '../../components/Destruction/CircularDestruction.js';
+import RectangularDestruction from '../../components/Destruction/RectangularDestruction.js';
+import BaseDestruction from '../../components/Destruction/BaseDestruction.js';
+import NaturalDestruction from '../../components/Destruction/NaturalDestruction.js';
+import Platform from '../../components/Platform.js';
 
 export default class Bullet extends BaseProjectile {
   constructor(

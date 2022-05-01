@@ -1,6 +1,6 @@
-import BaseDestruction from './BaseDestruction';
+import BaseDestruction from './BaseDestruction.js';
 import * as _ from 'lodash';
-import Platform from '@/components/Platform';
+import Platform from '../../components/Platform.js';
 
 export default class CircularDestruction extends BaseDestruction {
   r: number;

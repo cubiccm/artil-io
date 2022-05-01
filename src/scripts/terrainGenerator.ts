@@ -1,10 +1,10 @@
 import _ from 'lodash';
 
 import PoissonDiskSampling from 'poisson-disk-sampling';
-import { combineNoise } from '@/scripts/perlin';
-import Platform from '@/components/Platform';
-import Global from '@/global';
-import Game from '@/scenes/Game';
+import * as perlin from './perlin.js';
+import Platform from '../components/Platform.js';
+import Global from '../global.js';
+import Game from '../scenes/Game.js';
 
 function generateTerrain(scene: Phaser.Scene) {
   const [min_x, max_x] = [-Global.WORLD_WIDTH / 2, Global.WORLD_WIDTH / 2];
@@ -23,6 +23,7 @@ function generateTerrain(scene: Phaser.Scene) {
     tries: 100
   });
   const points = p.fill();
+  const platforms = [] as Platform[];
 
   // Game.scene.cameras.main.setZoom(0.12);
   points.forEach((p) => {
@@ -34,18 +35,18 @@ function generateTerrain(scene: Phaser.Scene) {
     const ny = Math.ceil(h / s);
     const nx = Math.ceil(w / s);
 
-    const noise_t = combineNoise(h, h / 2, 8, 2, nx).pos.map((v) =>
-      Math.floor(v)
-    );
-    const noise_r = combineNoise(w, w / 2, 8, 2, ny).pos.map((v) =>
-      Math.floor(v)
-    );
-    const noise_b = combineNoise(h, h / 8, 8, 2, nx).pos.map((v) =>
-      Math.floor(v)
-    );
-    const noise_l = combineNoise(w, w / 2, 8, 2, ny).pos.map((v) =>
-      Math.floor(v)
-    );
+    const noise_t = perlin
+      .combineNoise(h, h / 2, 8, 2, nx)
+      .pos.map((v) => Math.floor(v));
+    const noise_r = perlin
+      .combineNoise(w, w / 2, 8, 2, ny)
+      .pos.map((v) => Math.floor(v));
+    const noise_b = perlin
+      .combineNoise(h, h / 8, 8, 2, nx)
+      .pos.map((v) => Math.floor(v));
+    const noise_l = perlin
+      .combineNoise(w, w / 2, 8, 2, ny)
+      .pos.map((v) => Math.floor(v));
     const min_noise_t: any = _.min(noise_t);
     const min_noise_r: any = _.min(noise_r);
     const min_noise_b: any = _.min(noise_b);
@@ -75,8 +76,9 @@ function generateTerrain(scene: Phaser.Scene) {
       vertices_l
     ]);
 
-    const platform = new Platform(scene, x, y, vertices, 0x192841, 0.85);
+    platforms.push(new Platform(scene, x, y, vertices, 0x192841, 0.85));
   });
+  return platforms;
 }
 
 export default generateTerrain;

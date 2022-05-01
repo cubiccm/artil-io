@@ -1,6 +1,6 @@
-import * as types from '@/types';
-import Global from '@/global';
-import BaseTank from '@/components/Tank/BaseTank';
+import * as types from '../../types';
+import Global from '../../global.js';
+import BaseTank from '../../components/Tank/BaseTank.js';
 
 export default class TankSensor {
   parent: BaseTank;
