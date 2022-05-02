@@ -31,6 +31,7 @@ export interface RawBulletData {
   y: number;
   vx: number;
   vy: number;
+  player?: string; // Player ID
   // type: number
 }
 

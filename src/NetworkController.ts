@@ -23,6 +23,9 @@ export default class NetworkController {
       this.socket.on('sync', (m) => {
         this.serverSync(m);
       });
+      this.socket.on('disconnect', (m) => {
+        Global.console.error('Disconnected from server');
+      });
     });
     return new Promise((resolve, reject) => {
       this.socket.on('login_success', resolve);

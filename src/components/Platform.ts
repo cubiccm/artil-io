@@ -106,6 +106,7 @@ export default class Platform {
   }
 
   onCollide(new_vertices: PolygonClipping.MultiPolygon) {
+    return;
     if (!this.gameObject?.active) return;
     this.gameObject?.destroy();
     new_vertices.map((v) => {

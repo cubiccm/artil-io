@@ -5,6 +5,7 @@ import Global from '@/global';
 import TankSensor from '@/components/Tank/TankSensor';
 import { RawTankData } from '@/types/RawData';
 import Bullet from '@/components/Projectile/Bullet';
+import Core from '@/scenes/Core';
 
 export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
   declare body: MatterJS.BodyType;
@@ -336,16 +337,18 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
     const velocity = 30;
     const vx = velocity * Math.cos(angle);
     const vy = velocity * Math.sin(angle);
-    this.get('bullets').push(
-      new Bullet(
-        this.scene,
-        origin.x + Math.cos(angle) * cannon_length,
-        origin.y + Math.sin(angle) * cannon_length,
-        vx,
-        vy,
-        this
-      )
+    const bullet = new Bullet(
+      this.scene,
+      origin.x + Math.cos(angle) * cannon_length,
+      origin.y + Math.sin(angle) * cannon_length,
+      vx,
+      vy,
+      this
     );
+    this.get('bullets').push(bullet);
+    if ('addBullet' in this.scene) {
+      (this.scene as Core)?.addBullet(bullet);
+    }
   }
 
   set(attribute: string, value: any) {

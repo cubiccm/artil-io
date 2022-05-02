@@ -71,7 +71,9 @@ export default class Core extends Phaser.Scene {
     // Terrain
     const res = {} as RawGameData;
     res.map = {};
-    res.map.terrain = player.terrains_not_synced.map((v) => v.raw);
+    res.map.terrain = player.terrains_not_synced.map((platform) => {
+      if (platform.gameObject?.body) return platform.raw;
+    });
     player.terrains_not_synced = [];
 
     // Tanks
@@ -84,7 +86,7 @@ export default class Core extends Phaser.Scene {
     // Bullets
     res.bullets = [];
     player.bullets_not_synced.forEach((bullet: Bullet) => {
-      res.bullets?.push(bullet.raw);
+      if (bullet.body) res.bullets?.push(bullet.raw);
     });
     player.bullets_not_synced = [];
 
@@ -104,8 +106,20 @@ export default class Core extends Phaser.Scene {
     const y = Phaser.Math.Between(-300, 300);
     const player = new Player(name, new GeneralTank(this, x, y));
     player.socket = socket;
-    player.terrains_not_synced = this.gamedata.map.terrain.slice();
-    player.bullets_not_synced = this.gamedata.bullets.slice();
+
+    // Terrain
+    player.terrains_not_synced = this.gamedata.map.terrain.filter(
+      (platform) => {
+        if (platform.gameObject?.body) return platform;
+      }
+    );
+    this.gamedata.map.terrain = player.terrains_not_synced.slice();
+    // Bullets
+    player.bullets_not_synced = this.gamedata.bullets.filter((bullet) => {
+      if (bullet.body) return bullet;
+    });
+    this.gamedata.bullets = player.bullets_not_synced.slice();
+
     this.players[player.ID] = player;
     return player;
   }
