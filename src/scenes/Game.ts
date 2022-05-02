@@ -22,14 +22,9 @@ export default class Game extends Phaser.Scene {
 
   preload() {
     this.load.image('background', 'assets/space3.png');
-    this.load.image('tank', 'assets/tank.png');
     this.load.json('tank_shape', 'assets/tank_shape.json');
-    this.load.image('tank_1', 'assets/tank-frames/tank_1.png');
-    this.load.image('tank_2', 'assets/tank-frames/tank_2.png');
-    this.load.image('tank_3', 'assets/tank-frames/tank_3.png');
-    this.load.image('tank_4', 'assets/tank-frames/tank_4.png');
-    this.load.image('cannon', 'assets/cannon-end.png');
-    this.load.image('rock-tile', 'assets/rock-tile.jpeg');
+    this.loadTankSprites();
+
     const load_img = this.add.image(
       Global.SCREEN_WIDTH / 2,
       Global.SCREEN_HEIGHT / 2,
@@ -72,12 +67,7 @@ export default class Game extends Phaser.Scene {
         gameObject.y = dragY;
       }
     );
-    // const bkg = this.add.image(
-    //   Global.SCREEN_WIDTH / 2,
-    //   Global.SCREEN_HEIGHT / 2,
-    //   'background'
-    // );
-    // bkg.scale = 1.8;
+
     const bkg = this.add.tileSprite(
       0,
       0,
@@ -112,6 +102,17 @@ export default class Game extends Phaser.Scene {
     // not used, listen to the Game.scene.events.on(Phaser.Scenes.Events.UPDATE, callback) directly
   }
 
+  loadTankSprites() {
+    PlayerTank.skins.forEach((s) => {
+      this.load.atlas(
+        s + 'tank',
+        'assets/sprites/' + s + 'tank-sprites.png',
+        'assets/frames/' + s + 'tank.json'
+      );
+      this.load.image(s + 'tank-cannon', 'assets/cannons/' + s + '-cannon.png');
+    });
+  }
+
   progressBar() {
     var progressBar = this.add.graphics();
     var progressBox = this.add.graphics();
@@ -133,7 +134,6 @@ export default class Game extends Phaser.Scene {
     });
     loadingText.setOrigin(0.5, 0.5);
     this.load.on('progress', function (value: any) {
-      console.log(value);
       progressBar.clear();
       progressBar.fillStyle(0xffffff, 1);
       progressBar.fillRect(

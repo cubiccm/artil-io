@@ -22,7 +22,6 @@ export default class HUD extends Phaser.Scene {
 
   init(data: any) {
     HUD.playerName = data.playerName;
-    console.log(HUD.playerName);
   }
 
   preload() {
@@ -68,6 +67,15 @@ export default class HUD extends Phaser.Scene {
           }
           case 'skin-item': {
             HUD.selectSkin(event.target as HTMLInputElement);
+            let skin = event.target.name;
+            Game.player.tank_data.skin = skin;
+            Game.player.setTexture(skin);
+            Game.player.anims.remove('moving_right');
+            Game.player.anims.remove('moving_left');
+            Game.player.anims.remove('idle');
+            Game.player.createWheelAnimations();
+            Game.player.tank_data.components.cannon_texture?.destroy();
+            Game.player.createCannonEnd();
             break;
           }
           default:

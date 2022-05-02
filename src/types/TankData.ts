@@ -28,6 +28,7 @@ interface TankData {
     jump: number;
   };
   components: {
+    cannon_texture?: Phaser.GameObjects.GameObject;
     cannon_body?: MatterJS.BodyType;
   };
   max_health: number;
@@ -39,6 +40,7 @@ interface TankData {
   bullets: Bullet[];
   id: string;
   team: string;
+  skin: string;
 }
 
 export default TankData;

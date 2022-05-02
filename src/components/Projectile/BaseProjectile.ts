@@ -14,7 +14,6 @@ export default abstract class BaseProjectile extends Phaser.GameObjects
     y: number,
     velocity_x: number,
     velocity_y: number,
-    speed_factor: number,
     parent: BaseTank
   ) {
     super(scene);
@@ -23,8 +22,8 @@ export default abstract class BaseProjectile extends Phaser.GameObjects
     const body = this.body as MatterJS.BodyType;
     Game.scene.matter.body.setPosition(body, { x: x, y: y });
     Game.scene.matter.body.setVelocity(body, {
-      x: velocity_x * speed_factor,
-      y: velocity_y * speed_factor
+      x: velocity_x * parent.tank_data.bullet_speed,
+      y: velocity_y * parent.tank_data.bullet_speed
     });
     body.collisionFilter.category = Global.CATEGORY_PROJECTILE;
     body.collisionFilter.mask =

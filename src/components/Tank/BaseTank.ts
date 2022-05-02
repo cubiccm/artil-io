@@ -7,13 +7,14 @@ import Login from '@/scenes/Login';
 
 export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
   public smoothedControls!: SmoothedHorionztalControl;
+  public static skins = ['green', 'orange', 'yellow', 'blue', 'purple', 'pink'];
   declare body: MatterJS.BodyType;
   public get tank_data(): types.TankData {
     return this.data.values as types.TankData;
   }
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene.matter.world, x, y, 'tank_1', undefined, {
+    super(scene.matter.world, x, y, 'greentank', undefined, {
       label: 'tank',
       shape: scene.cache.json.get('tank_shape').tank
     } as Phaser.Types.Physics.Matter.MatterBodyConfig);
@@ -54,8 +55,10 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
       bullet_speed: 1,
       bullets: [],
       components: {
+        cannon_texture: undefined,
         cannon_body: undefined
-      }
+      },
+      skin: 'greentank'
     };
 
     this.setData(data);
@@ -151,39 +154,45 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
   createCannonEnd() {
     const body = this.data.values.components.cannon_body;
     const origin = body.position;
-    const texture = this.scene.add.image(origin.x, origin.y, 'cannon');
+    const texture = this.scene.add.image(
+      origin.x,
+      origin.y,
+      this.tank_data.skin + '-cannon'
+    );
     texture.scale = 0.4;
     texture.scaleY = 0.6;
-    this.scene.matter.add.gameObject(texture, body);
+    this.data.values.components.cannon_texture =
+      this.scene.matter.add.gameObject(texture, body);
   }
 
   createWheelAnimations() {
     this.anims.create({
       key: 'moving_right',
-      frames: [
-        { key: 'tank_1' },
-        { key: 'tank_2' },
-        { key: 'tank_3' },
-        { key: 'tank_4' }
-      ],
+      frames: this.anims.generateFrameNames(this.tank_data.skin, {
+        prefix: 'tank',
+        start: 1,
+        end: 4,
+        zeroPad: 2
+      }),
       frameRate: 15,
       repeat: -1
     });
+
     this.anims.create({
       key: 'moving_left',
-      frames: [
-        { key: 'tank_4' },
-        { key: 'tank_3' },
-        { key: 'tank_2' },
-        { key: 'tank_1' }
-      ],
+      frames: this.anims.generateFrameNames(this.tank_data.skin, {
+        prefix: 'tank',
+        start: 4,
+        end: 1,
+        zeroPad: 2
+      }),
       frameRate: 15,
       repeat: -1
     });
 
     this.anims.create({
       key: 'idle',
-      frames: [{ key: 'tank_1', frame: undefined }],
+      frames: [{ key: this.tank_data.skin, frame: 'tank01' }],
       frameRate: 20,
       repeat: 1
     });

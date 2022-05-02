@@ -174,7 +174,6 @@ export default class PlayerTank extends BaseTank {
         origin.y + Math.sin(angle) * cannon_length,
         vx,
         vy,
-        this.tank_data.bullet_speed,
         this
       )
     );
