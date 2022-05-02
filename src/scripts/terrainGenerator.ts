@@ -5,6 +5,7 @@ import * as perlin from './perlin';
 import Platform from '@/components/Platform';
 import Global from '@/global';
 import Game from '@/scenes/Game';
+import UUID from '@/types/UUID';
 
 function generateTerrain(scene: Phaser.Scene) {
   const [min_x, max_x] = [-Global.WORLD_WIDTH / 2, Global.WORLD_WIDTH / 2];
@@ -76,7 +77,9 @@ function generateTerrain(scene: Phaser.Scene) {
       vertices_l
     ]);
 
-    platforms.push(new Platform(scene, x, y, vertices, 0x192841, 0.85));
+    platforms.push(
+      new Platform(scene, UUID(8), x, y, vertices, 0x192841, 0.85)
+    );
   });
   return platforms;
 }

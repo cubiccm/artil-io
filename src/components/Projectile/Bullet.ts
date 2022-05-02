@@ -25,7 +25,8 @@ export default class Bullet extends BaseProjectile {
       x: this.body.position.x,
       y: this.body.position.y,
       vx: this.body.velocity.x,
-      vy: this.body.velocity.y
+      vy: this.body.velocity.y,
+      player: this.parent?.player?.ID
     };
   }
 

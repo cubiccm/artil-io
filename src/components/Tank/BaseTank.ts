@@ -6,9 +6,11 @@ import TankSensor from '@/components/Tank/TankSensor';
 import { RawTankData } from '@/types/RawData';
 import Bullet from '@/components/Projectile/Bullet';
 import Core from '@/scenes/Core';
+import Player from '@/components/Player';
 
 export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
   declare body: MatterJS.BodyType;
+  player?: Player;
 
   // Avoid using this method: please use get() or set() to trigger events
   public get tank_data(): types.TankData {
@@ -22,6 +24,7 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
       shape: scene.cache.json.get('tank_shape').tank
     } as Phaser.Types.Physics.Matter.MatterBodyConfig);
     scene.add.existing(this);
+
     const data: types.TankData = {
       blocked: {
         left: false,
@@ -346,8 +349,8 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
       this
     );
     this.get('bullets').push(bullet);
-    if ('addBullet' in this.scene) {
-      (this.scene as Core)?.addBullet(bullet);
+    if ('onNewBullet' in this.scene) {
+      (this.scene as Core)?.onNewBullet(bullet);
     }
   }
 

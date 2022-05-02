@@ -1,6 +1,6 @@
 export default interface RawGameData {
   map?: {
-    terrain?: MatterJS.Vector[][];
+    platforms?: MatterJS.Vector[][];
   };
   players?: RawTankData[];
   self?: RawTankData;

@@ -1,16 +1,7 @@
 import { Socket } from 'socket.io';
 import { RawTankData } from '@/types/RawData';
 import BaseTank from '@/components/Tank/BaseTank';
-
-function randID(length: integer) {
-  let result = '';
-  const characters =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  for (let i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return result;
-}
+import UUID from '@/types/UUID';
 
 export default class Player {
   name: string;
@@ -24,9 +15,10 @@ export default class Player {
 
   constructor(name: string, tank: BaseTank) {
     this.name = name;
-    this.ID = randID(8);
-    this.secret = randID(12);
+    this.ID = UUID(8);
+    this.secret = UUID(12);
     this.tank = tank;
+    this.tank.player = this;
   }
 
   get raw(): RawTankData {

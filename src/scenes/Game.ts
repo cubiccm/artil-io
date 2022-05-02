@@ -19,6 +19,7 @@ export default class Game extends Phaser.Scene {
 
   remote_data: any;
   players = {} as any;
+  platforms = {} as any;
 
   constructor() {
     super('Artilio');
@@ -100,17 +101,29 @@ export default class Game extends Phaser.Scene {
     // not used, listen to the Game.scene.events.on(Phaser.Scenes.Events.UPDATE, callback) directly
   }
 
-  terrain_generated = false;
   sync(remote_data?: RawGameData) {
     if (!remote_data) remote_data = this.remote_data;
 
     // Terrain
-    if (!this.terrain_generated) {
-      this.terrain_generated = true;
-      remote_data?.map?.terrain?.forEach((data: any) => {
-        new Platform(this, data[0][0], data[0][1], data[1], 0x192841, 0.85);
-      });
-    }
+    remote_data?.map?.platforms?.forEach((data: any) => {
+      if (data?.length == 1 && data[0] in this.platforms) {
+        // Destroy platform
+        (this.platforms[data[0]] as Platform).gameObject?.destroy();
+        delete this.platforms[data[0]];
+      } else if (data.length == 3) {
+        // New platform
+        const platform = new Platform(
+          this,
+          data[0],
+          data[1][0],
+          data[1][1],
+          data[2],
+          0x192841,
+          0.85
+        );
+        this.platforms[data[0]] = platform;
+      }
+    });
 
     // Tank
     if (remote_data?.self) {

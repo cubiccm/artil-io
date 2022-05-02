@@ -2,6 +2,8 @@ import _ from 'lodash';
 import PolygonClipping from 'polygon-clipping';
 import Global from '@/global';
 import BaseDestruction from '@/components/Destruction/BaseDestruction';
+import Core from '@/scenes/Core';
+import UUID from '@/types/UUID';
 
 export class PlatformTexture extends Phaser.Physics.Matter.Sprite {
   public controller?: Platform;
@@ -14,9 +16,11 @@ export default class Platform {
   public fillColor: number;
   public fillAlpha: number;
   public gameObject: Phaser.GameObjects.GameObject | null;
+  ID: string;
 
   constructor(
     scene: Phaser.Scene,
+    ID: string,
     x: number,
     y: number,
     vertices: MatterJS.Vector[],
@@ -30,10 +34,17 @@ export default class Platform {
     this.fillColor = fillColor || 0x0000ff;
     this.fillAlpha = fillAlpha || 0.5;
     this.gameObject = this.createPlatform();
+    this.ID = ID;
   }
 
   get raw(): any {
-    return [[this.anchor.x, this.anchor.y], this.vertices];
+    if (this.gameObject?.body) {
+      // Existing platform
+      return [this.ID, [this.anchor.x, this.anchor.y], this.vertices];
+    } else {
+      // Died platform
+      return [this.ID];
+    }
   }
 
   createPlatform(): Phaser.GameObjects.GameObject | null {
@@ -106,19 +117,23 @@ export default class Platform {
   }
 
   onCollide(new_vertices: PolygonClipping.MultiPolygon) {
-    return;
-    if (!this.gameObject?.active) return;
-    this.gameObject?.destroy();
-    new_vertices.map((v) => {
-      const vertices = v[0].map((p) => ({ x: p[0], y: p[1] }));
-      new Platform(
-        this.scene,
-        this.anchor.x,
-        this.anchor.y,
-        vertices,
-        this.fillColor,
-        this.fillAlpha
-      );
-    });
+    if ('onNewPlatform' in this.scene) {
+      if (!this.gameObject?.active) return;
+      this.gameObject?.destroy();
+      (this.scene as Core).onDestroyPlatform(this);
+      new_vertices.map((v) => {
+        const vertices = v[0].map((p) => ({ x: p[0], y: p[1] }));
+        const platform = new Platform(
+          this.scene,
+          UUID(8),
+          this.anchor.x,
+          this.anchor.y,
+          vertices,
+          this.fillColor,
+          this.fillAlpha
+        );
+        (this.scene as Core).onNewPlatform(platform);
+      });
+    }
   }
 }

@@ -17,7 +17,7 @@ export default class Core extends Phaser.Scene {
   public static scene: Core;
   gamedata = {
     map: {
-      terrain: [] as Platform[]
+      platforms: [] as Platform[]
     },
     players: [] as BaseTank[],
     bullets: [] as Bullet[]
@@ -50,7 +50,7 @@ export default class Core extends Phaser.Scene {
       false
     );
     this.matter.world.setGravity(0, 1, 0.001);
-    this.gamedata.map.terrain = generateTerrain(this);
+    this.gamedata.map.platforms = generateTerrain(this);
     this.initiated = true;
     console.log('Game initiated');
   }
@@ -60,9 +60,8 @@ export default class Core extends Phaser.Scene {
     this.last_update_interval += delta;
     if (this.last_update_interval >= server_report_rate) {
       this.last_update_interval = 0;
-      Object.keys(this.players).forEach((key) => {
-        const player = this.players[key];
-        player.socket.emit('sync', Core.scene.getRawData(player));
+      Object.values(this.players).forEach((_player: any) => {
+        _player.socket.emit('sync', Core.scene.getRawData(_player));
       });
     }
   }
@@ -71,49 +70,50 @@ export default class Core extends Phaser.Scene {
     // Terrain
     const res = {} as RawGameData;
     res.map = {};
-    res.map.terrain = player.terrains_not_synced.map((platform) => {
-      if (platform.gameObject?.body) return platform.raw;
+    res.map.platforms = player.terrains_not_synced.map((platform) => {
+      return platform.raw;
     });
     player.terrains_not_synced = [];
 
     // Tanks
     res.players = [];
-    Object.keys(this.players).forEach((key) => {
-      if (this.players[key] != player) res.players?.push(this.players[key].raw);
+    Object.values(this.players).forEach((_player: any) => {
+      if (_player != player) res.players?.push(_player.raw);
     });
     res.self = player.raw;
 
     // Bullets
     res.bullets = [];
     player.bullets_not_synced.forEach((bullet: Bullet) => {
-      if (bullet.body) res.bullets?.push(bullet.raw);
+      if (bullet.body && bullet.parent?.player != player)
+        res.bullets?.push(bullet.raw);
     });
     player.bullets_not_synced = [];
 
     return res;
   }
 
-  addBullet(bullet: Bullet) {
+  onNewBullet(bullet: Bullet) {
     this.gamedata.bullets.push(bullet);
-    Object.keys(this.players).forEach((key) => {
-      const player = this.players[key];
-      player.bullets_not_synced.push(bullet);
+    Object.values(this.players).forEach((_player: any) => {
+      _player.bullets_not_synced.push(bullet);
     });
   }
 
-  addPlayer(name: string, socket: Socket): Player {
+  onNewPlayer(name: string, socket: Socket): Player {
     const x = Phaser.Math.Between(-400, 400);
     const y = Phaser.Math.Between(-300, 300);
     const player = new Player(name, new GeneralTank(this, x, y));
     player.socket = socket;
 
     // Terrain
-    player.terrains_not_synced = this.gamedata.map.terrain.filter(
+    player.terrains_not_synced = this.gamedata.map.platforms.filter(
       (platform) => {
         if (platform.gameObject?.body) return platform;
       }
     );
-    this.gamedata.map.terrain = player.terrains_not_synced.slice();
+    this.gamedata.map.platforms = player.terrains_not_synced.slice();
+
     // Bullets
     player.bullets_not_synced = this.gamedata.bullets.filter((bullet) => {
       if (bullet.body) return bullet;
@@ -122,6 +122,19 @@ export default class Core extends Phaser.Scene {
 
     this.players[player.ID] = player;
     return player;
+  }
+
+  onDestroyPlatform(platform: Platform) {
+    Object.values(this.players).forEach((_player: any) => {
+      _player.terrains_not_synced.push(platform);
+    });
+  }
+
+  onNewPlatform(platform: Platform) {
+    this.gamedata.map.platforms.push(platform);
+    Object.values(this.players).forEach((_player: any) => {
+      _player.terrains_not_synced.push(platform);
+    });
   }
 
   getPlayer(ID: string, secret?: string) {
