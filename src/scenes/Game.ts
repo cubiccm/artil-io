@@ -30,12 +30,13 @@ export default class Game extends Phaser.Scene {
     this.load.image('tank_4', 'assets/tank-frames/tank_4.png');
     this.load.image('cannon', 'assets/cannon-end.png');
     this.load.image('rock-tile', 'assets/rock-tile.jpeg');
-    this.add.image(
+    const load_img = this.add.image(
       Global.SCREEN_WIDTH / 2,
       Global.SCREEN_HEIGHT / 2,
       'loginbkg'
-    ).scale = 0.4;
-
+    );
+    load_img.scaleX = 0.39;
+    load_img.scaleY = 0.34;
     this.progressBar();
   }
 
