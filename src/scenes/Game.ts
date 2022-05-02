@@ -21,7 +21,7 @@ export default class Game extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('background', 'assets/city.png');
+    this.load.image('background', 'assets/space3.png');
     this.load.image('tank', 'assets/tank.png');
     this.load.json('tank_shape', 'assets/tank_shape.json');
     this.load.image('tank_1', 'assets/tank-frames/tank_1.png');
@@ -33,8 +33,8 @@ export default class Game extends Phaser.Scene {
     this.add.image(
       Global.SCREEN_WIDTH / 2,
       Global.SCREEN_HEIGHT / 2,
-      'background'
-    );
+      'loginbkg'
+    ).scale = 0.4;
 
     this.progressBar();
   }
@@ -71,13 +71,19 @@ export default class Game extends Phaser.Scene {
         gameObject.y = dragY;
       }
     );
-    const bkg = this.add.image(
-      Global.SCREEN_WIDTH / 2,
-      Global.SCREEN_HEIGHT / 2,
+    // const bkg = this.add.image(
+    //   Global.SCREEN_WIDTH / 2,
+    //   Global.SCREEN_HEIGHT / 2,
+    //   'background'
+    // );
+    // bkg.scale = 1.8;
+    const bkg = this.add.tileSprite(
+      0,
+      0,
+      Global.WORLD_WIDTH * 2,
+      Global.WORLD_HEIGHT * 2,
       'background'
     );
-    bkg.scale = 1.8;
-
     this.matter.world.setGravity(0, 1, 0.001);
 
     generateTerrain(this);

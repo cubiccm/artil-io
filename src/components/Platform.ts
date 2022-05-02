@@ -8,15 +8,17 @@ export default class Platform {
   public scene: Phaser.Scene;
   public anchor: Vector2;
   public vertices: Vector2[];
+  public colors: number[];
   public fillColor: number;
   public fillAlpha: number;
   public gameObject: Phaser.GameObjects.GameObject | null;
-
+  graphics!: Phaser.GameObjects.Graphics;
   constructor(
     scene: Phaser.Scene,
     x: number,
     y: number,
     vertices: Vector2[],
+    colors?: number[],
     fillColor?: number,
     fillAlpha?: number
   ) {
@@ -24,9 +26,13 @@ export default class Platform {
     this.scene = scene;
     this.anchor = { x: x, y: y };
     this.vertices = vertices;
-    this.fillColor = fillColor || 0x0000ff;
-    this.fillAlpha = fillAlpha || 0.5;
+    this.colors = colors || [0x0000ff];
+    this.fillColor =
+      fillColor ||
+      this.colors[Math.round(Math.random() * (this.colors.length - 1))];
+    this.fillAlpha = fillAlpha || 0.1;
     this.gameObject = this.createPlatform();
+    this.graphics = this.scene.add.graphics();
   }
 
   createPlatform(): Phaser.GameObjects.GameObject | null {
@@ -62,14 +68,21 @@ export default class Platform {
       // console.log(error);
       return null;
     }
-    const poly = this.scene.add.polygon(
-      this.anchor.x,
-      this.anchor.y,
-      this.vertices,
-      this.fillColor,
-      this.fillAlpha
-    ) as unknown as Phaser.Physics.Matter.Sprite;
+    const poly = this.scene.add
+      .polygon(
+        this.anchor.x,
+        this.anchor.y,
+        this.vertices,
+        this.fillColor,
+        this.fillAlpha
+      )
+      .setStrokeStyle(
+        7,
+        this.fillColor,
+        1.0
+      ) as unknown as Phaser.Physics.Matter.Sprite;
     // poly.controller = this;
+
     this.scene.matter.add.gameObject(poly, body);
     const path_min = this.scene.matter.bounds.create(this.vertices).min;
     const bound_min = body.bounds.min;
@@ -134,6 +147,7 @@ export default class Platform {
         this.anchor.x,
         this.anchor.y,
         vertices,
+        this.colors,
         this.fillColor,
         this.fillAlpha
       );
