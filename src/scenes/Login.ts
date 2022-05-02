@@ -25,7 +25,7 @@ export default class Login extends Phaser.Scene {
   }
 
   create() {
-    Global._console = new Console();
+    Global.console = new Console();
 
     Login.scene = this;
     const bkg = this.add.image(_w / 2, _h / 2, 'background');
@@ -48,7 +48,7 @@ export default class Login extends Phaser.Scene {
             Login.scene.scene.start('Artilio');
           })
           .catch((msg) => {
-            Global._console.error('Failed to login: ' + msg);
+            Global.console.error('Failed to login: ' + msg);
           });
       }
     };

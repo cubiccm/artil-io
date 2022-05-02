@@ -1,12 +1,11 @@
 import Global from '@/global';
-import BaseTank from '@/components/Tank/BaseTank';
-import Game from '@/scenes/Game';
 import BaseProjectile from './BaseProjectile';
 import CircularDestruction from '@/components/Destruction/CircularDestruction';
 import RectangularDestruction from '@/components/Destruction/RectangularDestruction';
 import BaseDestruction from '@/components/Destruction/BaseDestruction';
 import NaturalDestruction from '@/components/Destruction/NaturalDestruction';
 import Platform from '@/components/Platform';
+import { RawBulletData } from '@/types/RawData';
 
 export default class Bullet extends BaseProjectile {
   constructor(
@@ -15,10 +14,19 @@ export default class Bullet extends BaseProjectile {
     y: number,
     vx: number,
     vy: number,
-    parent: BaseTank
+    parent?: any
   ) {
     super(scene, x, y, vx, vy, parent);
     this.body.gravityScale = { x: 0, y: 4 };
+  }
+
+  get raw(): RawBulletData {
+    return {
+      x: this.body.position.x,
+      y: this.body.position.y,
+      vx: this.body.velocity.x,
+      vy: this.body.velocity.y
+    };
   }
 
   createObject() {

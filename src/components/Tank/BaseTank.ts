@@ -1,8 +1,10 @@
+const fire_cooldown = 250;
+
 import * as types from '@/types';
 import Global from '@/global';
 import TankSensor from '@/components/Tank/TankSensor';
-import { Game } from 'phaser';
-import { RawTankData } from '../../types/RawData';
+import { RawTankData } from '@/types/RawData';
+import Bullet from '@/components/Projectile/Bullet';
 
 export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
   declare body: MatterJS.BodyType;
@@ -143,9 +145,9 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
       Phaser.Scenes.Events.POST_UPDATE,
       () => {
         this.updateAnimations();
-        if (this.getCenter().y > Global.WORLD_HEIGHT / 2) {
+        if (this.body.position.y >= Global.WORLD_HEIGHT / 2) {
           this.setPosition(this.x, -Global.WORLD_HEIGHT / 2);
-        } else if (this.getCenter().y < -Global.WORLD_HEIGHT / 2) {
+        } else if (this.body.position.y < -Global.WORLD_HEIGHT / 2) {
           this.setPosition(this.x, Global.WORLD_HEIGHT / 2);
         }
       },
@@ -159,27 +161,82 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
     );
   }
 
-  syncRemote(player: RawTankData) {
+  get raw(): RawTankData {
+    return {
+      x: this.body.position.x,
+      y: this.body.position.y,
+      vx: this.body.velocity.x,
+      vy: this.body.velocity.y,
+      thrust: this.getThrustSpeed(),
+
+      b_ang: this.body.angle,
+      vang: this.body.angularVelocity,
+
+      c_ang: this.getCannonAngle()
+    };
+  }
+
+  syncRemote(remote: RawTankData) {
     // Estimates location displacement based on velocity and network delay
     const exp_delay = 400;
-    const velocity = new Phaser.Math.Vector2();
-    velocity.set(player.vx || 0, player.vy || 0);
+    const remote_velocity = new Phaser.Math.Vector2();
+    remote_velocity.set(remote.vx || 0, remote.vy || 0);
+    const local = this.body.position;
+    const local_velocity = new Phaser.Math.Vector2();
+    local_velocity.set(this.body.velocity.x, this.body.velocity.y);
     const proximity = Math.max(
-      ((exp_delay * 60) / 1000) * velocity.length(),
+      ((exp_delay * 60) / 1000) *
+        Math.max(local_velocity.length(), remote_velocity.length()),
       20
     );
-    const difference = Phaser.Math.Distance.BetweenPointsSquared(
-      { x: player.x, y: player.y },
-      this.body.position
+    const difference = Math.min(
+      Phaser.Math.Distance.BetweenPointsSquared(
+        {
+          x: remote.x,
+          y: remote.y
+        },
+        {
+          x: local.x,
+          y: local.y
+        }
+      ),
+      Phaser.Math.Distance.BetweenPointsSquared(
+        {
+          x: remote.x,
+          y:
+            (remote.y || 0) +
+            ((remote.y || 0) > 0
+              ? -Global.WORLD_HEIGHT / 2
+              : Global.WORLD_HEIGHT / 2)
+        },
+        {
+          x: local.x,
+          y:
+            local.y +
+            (local.y > 0 ? -Global.WORLD_HEIGHT / 2 : Global.WORLD_HEIGHT / 2)
+        }
+      )
     );
-    console.log(
-      `PROX ${proximity.toFixed(4)} DIFF ${Math.sqrt(difference).toFixed(4)}`
-    );
+    // Global.console.log(
+    //   `PROX ${proximity.toFixed(4)} DIFF ${Math.sqrt(difference).toFixed(4)}`,
+    //   'Prox'
+    // );
     if (difference > proximity * proximity) {
-      this.moveTo(player.x || 0, player.y || 0);
-      this.setSpeed(player.vx || 0, player.vy || 0);
-      this.rotateBody(player.body_angle || 0);
-      this.setAngularVelocity(player.vang || 0);
+      // console.log(
+      //   `REMOTE p(${remote.x?.toFixed(1)}, ${remote.y?.toFixed(
+      //     1
+      //   )}) v(${remote.vx?.toFixed(2)}, ${remote.vy?.toFixed(2)}) LOCAL p(${
+      //     local.x
+      //   }, ${local.y}) v(${this.body.velocity.x?.toFixed(
+      //     2
+      //   )}, ${this.body.velocity.y?.toFixed(2)}) PROX ${proximity?.toFixed(
+      //     4
+      //   )} DIFF ${Math.sqrt(difference)?.toFixed(4)}`
+      // );
+      this.moveTo(remote.x || 0, remote.y || 0);
+      this.setSpeed(remote.vx || 0, remote.vy || 0);
+      this.rotateBody(remote.b_ang || 0);
+      this.setAngularVelocity(remote.vang || 0);
     }
   }
 
@@ -191,24 +248,27 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
     this.setVelocity(vx, vy);
   }
 
-  moving_left = false;
-  moving_right = false;
-
+  moving_direction = 0;
   update(time: number, delta: number) {
-    if (this.moving_left) this.moveLeft();
-    else if (this.moving_right) this.moveRight();
+    if (this.moving_direction < 0) this.moveLeft();
+    else if (this.moving_direction > 0) this.moveRight();
+    if (this.is_firing == true) {
+      const now = Date.now();
+      if (this.get('lastFiredAt') + fire_cooldown < now) {
+        this.set('lastFiredAt', now);
+        this.fire();
+      }
+    }
   }
 
   getThrustSpeed() {
-    if (this.moving_left) return -1;
-    if (this.moving_right) return 1;
-    return 0;
+    return this.moving_direction;
   }
 
-  setThrustSpeed(speed: number) {
-    if (speed == 0) this.moving_left = this.moving_right = false;
-    if (speed > 0) this.moving_right = true;
-    if (speed < 0) this.moving_left = true;
+  setThrustSpeed(speed?: number) {
+    if (!speed) speed = 0;
+    if (speed == 0) this.moving_direction = 0;
+    else this.moving_direction = speed > 0 ? 1 : -1;
   }
 
   moveLeft() {
@@ -258,15 +318,40 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
     this.scene.matter.body.setAngle(this.body, angle);
   }
 
-  rotateCannon(angle: number) {
+  setCannonAngle(angle?: number) {
+    if (!angle) angle = 0;
     const cannon = this.data.values.components.cannon_body;
     this.scene.matter.body.setAngle(cannon, angle);
+  }
+
+  is_firing = false;
+  setFireStatus(status: boolean) {
+    this.is_firing = status;
+  }
+
+  fire() {
+    const origin = this.data.values.components.cannon_body.position;
+    const angle = this.data.values.components.cannon_body.angle;
+    const cannon_length = 30;
+    const velocity = 30;
+    const vx = velocity * Math.cos(angle);
+    const vy = velocity * Math.sin(angle);
+    this.get('bullets').push(
+      new Bullet(
+        this.scene,
+        origin.x + Math.cos(angle) * cannon_length,
+        origin.y + Math.sin(angle) * cannon_length,
+        vx,
+        vy,
+        this
+      )
+    );
   }
 
   set(attribute: string, value: any) {
     if (!(attribute in this.data.values)) {
       // eslint-disable-next-line no-console
-      console.warn('Failed to set attribute ' + attribute);
+      console.warn('Attribute not found: ' + attribute);
       return false;
     }
     this.data.values[attribute] = value;
@@ -284,7 +369,7 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
   get(attribute: string) {
     if (!(attribute in this.data.values))
       // eslint-disable-next-line no-console
-      console.warn('Failed to set attribute ' + attribute);
+      console.warn('Attribute not found: ' + attribute);
     else return this.data.values[attribute];
   }
 

@@ -1,5 +1,4 @@
 import Global from '@/global';
-import Bullet from '@/components/Projectile/Bullet';
 import Game from '@/scenes/Game';
 import BaseTank from '@/components/Tank/BaseTank';
 
@@ -31,38 +30,28 @@ export default class PlayerTank extends BaseTank {
           else angle = tank_angle + Math.PI - max_angle;
         }
         this.scene.matter.body.setAngle(cannon, angle);
+        Global.socket.sync(this.raw, true);
       },
       this
     );
   }
 
-  receive(message: any) {
-    // sync data
-  }
-
-  send(message: any) {
-    // sync data
-  }
-
-  move_direction = 0;
   update(time: number, delta: number) {
     const keyboard = this.scene.input.keyboard;
     const pointer = this.scene.input.activePointer;
     const keys: any = Game.keys;
 
-    const prev_direction = this.move_direction;
+    const prev_direction = this.moving_direction;
     if (keyboard.checkDown(keys.LEFT) || keyboard.checkDown(keys.A)) {
-      this.move_direction = -1;
-      this.moveLeft();
+      this.moving_direction = -1;
     } else if (keyboard.checkDown(keys.RIGHT) || keyboard.checkDown(keys.D)) {
-      this.move_direction = 1;
-      this.moveRight();
+      this.moving_direction = 1;
     } else {
-      this.move_direction = 0;
+      this.moving_direction = 0;
     }
 
-    if (this.move_direction != prev_direction) {
-      Global.socket.move(this.move_direction);
+    if (this.moving_direction != prev_direction) {
+      Global.socket.sync(this.raw);
     }
 
     if (keyboard.checkDown(keys.UP) || keyboard.checkDown(keys.SPACE)) {
@@ -74,11 +63,18 @@ export default class PlayerTank extends BaseTank {
     }
 
     if (pointer.leftButtonDown()) {
-      const cam = this.scene.cameras.main;
-      const cursor_x = pointer.x + cam.scrollX;
-      const cursor_y = pointer.y + cam.scrollY;
-      this.fire(time, delta, { x: cursor_x, y: cursor_y });
+      if (this.is_firing == false) {
+        this.is_firing = true;
+        Global.socket.fire(this.raw);
+      }
+    } else {
+      if (this.is_firing == true) {
+        this.is_firing = false;
+        Global.socket.stopFire();
+      }
     }
+
+    super.update(time, delta);
   }
 
   jump(time: number, delta: number) {
@@ -99,27 +95,5 @@ export default class PlayerTank extends BaseTank {
         this.data.values.lastJumpedAt = time;
       }
     }
-  }
-
-  fire(time: number, delta: number, cursor: MatterJS.Vector) {
-    const canFire = time - this.data.values.lastFiredAt > 250;
-    if (!canFire) return;
-    const origin = this.data.values.components.cannon_body.position;
-    const angle = this.data.values.components.cannon_body.angle;
-    const cannon_length = 30;
-    const velocity = 30;
-    const vx = velocity * Math.cos(angle);
-    const vy = velocity * Math.sin(angle);
-    this.data.values.bullets.push(
-      new Bullet(
-        this.scene,
-        origin.x + Math.cos(angle) * cannon_length,
-        origin.y + Math.sin(angle) * cannon_length,
-        vx,
-        vy,
-        this
-      )
-    );
-    this.data.values.lastFiredAt = time;
   }
 }

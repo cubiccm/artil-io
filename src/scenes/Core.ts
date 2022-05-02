@@ -1,4 +1,5 @@
 const assets_url_base = 'http://localhost:4000/';
+const server_report_rate = 40; // ms
 
 import 'phaser';
 import _ from 'lodash';
@@ -10,6 +11,7 @@ import RawGameData from '@/types/RawData';
 import Player from '@/components/Player';
 import GeneralTank from '@/components/Tank/GeneralTank';
 import { Socket } from 'socket.io';
+import Bullet from '@/components/Projectile/Bullet';
 
 export default class Core extends Phaser.Scene {
   public static scene: Core;
@@ -17,7 +19,8 @@ export default class Core extends Phaser.Scene {
     map: {
       terrain: [] as Platform[]
     },
-    players: [] as BaseTank[]
+    players: [] as BaseTank[],
+    bullets: [] as Bullet[]
   };
   players = {} as any;
 
@@ -55,7 +58,7 @@ export default class Core extends Phaser.Scene {
   last_update_interval = 0;
   update(time: number, delta: number) {
     this.last_update_interval += delta;
-    if (this.last_update_interval >= 200) {
+    if (this.last_update_interval >= server_report_rate) {
       this.last_update_interval = 0;
       Object.keys(this.players).forEach((key) => {
         const player = this.players[key];
@@ -65,15 +68,35 @@ export default class Core extends Phaser.Scene {
   }
 
   getRawData(player: Player): RawGameData {
+    // Terrain
     const res = {} as RawGameData;
     res.map = {};
-    res.map.terrain = this.gamedata.map.terrain.map((v) => v.raw);
+    res.map.terrain = player.terrains_not_synced.map((v) => v.raw);
+    player.terrains_not_synced = [];
+
+    // Tanks
     res.players = [];
     Object.keys(this.players).forEach((key) => {
       if (this.players[key] != player) res.players?.push(this.players[key].raw);
     });
     res.self = player.raw;
+
+    // Bullets
+    res.bullets = [];
+    player.bullets_not_synced.forEach((bullet: Bullet) => {
+      res.bullets?.push(bullet.raw);
+    });
+    player.bullets_not_synced = [];
+
     return res;
+  }
+
+  addBullet(bullet: Bullet) {
+    this.gamedata.bullets.push(bullet);
+    Object.keys(this.players).forEach((key) => {
+      const player = this.players[key];
+      player.bullets_not_synced.push(bullet);
+    });
   }
 
   addPlayer(name: string, socket: Socket): Player {
@@ -81,6 +104,8 @@ export default class Core extends Phaser.Scene {
     const y = Phaser.Math.Between(-300, 300);
     const player = new Player(name, new GeneralTank(this, x, y));
     player.socket = socket;
+    player.terrains_not_synced = this.gamedata.map.terrain.slice();
+    player.bullets_not_synced = this.gamedata.bullets.slice();
     this.players[player.ID] = player;
     return player;
   }

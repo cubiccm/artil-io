@@ -10,6 +10,7 @@ import config from './config';
 import Core from '@/scenes/Core';
 import Phaser from 'phaser';
 import Global from '@/global';
+import { deserializeRawTankData } from '@/types/RawData';
 Global.disable_graphics = true;
 
 const game = new Phaser.Game(config);
@@ -23,6 +24,10 @@ io.on('connection', (socket: Socket) => {
     return;
   }
 
+  socket.on('disconnect', (msg) => {
+    // Remove player
+  });
+
   socket.on('login', (msg) => {
     console.log('New user: ' + msg);
     const player = Core.scene.addPlayer(msg, socket);
@@ -32,7 +37,7 @@ io.on('connection', (socket: Socket) => {
 
   // Handle general updates like moving
   // @param msg [ID.concat(secret), action_name, data]
-  socket.on('act', (msg) => {
+  socket.on('a', (msg) => {
     if (msg.length != 3) return;
     if (msg[0].length != 20) return;
     const player = Core.scene.getPlayer(
@@ -40,11 +45,17 @@ io.on('connection', (socket: Socket) => {
       msg[0].slice(8, 20)
     );
     if (player === false) return;
-    const data = msg[2] as any;
-    switch (msg[1]) {
-      case 'move':
-        player.tank.setThrustSpeed(data);
-        break;
+    if (msg[1] == 'sync') {
+      const data = deserializeRawTankData(msg[2]);
+      player.tank.setThrustSpeed(data.thrust);
+      player.tank.setCannonAngle(data.c_ang);
+    } else if (msg[1] == 'fire') {
+      const data = deserializeRawTankData(msg[2]);
+      player.tank.setThrustSpeed(data.thrust);
+      player.tank.setCannonAngle(data.c_ang);
+      player.tank.setFireStatus(true);
+    } else if (msg[1] == 'stopfire') {
+      player.tank.setFireStatus(false);
     }
   });
 

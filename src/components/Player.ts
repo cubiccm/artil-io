@@ -19,6 +19,9 @@ export default class Player {
   tank: BaseTank;
   socket?: Socket;
 
+  terrains_not_synced = [] as any[];
+  bullets_not_synced = [] as any[];
+
   constructor(name: string, tank: BaseTank) {
     this.name = name;
     this.ID = randID(8);
@@ -33,8 +36,8 @@ export default class Player {
       vx: this.tank.body.velocity.x,
       vy: this.tank.body.velocity.y,
       vang: this.tank.body.angularVelocity,
-      body_angle: this.tank.body.angle,
-      cannon_angle: this.tank.getCannonAngle(),
+      b_ang: this.tank.body.angle,
+      c_ang: this.tank.getCannonAngle(),
       thrust: this.tank.getThrustSpeed(),
       name: this.name,
       id: this.ID,

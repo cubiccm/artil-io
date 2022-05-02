@@ -21,5 +21,5 @@ export default class Global {
   public static disable_graphics = false;
 
   public static socket: NetworkController;
-  public static _console: Console;
+  public static console: Console;
 }

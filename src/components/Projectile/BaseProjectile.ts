@@ -1,11 +1,9 @@
 import Global from '@/global';
-import BaseTank from '@/components/Tank/BaseTank';
 import Platform from '@/components/Platform';
-import Game from '@/scenes/Game';
 
 export default abstract class BaseProjectile extends Phaser.GameObjects
   .Container {
-  parent: BaseTank;
+  parent?: any;
   declare body: MatterJS.BodyType;
 
   constructor(
@@ -14,14 +12,14 @@ export default abstract class BaseProjectile extends Phaser.GameObjects
     y: number,
     velocity_x: number,
     velocity_y: number,
-    parent: BaseTank
+    parent?: any
   ) {
     super(scene);
-    this.parent = parent;
+    if (parent) this.parent = parent;
     this.createObject();
     const body = this.body as MatterJS.BodyType;
-    Game.scene.matter.body.setPosition(body, { x: x, y: y });
-    Game.scene.matter.body.setVelocity(body, { x: velocity_x, y: velocity_y });
+    scene.matter.body.setPosition(body, { x: x, y: y });
+    scene.matter.body.setVelocity(body, { x: velocity_x, y: velocity_y });
     body.collisionFilter.category = Global.CATEGORY_PROJECTILE;
     body.collisionFilter.mask =
       Global.CATEGORY_TERRAIN | Global.CATEGORY_TANK | Global.CATEGORY_POINT;
@@ -36,12 +34,12 @@ export default abstract class BaseProjectile extends Phaser.GameObjects
       this.createDestruction(position, velocity, terrain.gameObject.controller);
       this.destroy();
       // Remove this bullet from parent tank
-      if (this.parent != null) {
-        this.parent.data.values.bullets =
-          this.parent.data.values.bullets.filter((v: any) => {
-            return v != this;
-          });
-      }
+      this.parent?.set(
+        'bullets',
+        this.parent?.get('bullets').filter((v: any) => {
+          return v != this;
+        })
+      );
     };
     this.scene.add.existing(this);
   }

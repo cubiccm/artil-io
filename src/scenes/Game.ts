@@ -3,9 +3,10 @@ import _ from 'lodash';
 import Global from '@/global';
 import PlayerTank from '@/components/Tank/PlayerTank';
 import Platform from '@/components/Platform';
-import RawGameData, { RawTankData } from '@/types/RawData';
+import RawGameData, { RawBulletData, RawTankData } from '@/types/RawData';
 import BaseTank from '@/components/Tank/BaseTank';
 import GeneralTank from '@/components/Tank/GeneralTank';
+import Bullet from '@/components/Projectile/Bullet';
 
 let wrapCamB: Phaser.Cameras.Scene2D.Camera;
 let wrapCamT: Phaser.Cameras.Scene2D.Camera;
@@ -70,7 +71,11 @@ export default class Game extends Phaser.Scene {
     this.matter.world.setGravity(0, 1, 0.001);
 
     // Generate player
-    Game.player = new PlayerTank(this, 0, 0);
+    Game.player = new PlayerTank(
+      this,
+      this?.remote_data?.self?.x || 0,
+      this?.remote_data?.self?.y || 0
+    );
     Game.player.setIgnoreGravity(true);
 
     // draw debugs
@@ -98,12 +103,16 @@ export default class Game extends Phaser.Scene {
   terrain_generated = false;
   sync(remote_data?: RawGameData) {
     if (!remote_data) remote_data = this.remote_data;
+
+    // Terrain
     if (!this.terrain_generated) {
       this.terrain_generated = true;
       remote_data?.map?.terrain?.forEach((data: any) => {
         new Platform(this, data[0][0], data[0][1], data[1], 0x192841, 0.85);
       });
     }
+
+    // Tank
     if (remote_data?.self) {
       if ('x' in remote_data.self) {
         Game.player.syncRemote(remote_data.self);
@@ -116,10 +125,9 @@ export default class Game extends Phaser.Scene {
       remote_data?.players.forEach((player: RawTankData) => {
         if (player.id && player.id in this.players) {
           // Update existing tank
-          const proximity = 40;
           const tank = this.players[player.id] as BaseTank;
           tank.setThrustSpeed(player.thrust || 0);
-          tank.rotateCannon(player.cannon_angle || 0);
+          tank.setCannonAngle(player.c_ang || 0);
           if ('x' in player) tank.syncRemote(player);
         } else {
           // Create new tank
@@ -134,6 +142,11 @@ export default class Game extends Phaser.Scene {
       });
     }
     Game.player.setIgnoreGravity(false);
+
+    // Bullets
+    remote_data?.bullets?.forEach((bullet: RawBulletData) => {
+      new Bullet(this, bullet.x, bullet.y, bullet.vx, bullet.vy);
+    });
   }
 
   progressBar() {

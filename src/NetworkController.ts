@@ -1,4 +1,7 @@
 import { io, Socket } from 'socket.io-client';
+import { RawTankData, serializeRawTankData } from '@/types/RawData';
+import Global from './global';
+const client_report_rate = 50; // ms
 
 export default class NetworkController {
   socket: Socket;
@@ -7,18 +10,18 @@ export default class NetworkController {
     this.socket = io();
   }
 
-  send(action: string, data: any) {
+  // Send tank action
+  send(action: string, data?: any) {
     if (!this.session_secret) return;
-    this.socket.emit('act', [this.session_secret, action, data]);
+    this.socket.emit('a', [this.session_secret, action, data]);
   }
 
   login(name: string) {
     this.socket.emit('login', name);
     this.socket.once('session_established', (ID) => {
-      console.log(ID);
       this.session_secret = ID;
       this.socket.on('sync', (m) => {
-        this.sync(m);
+        this.serverSync(m);
       });
     });
     return new Promise((resolve, reject) => {
@@ -28,7 +31,7 @@ export default class NetworkController {
   }
 
   sync_callback?: any;
-  sync(msg: any) {
+  serverSync(msg: any) {
     if (this.sync_callback) {
       this.sync_callback(msg);
     }
@@ -38,8 +41,32 @@ export default class NetworkController {
     this.sync_callback = sync_callback;
   }
 
-  move(speed: number) {
-    // console.log('Local: ' + [x, y, vx, vy, vang]);
-    this.send('move', speed);
+  last_sync = 0;
+  pending_sync = false;
+  // Sync local tank data to server
+  sync(data: any, queued = false) {
+    data = serializeRawTankData(data);
+    const now = Date.now();
+    if (this.last_sync == 0) this.last_sync = now;
+    if (queued == true && now - this.last_sync < client_report_rate) {
+      if (this.pending_sync) return;
+      this.pending_sync = true;
+      window.setTimeout(() => {
+        this.send('sync', data);
+        this.pending_sync = false;
+      }, this.last_sync + client_report_rate);
+    } else {
+      this.last_sync = now;
+      this.send('sync', data);
+    }
+  }
+
+  fire(data: any) {
+    data = serializeRawTankData(data);
+    this.send('fire', data);
+  }
+
+  stopFire() {
+    this.send('stopfire');
   }
 }
