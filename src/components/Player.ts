@@ -1,6 +1,6 @@
 import { Socket } from 'socket.io';
-import { RawTankData } from '../types/RawData.js';
-import BaseTank from './Tank/BaseTank.js';
+import { RawTankData } from '@/types/RawData';
+import BaseTank from '@/components/Tank/BaseTank';
 
 function randID(length: integer) {
   let result = '';

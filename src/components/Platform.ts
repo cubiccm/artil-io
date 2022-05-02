@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import PolygonClipping from 'polygon-clipping';
-import Global from '../global.js';
-import BaseDestruction from './Destruction/BaseDestruction.js';
+import Global from '@/global';
+import BaseDestruction from '@/components/Destruction/BaseDestruction';
 
 export class PlatformTexture extends Phaser.Physics.Matter.Sprite {
   public controller?: Platform;

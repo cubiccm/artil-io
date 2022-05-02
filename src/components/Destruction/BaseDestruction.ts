@@ -1,5 +1,5 @@
-import Global from '../../global.js';
-import Platform from '../../components/Platform.js';
+import Global from '@/global';
+import Platform from '@/components/Platform';
 import PolygonClipping from 'polygon-clipping';
 export default abstract class BaseDestruction {
   // extends Phaser.GameObjects.Container

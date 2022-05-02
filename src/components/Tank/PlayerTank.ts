@@ -1,7 +1,7 @@
-import Global from '../../global.js';
-import Bullet from '../../components/Projectile/Bullet.js';
-import Game from '../../scenes/Game.js';
-import BaseTank from '../../components/Tank/BaseTank.js';
+import Global from '@/global';
+import Bullet from '@/components/Projectile/Bullet';
+import Game from '@/scenes/Game';
+import BaseTank from '@/components/Tank/BaseTank';
 
 export default class PlayerTank extends BaseTank {
   constructor(scene: Phaser.Scene, x: number, y: number) {

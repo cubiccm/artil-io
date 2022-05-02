@@ -1,6 +1,6 @@
-import BaseDestruction from './BaseDestruction.js';
+import BaseDestruction from './BaseDestruction';
 import * as _ from 'lodash';
-import Platform from '../../components/Platform.js';
+import Platform from '@/components/Platform';
 
 export default class RectangularDestruction extends BaseDestruction {
   w: number;

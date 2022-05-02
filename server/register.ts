@@ -1,4 +1,5 @@
-import jsdom from 'global-jsdom';
+import jsdom from 'jsdom-global';
+
 jsdom(
   '<!DOCTYPE html><html><head></head><body><div id="phaser-container"></div></body></html>',
   {

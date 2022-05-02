@@ -1,5 +1,5 @@
-import NetworkController from './NetworkController.js';
-import Console from './components/Console.js';
+import NetworkController from '@/NetworkController';
+import Console from '@/components/Console';
 
 export default class Global {
   public static readonly event_bus = new Phaser.Events.EventEmitter();
