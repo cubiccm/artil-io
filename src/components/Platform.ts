@@ -128,8 +128,8 @@ export default class Platform {
   onCollide(new_vertices: PolygonClipping.MultiPolygon) {
     if ('onNewPlatform' in this.scene) {
       if (!this.gameObject?.active) return;
-      (this.scene as Core).onDestroyPlatform(this);
-      this.gameObject?.destroy();
+      this.chunk?.removePlatform(this);
+
       // this.gameObject.on('destroy', () => {
       //   (this.scene as Core).onDestroyPlatform(this);
       // });

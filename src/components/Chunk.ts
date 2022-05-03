@@ -112,18 +112,18 @@ export default class Chunk {
 
   public addPlatform(platform: Platform) {
     this.platforms.push(platform);
-    console.log('Increased ' + platform.body?.area);
     this.area += platform.body!.area;
   }
 
-  public removePlatform(platform: Platform) {
-    this.platforms.splice(this.platforms.indexOf(platform), 1);
-    console.log('Removed ' + platform.body?.area);
+  public removePlatform(platform: Platform, remove_from_list = true) {
+    if (remove_from_list)
+      this.platforms.splice(this.platforms.indexOf(platform), 1);
     this.area -= platform.body!.area;
+    platform.gameObject?.destroy();
+    (this.scene as Core).onDestroyPlatform(platform);
   }
 
   public updateChunk() {
-    console.log(this.area);
     if (this.area < 200000) {
       // Set minimum area to regenerate
       this.regenerateChunk();
@@ -131,11 +131,8 @@ export default class Chunk {
   }
 
   private regenerateChunk() {
-    console.log(this.platforms);
     this.platforms.forEach((platform) => {
-      console.log('DESTROY!');
-      (this.scene as Core).onDestroyPlatform(platform);
-      platform.gameObject?.destroy();
+      this.removePlatform(platform, false);
     });
     this.platforms = [];
     this.area = 0;

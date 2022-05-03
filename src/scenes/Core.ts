@@ -138,7 +138,6 @@ export default class Core extends Phaser.Scene {
   }
 
   onDestroyPlatform(platform: Platform) {
-    platform.chunk?.removePlatform(platform);
     Object.values(this.players).forEach((_player: any) => {
       _player.terrains_not_synced.push(platform);
     });
