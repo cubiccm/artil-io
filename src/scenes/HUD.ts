@@ -409,7 +409,7 @@ export default class HUD extends Phaser.Scene {
       x1: main_bounds.x2,
       x2: main_bounds.x2 + 285,
       y1: main_bounds.y1,
-      y2: main_bounds.y1 + 398
+      y2: main_bounds.y1 + 398 - 15
     };
     const weapon_bounds = {
       x1: main_bounds.x2,
@@ -420,8 +420,8 @@ export default class HUD extends Phaser.Scene {
     const skin_bounds = {
       x1: main_bounds.x2,
       x2: main_bounds.x2 + 350,
-      y1: main_bounds.y1 + 60,
-      y2: main_bounds.y1 + 60 + 250
+      y1: main_bounds.y1 + 50,
+      y2: main_bounds.y1 + 50 + 360
     };
     if (
       x > main_bounds.x1 &&

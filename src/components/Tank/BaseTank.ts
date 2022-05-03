@@ -7,7 +7,15 @@ import Login from '@/scenes/Login';
 
 export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
   public smoothedControls!: SmoothedHorionztalControl;
-  public static skins = ['green', 'orange', 'yellow', 'blue', 'purple', 'pink'];
+  public static skins = [
+    'green',
+    'orange',
+    'yellow',
+    'blue',
+    'purple',
+    'pink',
+    'brown'
+  ];
   declare body: MatterJS.BodyType;
   public get tank_data(): types.TankData {
     return this.data.values as types.TankData;
