@@ -24,6 +24,7 @@ export interface RawTankData {
   name?: string;
 
   health?: number;
+  exp?: number;
 
   upgrades?: number[];
 }
@@ -60,6 +61,7 @@ export function serializeRawTankData(data: RawTankData): any[] {
     data.type,
     data.name,
     data.health,
+    data.exp,
     data.upgrades
   ];
 }
@@ -78,6 +80,7 @@ export function deserializeRawTankData(param: any[]): RawTankData {
   data.type = param[9];
   data.name = param[10];
   data.health = param[11];
-  data.upgrades = param[12];
+  data.exp = param[12];
+  data.upgrades = param[13];
   return data;
 }

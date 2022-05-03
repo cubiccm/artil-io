@@ -225,7 +225,7 @@ export default class HUD extends Phaser.Scene {
             '%)'
         );
         bar.setAttribute('data-amount', amount.toString());
-        Game.player.tank_data.XP -= cost;
+        Game.player.inc('XP', -cost);
         button.textContent = (cost + 100).toString();
         this.upgrade(parent.id);
       }
@@ -283,7 +283,7 @@ export default class HUD extends Phaser.Scene {
       if (canUnlock) {
         this.clearButtons(items);
         costElement.style.setProperty('visibility', 'hidden');
-        Game.player.tank_data.XP -= cost;
+        Game.player.inc('XP', -cost);
         const folder = type == 'skin' ? 'tank-skins' : 'weapons';
         button.setAttribute(
           'src',

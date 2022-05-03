@@ -33,7 +33,8 @@ export default class Player {
       thrust: this.tank.getThrustSpeed(),
       name: this.name,
       id: this.ID,
-      health: this.tank.get('HP')
+      health: this.tank.get('HP'),
+      exp: this.tank.get('XP')
     };
   }
 }

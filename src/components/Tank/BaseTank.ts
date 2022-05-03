@@ -459,6 +459,10 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
     else return this.data.values[attribute];
   }
 
+  inc(attribute: string, value: number) {
+    this.set(attribute, this.get(attribute) + value);
+  }
+
   createCannonEnd() {
     const body = this.data.values.components.cannon_body;
     const origin = body.position;

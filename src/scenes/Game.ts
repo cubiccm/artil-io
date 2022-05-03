@@ -140,6 +140,9 @@ export default class Game extends Phaser.Scene {
       if ('health' in remote_data.self) {
         Game.player.set('HP', remote_data.self?.health);
       }
+      if ('exp' in remote_data.self) {
+        Game.player.set('XP', remote_data.self?.exp);
+      }
     }
     const remote_player_keys = [] as string[];
     remote_data?.players?.forEach((player: RawTankData) => {

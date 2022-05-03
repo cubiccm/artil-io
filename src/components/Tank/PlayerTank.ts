@@ -38,6 +38,7 @@ export default class PlayerTank extends BaseTank {
   }
 
   set(attribute: string, value: any) {
+    const res = super.set(attribute, value);
     switch (attribute) {
       case 'HP':
         Global.event_bus.emit('player-health-update');
@@ -46,7 +47,11 @@ export default class PlayerTank extends BaseTank {
         Global.event_bus.emit('player-xp-update');
         break;
     }
-    return super.set(attribute, value);
+    return res;
+  }
+
+  inc(attribute: string, value: number) {
+    this.set(attribute, this.get(attribute) + value);
   }
 
   update(time: number, delta: number) {
