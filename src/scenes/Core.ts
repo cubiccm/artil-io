@@ -137,6 +137,16 @@ export default class Core extends Phaser.Scene {
     });
   }
 
+  onPlayerDeath(player: Player, killer?: string) {
+    (player.tank.get('bullets') as Bullet[]).forEach((bullet) => {
+      bullet.selfDestroy();
+    });
+    player.socket?.emit('death', killer);
+    player.socket?.disconnect();
+    player.tank.destroy();
+    delete this.players[player.ID];
+  }
+
   onDestroyPlatform(platform: Platform) {
     Object.values(this.players).forEach((_player: any) => {
       _player.terrains_not_synced.push(platform);

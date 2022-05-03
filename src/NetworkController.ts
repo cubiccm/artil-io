@@ -1,6 +1,7 @@
 import { io, Socket } from 'socket.io-client';
 import { RawTankData, serializeRawTankData } from '@/types/RawData';
 import Global from './global';
+import Login from './scenes/Login';
 const client_report_rate = 50; // ms
 
 export default class NetworkController {
@@ -17,13 +18,23 @@ export default class NetworkController {
   }
 
   login(name: string) {
+    this.socket.connect();
     this.socket.emit('login', name);
     this.socket.once('session_established', (ID) => {
       this.session_secret = ID;
       this.socket.on('sync', (m) => {
         this.serverSync(m);
       });
-      this.socket.on('disconnect', (m) => {
+      this.socket.once('death', (killer) => {
+        Global.console.recycling(
+          `Congratulations! You're killed by ${killer}!`
+        );
+        Login.scene.scene.start('LoginScene');
+        Login.scene.scene.stop('Artilio');
+        Login.scene.scene.stop('HUDScene');
+        this.socket.removeListener('disconnect');
+      });
+      this.socket.once('disconnect', (m) => {
         Global.console.error('Disconnected');
       });
     });

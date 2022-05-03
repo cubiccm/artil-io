@@ -2,6 +2,7 @@ import Global from '@/global';
 import Platform from '@/components/Platform';
 import { RawBulletData } from '@/types/RawData';
 import BaseTank from '../Tank/BaseTank';
+import Core from '@/scenes/Core';
 
 export default abstract class BaseProjectile extends Phaser.GameObjects
   .Container {
@@ -46,6 +47,28 @@ export default abstract class BaseProjectile extends Phaser.GameObjects
             velocity,
             other.gameObject.controller
           );
+        } else if (other.collisionFilter.category == Global.CATEGORY_TANK) {
+          if (this.scene.scene.key == 'Artilio-server') {
+            const source_tank = this.parent;
+            const target_tank = other.gameObject as BaseTank;
+            if (source_tank != target_tank) {
+              target_tank.set(
+                'HP',
+                Math.max(
+                  0,
+                  target_tank.get('HP') -
+                    this.base_damage *
+                      (this.parent as BaseTank).get('weapon_damage')
+                )
+              );
+              if (target_tank.get('HP') == 0) {
+                (this.scene as Core).onPlayerDeath(
+                  target_tank.player!,
+                  this.parent?.player?.name
+                );
+              }
+            }
+          }
         }
       }
       this.selfDestroy();

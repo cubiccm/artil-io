@@ -10,7 +10,7 @@ import config from './config';
 import Core from '@/scenes/Core';
 import Phaser from 'phaser';
 import Global from '@/global';
-import { deserializeRawTankData } from '@/types/RawData';
+import { deserializeRawTankData, UPGRADES_TYPES } from '@/types/RawData';
 Global.disable_graphics = true;
 
 const game = new Phaser.Game(config);
@@ -39,28 +39,34 @@ io.on('connection', (socket: Socket) => {
   // Handle general updates like moving
   // @param msg [ID.concat(secret), action_name, data]
   socket.on('a', (msg) => {
-    if (msg.length != 3) return;
-    if (msg[0].length != 20) return;
-    const player = Core.scene.getPlayer(
-      msg[0].slice(0, 8),
-      msg[0].slice(8, 20)
-    );
-    if (player === false) return;
-    if (msg[1] == 'sync') {
-      const data = deserializeRawTankData(msg[2]);
-      player.tank.setThrustSpeed(data.thrust);
-      player.tank.setCannonAngle(data.c_ang);
-    } else if (msg[1] == 'fire') {
-      if (msg[2]?.length != 2) return;
-      const weapon = msg[2][0];
-      // Check weapon availability
-      const data = deserializeRawTankData(msg[2][1]);
-      player.tank.set('weapon', weapon);
-      player.tank.setThrustSpeed(data.thrust);
-      player.tank.setCannonAngle(data.c_ang);
-      player.tank.setFireStatus(true);
-    } else if (msg[1] == 'stopfire') {
-      player.tank.setFireStatus(false);
+    try {
+      const player = Core.scene.getPlayer(
+        msg[0].slice(0, 8),
+        msg[0].slice(8, 20)
+      );
+      if (msg[1] == 'sync') {
+        const data = deserializeRawTankData(msg[2]);
+        player.tank.setThrustSpeed(data.thrust);
+        player.tank.setCannonAngle(data.c_ang);
+        UPGRADES_TYPES.forEach((key, index) => {
+          player.tank.set(key, data.upgrades?.[index]);
+        });
+      } else if (msg[1] == 'fire') {
+        const weapon = msg[2][0];
+        // Check weapon availability
+        const data = deserializeRawTankData(msg[2][1]);
+        player.tank.set('weapon', weapon);
+        player.tank.setThrustSpeed(data.thrust);
+        player.tank.setCannonAngle(data.c_ang);
+        player.tank.setFireStatus(true);
+        UPGRADES_TYPES.forEach((key, index) => {
+          player.tank.set(key, data.upgrades?.[index]);
+        });
+      } else if (msg[1] == 'stopfire') {
+        player.tank.setFireStatus(false);
+      }
+    } catch (err) {
+      console.log(err);
     }
   });
 

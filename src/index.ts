@@ -6,7 +6,7 @@ import HUDScene from '@/scenes/HUD';
 import LoginScene from '@/scenes/Login';
 const index = new Phaser.Game(
   Object.assign(config, {
-    scene: [LoginScene, GameScene, HUDScene]
+    scene: [LoginScene]
   })
 );
 

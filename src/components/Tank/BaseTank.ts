@@ -195,25 +195,6 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
         }
       }
     };
-
-    tank_body.onCollideCallback = (pair: MatterJS.ICollisionPair) => {
-      const other = (
-        pair.bodyA === tank_body ? pair.bodyB : pair.bodyA
-      ) as MatterJS.BodyType;
-      if (other.collisionFilter.category == Global.CATEGORY_PROJECTILE) {
-        if (this.scene.scene.key == 'Artilio-server') {
-          console.log(this.get('HP'));
-          console.log((other.gameObject as BaseProjectile).base_damage);
-          this.set(
-            'HP',
-            Math.max(
-              0,
-              this.get('HP') - (other.gameObject as BaseProjectile).base_damage
-            )
-          ); // TODO: * Weapon damage
-        }
-      }
-    };
   }
 
   get raw(): RawTankData {
@@ -304,13 +285,6 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
       this.setSpeed(remote.vx || 0, remote.vy || 0);
       this.rotateBody(remote.b_ang || 0);
       this.setAngularVelocity(remote.vang || 0);
-    }
-
-    /* Upgrades */
-    if (remote.upgrades && remote.upgrades.length == UPGRADES_TYPES.length) {
-      UPGRADES_TYPES.forEach((key: string, index: number) => {
-        this.set(key, remote.upgrades?.[index]);
-      });
     }
   }
 

@@ -8,8 +8,8 @@ body {
   font-style: normal;
   font-weight: 400;
   src: 
-    url("chrome-extension://__MSG_@@extension_id__/fonts/Material Icons Round.woff2") format('woff2'),
-    url("https://fonts.gstatic.com/s/materialicons/v81/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2") format('woff2');
+    local('Material Icons'),
+    url(https://fonts.gstatic.com/s/materialicons/v128/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2) format('woff2');
 }
 
 .material-icons-round {

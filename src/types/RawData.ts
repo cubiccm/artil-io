@@ -32,7 +32,7 @@ export const UPGRADES_TYPES = [
   'regen_factor',
   'max_health',
   'weapon_damage',
-  'body_speed',
+  'speed_ground',
   'bullet_speed',
   'reload'
 ];
@@ -59,7 +59,8 @@ export function serializeRawTankData(data: RawTankData): any[] {
     data.id,
     data.type,
     data.name,
-    data.health
+    data.health,
+    data.upgrades
   ];
 }
 
@@ -77,5 +78,6 @@ export function deserializeRawTankData(param: any[]): RawTankData {
   data.type = param[9];
   data.name = param[10];
   data.health = param[11];
+  data.upgrades = param[12];
   return data;
 }

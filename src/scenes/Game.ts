@@ -3,7 +3,11 @@ import _ from 'lodash';
 import Global from '@/global';
 import PlayerTank from '@/components/Tank/PlayerTank';
 import Platform from '@/components/Platform';
-import RawGameData, { RawBulletData, RawTankData } from '@/types/RawData';
+import RawGameData, {
+  RawBulletData,
+  RawTankData,
+  UPGRADES_TYPES
+} from '@/types/RawData';
 import BaseTank from '@/components/Tank/BaseTank';
 import Bullet from '@/components/Projectile/Bullet';
 import Grenade from '@/components/Projectile/Grenade';
@@ -138,8 +142,6 @@ export default class Game extends Phaser.Scene {
         Game.player.syncRemote(remote_data.self);
       }
       if ('health' in remote_data.self) {
-        if (remote_data.self?.health === 0)
-          Global.console.recycling("Congratulations! You're dead!");
         Game.player.set('HP', remote_data.self?.health);
       }
     }
@@ -161,6 +163,13 @@ export default class Game extends Phaser.Scene {
             player.y || 0
           );
         }
+      }
+      /* Upgrades */
+      if (player.upgrades && player.upgrades.length == UPGRADES_TYPES.length) {
+        const tank = this.players[player.id || ''] as BaseTank;
+        UPGRADES_TYPES.forEach((key: string, index: number) => {
+          tank?.set(key, player.upgrades?.[index]);
+        });
       }
     });
     Object.keys(this.players).forEach((key: any) => {

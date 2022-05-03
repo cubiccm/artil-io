@@ -90,7 +90,7 @@ export default class Console {
       info: [false],
       alarm: [true, '#9eb314'],
       code: [false],
-      death: [true, 'rgb(255, 99, 144)']
+      recycling: [true, 'rgb(255, 99, 144)']
     } as any;
 
     this.setColor(action[type][1]);
@@ -127,7 +127,7 @@ export default class Console {
   }
 
   recycling(text: string, channel?: string) {
-    this.log(text, channel, 'death');
+    this.log(text, channel, 'recycling');
   }
 
   constructor() {
