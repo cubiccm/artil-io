@@ -63,7 +63,7 @@ export default class Bullet extends BaseProjectile {
     });
 
     terrain?.onCollide(
-      circular_destruction.getNewTerrain(position, velocity, terrain)
+      natural_destruction.getNewTerrain(position, velocity, terrain)
     );
 
     // funny bullet

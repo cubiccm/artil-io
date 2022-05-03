@@ -77,7 +77,13 @@ export default class PlayerTank extends BaseTank {
       // not implemented
     }
 
-    if (pointer.leftButtonDown()) {
+    if (
+      pointer.leftButtonDown() &&
+      !HUD.inHUDBounds(
+        this.scene.input.mousePointer.x,
+        this.scene.input.mousePointer.y
+      )
+    ) {
       if (this.is_firing == false) {
         this.is_firing = true;
         Global.socket.fire(this.raw);
