@@ -78,7 +78,7 @@ export default class Login extends Phaser.Scene {
 
     this.tweens.add({
       targets: element,
-      y: Global.SCREEN_WIDTH - Global.SCREEN_HEIGHT / 2.5,
+      y: Global.SCREEN_HEIGHT - Global.SCREEN_HEIGHT / 2.5,
       duration: 1500,
       ease: 'Power3'
     });
