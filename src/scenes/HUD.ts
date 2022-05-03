@@ -12,14 +12,14 @@ const bottom_margin = 30;
 export default class HUD extends Phaser.Scene {
   show_debug_info = true;
 
-  health_bar_graphics!: Phaser.GameObjects.Graphics;
-  health_bar_text!: Phaser.GameObjects.Text;
-  xp_bar_graphics!: Phaser.GameObjects.Graphics;
-  gamescene!: Game;
+  username_text?: Phaser.GameObjects.Text;
+  health_bar_graphics?: Phaser.GameObjects.Graphics;
+  health_bar_text?: Phaser.GameObjects.Text;
+  xp_bar_graphics?: Phaser.GameObjects.Graphics;
+  xp_bar_text?: Phaser.GameObjects.Text;
+  gamescene?: Game;
   debug_message?: Phaser.GameObjects.Text;
 
-  health_text?: Phaser.GameObjects.Text;
-  exp_text?: Phaser.GameObjects.Text;
   public static playerName: string;
   public static upgradeBox: Phaser.GameObjects.DOMElement;
   constructor() {
@@ -42,7 +42,10 @@ export default class HUD extends Phaser.Scene {
     Global.event_bus.on(
       'player-health-update',
       () => {
-        this.drawHealthBar(Game.player.get('HP'), 200);
+        this.drawHealthBar(
+          Game.player.get('HP') || 0,
+          Game.player.get('max_health') || 0
+        );
       },
       this
     );
@@ -50,7 +53,7 @@ export default class HUD extends Phaser.Scene {
     Global.event_bus.on(
       'player-xp-update',
       () => {
-        this.drawExpBar(Game.player.get('XP'), 100);
+        this.drawExpBar(Game.player.get('XP') || 0, 1000);
       },
       this
     );
@@ -63,23 +66,12 @@ export default class HUD extends Phaser.Scene {
       this
     );
 
-    this.redrawAll();
-
     if (this.show_debug_info)
       this.debug_message = new DebugMessage(this, 16, 16);
 
     Global.event_bus.on('loading_finished', () => {
-      this.add
-        .text(_w / 2, _h - bottom_margin - bar_height - 25, HUD.playerName, {
-          fontSize: '18pt',
-          fontFamily: 'monospace',
-          fontStyle: 'bold',
-          color: 'rgba(255, 255, 255, .8)',
-          stroke: '#000000',
-          strokeThickness: 2,
-          align: 'center'
-        })
-        .setOrigin(0.5);
+      this.redrawAll();
+
       const upgradeBox = this.add
         .dom(25, _h - _h / 2)
         .createFromCache('upgrade_box');
@@ -114,18 +106,7 @@ export default class HUD extends Phaser.Scene {
   }
 
   update() {
-    this.health_text?.destroy();
-    this.exp_text?.destroy();
     if (Game.player) {
-      this.drawHealthBar(
-        Game.player.tank_data.HP,
-        Game.player.tank_data.max_health
-      );
-      this.drawExpBar(
-        Game.player.tank_data.XP + 20, // +20 only for showcase
-        1000 // this.gamescene.player.tank_data.Max_XP
-      );
-
       const exp = Game.player.tank_data.XP;
       // Update upgrade cost colors if enough XP
       const upgrade_costs = HUD.upgradeBox
@@ -317,34 +298,48 @@ export default class HUD extends Phaser.Scene {
   }
 
   redrawAll() {
-    this.drawHealthBar(Game.player?.get('HP') || 200, 200);
-    this.drawExpBar(Game.player?.get('XP') || 100, 100);
+    this.drawHealthBar(
+      Game.player?.get('HP') || 0,
+      Game.player?.get('max_health') || 0
+    );
+    this.drawExpBar(Game.player?.get('XP') || 0, 1000);
+    this.username_text?.destroy();
+    this.username_text = this.add
+      .text(_w / 2, _h - bottom_margin - bar_height - 25, HUD.playerName, {
+        fontSize: '18pt',
+        fontFamily: 'monospace',
+        fontStyle: 'bold',
+        color: 'rgba(255, 255, 255, .8)',
+        stroke: '#000000',
+        strokeThickness: 2,
+        align: 'center'
+      })
+      .setOrigin(0.5);
   }
 
   drawHealthBar(current_health: number, max_health: number) {
-    const bar_width = 300,
-      bar_height = 30;
-    const bottom_margin = 30;
     const outline_color = 0xffa500,
       outline_alpha = 0.8;
     const fill_color = 0xffa500,
       fill_alpha = 0.5;
 
-    this.health_bar_graphics.clear();
+    this.health_bar_graphics?.clear();
 
-    this.health_bar_graphics.lineStyle(3, outline_color, outline_alpha);
-    this.health_bar_graphics.strokeRoundedRect(
-      Global.SCREEN_WIDTH - bar_width - 10,
+    this.health_bar_graphics?.lineStyle(3, outline_color, outline_alpha);
+    this.health_bar_graphics?.strokeRoundedRect(
+      Global.SCREEN_WIDTH / 2 - bar_width - 10,
       Global.SCREEN_HEIGHT - bottom_margin - bar_height,
       bar_width,
       bar_height,
       bar_height / 2
     );
-    this.health_bar_graphics.fillStyle(fill_color, fill_alpha);
-    this.health_bar_graphics.fillRoundedRect(
-      (Global.SCREEN_WIDTH - bar_width) / 2,
+    this.health_bar_graphics?.fillStyle(fill_color, fill_alpha);
+    this.health_bar_graphics?.fillRoundedRect(
+      Global.SCREEN_WIDTH / 2 - bar_width - 10,
       Global.SCREEN_HEIGHT - bottom_margin - bar_height,
-      bar_height + (bar_width - bar_height) * (current_health / max_health),
+      bar_height +
+        (bar_width - bar_height) *
+          (current_health / (max_health || current_health || 1)),
       bar_height,
       bar_height / 2
     );
@@ -360,9 +355,9 @@ export default class HUD extends Phaser.Scene {
           `Health`,
           {
             fontSize: '14pt',
-            fontFamily: 'consolas', // TODO: Select a font for the game
+            fontFamily: 'monospace',
             align: 'center',
-            color: 'rgba(255, 255, 255, 1)',
+            color: 'rgba(255, 255, 255, .8)',
             stroke: '#000000',
             strokeThickness: 2
           }
@@ -370,53 +365,59 @@ export default class HUD extends Phaser.Scene {
         .setOrigin(0.5);
     }
     this.health_bar_text.setPosition(
-      Global.SCREEN_WIDTH / 2,
+      (Global.SCREEN_WIDTH - bar_width) / 2 - 10,
       Global.SCREEN_HEIGHT - bottom_margin - bar_height / 2
     );
     this.health_bar_text.setText(`Health: ${current_health} / ${max_health}`);
   }
 
   drawExpBar(current_exp: number, max_exp: number) {
-    const bar_width = 100,
-      bar_height = 5;
-    const bottom_margin = 15;
-    const base_color = 0x0000ff;
+    const base_color = 0xff80cd;
 
-    this.xp_bar_graphics.clear();
+    this.xp_bar_graphics?.clear();
 
-    this.xp_bar_graphics.fillStyle(base_color, 0.5);
-    this.xp_bar_graphics.fillRoundedRect(
-      (Global.SCREEN_WIDTH - bar_width) / 2,
+    this.xp_bar_graphics?.lineStyle(3, base_color, 0.8);
+    this.xp_bar_graphics?.strokeRoundedRect(
+      Global.SCREEN_WIDTH / 2 + 10,
       Global.SCREEN_HEIGHT - bottom_margin - bar_height,
       bar_width,
       bar_height,
       bar_height / 2
     );
 
-    this.xp_bar_graphics.fillStyle(base_color, 0.5);
-    this.xp_bar_graphics.fillRoundedRect(
+    this.xp_bar_graphics?.fillStyle(base_color, 0.5);
+    this.xp_bar_graphics?.fillRoundedRect(
       Global.SCREEN_WIDTH / 2 + 10,
       Global.SCREEN_HEIGHT - bottom_margin - bar_height,
-      bar_height + (bar_width - bar_height) * (current_exp / max_exp),
+      bar_height +
+        (bar_width - bar_height) *
+          (current_exp / (max_exp || current_exp || 1)),
       bar_height,
       bar_height / 2
     );
     max_exp = Math.floor(max_exp);
-    this.exp_text = this.add
-      .text(
-        (_w + bar_width) / 2,
-        _h - bottom_margin - bar_height / 2,
-        `EXP: ${current_exp - 20} / ${max_exp}`,
-        {
-          fontSize: '14pt',
-          fontFamily: 'monospace', // TODO: Select a font for the game
-          // fontStyle: 'bold'
-          align: 'center',
-          color: 'rgba(255, 255, 255, .8)',
-          stroke: '#000000',
-          strokeThickness: 2
-        }
-      )
-      .setOrigin(0.5);
+
+    if (!this.xp_bar_text) {
+      this.xp_bar_text = this.add
+        .text(
+          (Global.SCREEN_WIDTH + bar_width) / 2,
+          Global.SCREEN_HEIGHT - bottom_margin - bar_height / 2,
+          `Health`,
+          {
+            fontSize: '14pt',
+            fontFamily: 'monospace',
+            align: 'center',
+            color: 'rgba(255, 255, 255, .8)',
+            stroke: '#000000',
+            strokeThickness: 2
+          }
+        )
+        .setOrigin(0.5);
+    }
+    this.xp_bar_text.setPosition(
+      (Global.SCREEN_WIDTH + bar_width) / 2 + 10,
+      Global.SCREEN_HEIGHT - bottom_margin - bar_height / 2
+    );
+    this.xp_bar_text.setText(`EXP: ${current_exp} / ${max_exp}`);
   }
 }
