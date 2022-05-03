@@ -1,6 +1,6 @@
 import Global from '@/global';
 import Game from '@/scenes/Game';
-import { index } from '..';
+import { current_game } from '..';
 import PlayerTank from '@/components/Tank/PlayerTank';
 
 export default class debugMessage extends Phaser.GameObjects.Text {
@@ -32,7 +32,7 @@ export default class debugMessage extends Phaser.GameObjects.Text {
       L: ${player?.data.values.sensors.left.blocked} R: ${
       player?.data.values.sensors.right.blocked
     } B: ${player?.data.values.sensors.bottom.blocked}
-      FPS: ${index.loop.actualFps}
+      FPS: ${current_game.loop.actualFps}
       `;
   }
 
