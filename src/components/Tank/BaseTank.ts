@@ -167,6 +167,23 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
         this.update(time, delta);
       }
     );
+
+    // avoid tank from sinking in the terrain
+    const tank_body = this.body.parts[1]; // rigid body of the tank
+    tank_body.onCollideActiveCallback = (pair: MatterJS.ICollisionPair) => {
+      const support = pair.collision.supports[0];
+      const self = (
+        pair.bodyA === tank_body ? pair.bodyA : pair.bodyB
+      ) as MatterJS.BodyType;
+      const other = (
+        pair.bodyA === tank_body ? pair.bodyB : pair.bodyA
+      ) as MatterJS.BodyType;
+      if (other.collisionFilter.category == Global.CATEGORY_TERRAIN) {
+        if (scene.matter.vertices.contains(other.vertices!, self.position)) {
+          tank_body.position.y -= 5;
+        }
+      }
+    };
   }
 
   get raw(): RawTankData {
