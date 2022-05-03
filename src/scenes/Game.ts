@@ -24,7 +24,6 @@ export default class Game extends Phaser.Scene {
   public static keyboard: Phaser.Input.Keyboard.KeyboardPlugin;
   public static keys: any;
 
-  remote_data: any;
   players = {} as any;
   platforms = {} as any;
 
@@ -82,11 +81,7 @@ export default class Game extends Phaser.Scene {
     this.matter.world.setGravity(0, 1, 0.001);
 
     // Generate player
-    Game.player = new PlayerTank(
-      this,
-      this?.remote_data?.self?.x || 0,
-      this?.remote_data?.self?.y || 0
-    );
+    Game.player = new PlayerTank(this, 0, 0);
     Game.player.setIgnoreGravity(true);
 
     // draw debugs
@@ -102,10 +97,10 @@ export default class Game extends Phaser.Scene {
     // this.matter.set60Hz();
     this.matter.set30Hz();
 
-    this.sync();
     Global.socket.onSync((m: any) => {
       this.sync(m);
     });
+    Global.socket.init();
   }
 
   update(time: number, delta: number) {
@@ -113,8 +108,6 @@ export default class Game extends Phaser.Scene {
   }
 
   sync(remote_data?: RawGameData) {
-    if (!remote_data) remote_data = this.remote_data;
-
     // Terrain
     remote_data?.map?.platforms?.forEach((data: any) => {
       if (data?.length == 1 && data[0] in this.platforms) {
@@ -180,7 +173,10 @@ export default class Game extends Phaser.Scene {
         delete this.players[key];
       }
     });
-    Game.player.setIgnoreGravity(false);
+    if (Game.player.body.ignoreGravity == true) {
+      this.cameras.main.zoomTo(1, 5, 'Cubic');
+      Game.player.setIgnoreGravity(false);
+    }
 
     // Bullets
     remote_data?.bullets?.forEach((bullet: RawBulletData) => {

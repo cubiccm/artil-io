@@ -33,7 +33,7 @@ io.on('connection', (socket: Socket) => {
     console.log('New user: ' + msg);
     const player = Core.scene.onPlayerJoin(msg, socket);
     socket.emit('session_established', player.ID + player.secret);
-    socket.emit('login_success', Core.scene.getRawData(player));
+    socket.emit('login_success');
   });
 
   // Handle general updates like moving
@@ -64,6 +64,9 @@ io.on('connection', (socket: Socket) => {
         });
       } else if (msg[1] == 'stopfire') {
         player.tank.setFireStatus(false);
+      } else if (msg[1] == 'init') {
+        player.socket = socket;
+        socket.emit('sync', Core.scene.getRawData(player));
       }
     } catch (err) {
       console.log(err);

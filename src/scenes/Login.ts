@@ -4,6 +4,7 @@ import $ from 'jquery';
 import NetworkController from '@/NetworkController';
 import Console from '@/components/Console';
 import Game from '@/scenes/Game';
+import HUD from './HUD';
 
 export default class Login extends Phaser.Scene {
   graphics!: Phaser.GameObjects.Graphics;
@@ -48,16 +49,18 @@ export default class Login extends Phaser.Scene {
         Global.socket
           .login(username)
           .then((msg) => {
-            element.setVisible(false);
-            Game.scene.remote_data = msg;
-            Login.scene.scene.start(Global.SCENE_GAME, {
+            // element.setVisible(false);
+            Login.scene.scene.add(Global.SCENE_HUD, HUD);
+            Login.scene.scene.add(Global.SCENE_GAME, Game);
+            Login.scene.scene.start(Global.SCENE_HUD, {
               playerName: username
             });
             Login.scene.scene.start(Global.SCENE_GAME);
-            // Login.scene.scene.stop(Global.SCENE_LOGIN);
+            Login.scene.scene.pause(Global.SCENE_LOGIN);
           })
-          .catch((msg) => {
-            Global.console.error('Failed to login: ' + msg);
+          .catch((err) => {
+            Global.console.error('Failed to login: ' + err);
+            console.log(err);
           });
       }
     };

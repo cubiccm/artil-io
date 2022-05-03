@@ -26,7 +26,7 @@ export default class HUD extends Phaser.Scene {
   public static weapon_box: HTMLDivElement;
   public static skin_box: HTMLDivElement;
   constructor() {
-    super(Global.SCENE_GAME);
+    super(Global.SCENE_HUD);
   }
 
   init(data: any) {

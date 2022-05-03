@@ -14,7 +14,7 @@ export default class Global {
 
   public static readonly SCENE_CORE = 'CoreScene';
   public static readonly SCENE_GAME = 'GameScene';
-  public static readonly SCENE_HUD = Global.SCENE_GAME;
+  public static readonly SCENE_HUD = 'HUDScene';
   public static readonly SCENE_LOGIN = 'LoginScene';
 
   public static readonly WORLD_WIDTH = 2048 * 4;

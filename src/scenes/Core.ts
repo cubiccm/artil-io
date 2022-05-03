@@ -60,7 +60,7 @@ export default class Core extends Phaser.Scene {
     if (this.last_update_interval >= server_report_rate) {
       this.last_update_interval = 0;
       Object.values(this.players).forEach((_player: any) => {
-        _player.socket.emit('sync', Core.scene.getRawData(_player));
+        _player.socket?.emit('sync', this.getRawData(_player));
       });
     }
   }
@@ -104,7 +104,6 @@ export default class Core extends Phaser.Scene {
     const x = Phaser.Math.Between(-400, 400);
     const y = Phaser.Math.Between(-300, 300);
     const player = new Player(name, new BaseTank(this, x, y));
-    player.socket = socket;
 
     // Terrain
     player.terrains_not_synced = this.gamedata.map.platforms.filter(
