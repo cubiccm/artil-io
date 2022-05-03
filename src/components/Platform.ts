@@ -4,6 +4,7 @@ import Global from '@/global';
 import BaseDestruction from '@/components/Destruction/BaseDestruction';
 import Core from '@/scenes/Core';
 import UUID from '@/types/UUID';
+import Chunk from './Chunk';
 
 export class PlatformTexture extends Phaser.Physics.Matter.Sprite {
   public controller?: Platform;
@@ -11,11 +12,13 @@ export class PlatformTexture extends Phaser.Physics.Matter.Sprite {
 
 export default class Platform {
   public scene: Phaser.Scene;
+  public chunk?: Chunk;
   public anchor: MatterJS.Vector;
   public vertices: MatterJS.Vector[];
   public fillColor: number;
   public fillAlpha: number;
-  public gameObject: Phaser.GameObjects.GameObject | null;
+  public gameObject?: Phaser.GameObjects.GameObject;
+  public body?: MatterJS.BodyType;
   ID: string;
 
   public colors: number[];
@@ -23,6 +26,7 @@ export default class Platform {
   constructor(
     scene: Phaser.Scene,
     ID: string,
+    chunk: Chunk | undefined,
     x: number,
     y: number,
     vertices: MatterJS.Vector[],
@@ -32,6 +36,8 @@ export default class Platform {
   ) {
     // const poly = scene.add.polygon(x, y, vertices, 0x0000ff, 0.5); // weird bug sometimes the shape skips some vertices?
     this.scene = scene;
+    this.ID = ID;
+    this.chunk = chunk;
     this.anchor = { x: x, y: y };
     this.vertices = vertices;
     this.colors = colors || [0x0000ff];
@@ -39,8 +45,7 @@ export default class Platform {
       fillColor ||
       this.colors[Math.round(Math.random() * (this.colors.length - 1))];
     this.fillAlpha = fillAlpha || 0.1;
-    this.gameObject = this.createPlatform();
-    this.ID = ID;
+    this.createPlatform();
   }
 
   get raw(): any {
@@ -53,7 +58,7 @@ export default class Platform {
     }
   }
 
-  createPlatform(): Phaser.GameObjects.GameObject | null {
+  createPlatform() {
     let rigid: MatterJS.BodyType;
     this.vertices = this.vertices.map((v) => ({
       x: Math.round(v.x * 100) / 100,
@@ -118,29 +123,37 @@ export default class Platform {
       };
     });
 
+    this.gameObject = rigid.gameObject;
+    this.body = rigid;
+
     if (rigid.area < 1000) {
       rigid.gameObject.destroy();
+    } else if ('onNewPlatform' in this.scene) {
+      (this.scene as Core).onNewPlatform(this);
     }
-    return texture;
   }
 
   onCollide(new_vertices: PolygonClipping.MultiPolygon) {
     if ('onNewPlatform' in this.scene) {
       if (!this.gameObject?.active) return;
-      this.gameObject?.destroy();
-      (this.scene as Core).onDestroyPlatform(this);
+      this.chunk?.removePlatform(this);
+
+      // this.gameObject.on('destroy', () => {
+      //   (this.scene as Core).onDestroyPlatform(this);
+      // });
       new_vertices.map((v) => {
         const vertices = v[0].map((p) => ({ x: p[0], y: p[1] }));
         const platform = new Platform(
           this.scene,
           UUID(8),
+          this.chunk,
           this.anchor.x,
           this.anchor.y,
           vertices,
           this.colors
         );
-        (this.scene as Core).onNewPlatform(platform);
       });
+      this.chunk?.updateChunk();
     }
   }
 }

@@ -49,7 +49,7 @@ export default class Core extends Phaser.Scene {
       false
     );
     this.matter.world.setGravity(0, 1, 0.001);
-    this.gamedata.map.platforms = generateTerrain(this);
+    generateTerrain(this);
     this.initiated = true;
     console.log('Game initiated');
   }
@@ -144,6 +144,7 @@ export default class Core extends Phaser.Scene {
   }
 
   onNewPlatform(platform: Platform) {
+    platform.chunk?.addPlatform(platform);
     this.gamedata.map.platforms.push(platform);
     Object.values(this.players).forEach((_player: any) => {
       _player.terrains_not_synced.push(platform);
