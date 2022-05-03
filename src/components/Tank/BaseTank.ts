@@ -3,10 +3,14 @@ const fire_cooldown = 250;
 import * as types from '@/types';
 import Global from '@/global';
 import TankSensor from '@/components/Tank/TankSensor';
-import { RawTankData } from '@/types/RawData';
+import { RawTankData, UPGRADES_TYPES } from '@/types/RawData';
 import Bullet from '@/components/Projectile/Bullet';
 import Core from '@/scenes/Core';
 import Player from '@/components/Player';
+import Cannon from '@/components/Projectile/Cannon';
+import Grenade from '@/components/Projectile/Grenade';
+import Uzi from '@/components/Projectile/Uzi';
+import BaseProjectile from '../Projectile/BaseProjectile';
 
 export default class BaseTank extends Phaser.Physics.Matter.Sprite {
   declare body: MatterJS.BodyType;
@@ -44,13 +48,11 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
       },
       lastJumpedAt: 0,
       lastFiredAt: 0,
-      speed: {
-        ground: 2,
-        air: 1.5,
-        jump: 6
-      },
+      speed_ground: 2,
+      speed_air: 1.5,
+      speed_jump: 6,
       max_health: 200,
-      HP: 100,
+      HP: 200,
       XP: 1000,
       regen_factor: 1,
       reload: 300,
@@ -193,9 +195,32 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
         }
       }
     };
+
+    tank_body.onCollideCallback = (pair: MatterJS.ICollisionPair) => {
+      const other = (
+        pair.bodyA === tank_body ? pair.bodyB : pair.bodyA
+      ) as MatterJS.BodyType;
+      if (other.collisionFilter.category == Global.CATEGORY_PROJECTILE) {
+        if (this.scene.scene.key == 'Artilio-server') {
+          console.log(this.get('HP'));
+          console.log((other.gameObject as BaseProjectile).base_damage);
+          this.set(
+            'HP',
+            Math.max(
+              0,
+              this.get('HP') - (other.gameObject as BaseProjectile).base_damage
+            )
+          ); // TODO: * Weapon damage
+        }
+      }
+    };
   }
 
   get raw(): RawTankData {
+    const upgrades = [] as number[];
+    UPGRADES_TYPES.forEach((key) => {
+      upgrades.push(this.get(key));
+    });
     return {
       x: this.body.position.x,
       y: this.body.position.y,
@@ -206,11 +231,14 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
       b_ang: this.body.angle,
       vang: this.body.angularVelocity,
 
-      c_ang: this.getCannonAngle()
+      c_ang: this.getCannonAngle(),
+
+      upgrades: upgrades
     };
   }
 
   syncRemote(remote: RawTankData) {
+    /* Movement & position */
     // Estimates location displacement based on velocity and network delay
     const exp_delay = 400;
     const rotate_radius = 1000;
@@ -277,6 +305,13 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
       this.rotateBody(remote.b_ang || 0);
       this.setAngularVelocity(remote.vang || 0);
     }
+
+    /* Upgrades */
+    if (remote.upgrades && remote.upgrades.length == UPGRADES_TYPES.length) {
+      UPGRADES_TYPES.forEach((key: string, index: number) => {
+        this.set(key, remote.upgrades?.[index]);
+      });
+    }
   }
 
   moveTo(x: number, y: number) {
@@ -316,8 +351,8 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
       this.data.values.sensors.bottom.blocked
     ) {
       const newVelocityX = this.data.values.sensors.bottom.blocked
-        ? this.data.values.speed.ground
-        : this.data.values.speed.air;
+        ? this.data.values.speed_ground
+        : this.data.values.speed_air;
 
       this.setVelocityX(-newVelocityX);
     }
@@ -335,8 +370,8 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
       this.data.values.sensors.bottom.blocked
     ) {
       const newVelocityX = this.data.values.sensors.bottom.blocked
-        ? this.data.values.speed.ground
-        : this.data.values.speed.air;
+        ? this.data.values.speed_ground
+        : this.data.values.speed_air;
 
       this.setVelocityX(newVelocityX);
     }
@@ -375,17 +410,57 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
     const velocity = 30;
     const vx = velocity * Math.cos(angle);
     const vy = velocity * Math.sin(angle);
-    const bullet = new Bullet(
-      this.scene,
-      origin.x + Math.cos(angle) * cannon_length,
-      origin.y + Math.sin(angle) * cannon_length,
-      vx,
-      vy,
-      this
-    );
-    this.get('bullets').push(bullet);
+    let weapon;
+    switch (this.tank_data.weapon) {
+      case 'cannonball': {
+        weapon = new Cannon(
+          this.scene,
+          origin.x + Math.cos(angle) * cannon_length,
+          origin.y + Math.sin(angle) * cannon_length,
+          vx,
+          vy,
+          this
+        );
+        break;
+      }
+      case 'grenade': {
+        weapon = new Grenade(
+          this.scene,
+          origin.x + Math.cos(angle) * cannon_length,
+          origin.y + Math.sin(angle) * cannon_length,
+          vx,
+          vy,
+          this
+        );
+        break;
+      }
+      case 'uzi': {
+        weapon = new Uzi(
+          this.scene,
+          origin.x + Math.cos(angle) * cannon_length,
+          origin.y + Math.sin(angle) * cannon_length,
+          vx,
+          vy,
+          this
+        );
+        break;
+      }
+      default: {
+        weapon = new Bullet(
+          this.scene,
+          origin.x + Math.cos(angle) * cannon_length,
+          origin.y + Math.sin(angle) * cannon_length,
+          vx,
+          vy,
+          this
+        );
+        break;
+      }
+    }
+
+    this.get('bullets').push(weapon);
     if (this.scene.scene.key == 'Artilio-server') {
-      (this.scene as Core)?.onNewBullet(bullet);
+      (this.scene as Core)?.onNewBullet(weapon);
     }
   }
 
@@ -462,7 +537,7 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
     const max_frame_rate = 24; // Frame rate in full speed
     const frame_rate_step = 6; // Step between different frame rate levels
     const frame_rate_level =
-      Math.abs(this.body.velocity.x / this.data.values.speed.ground) *
+      Math.abs(this.body.velocity.x / this.data.values.speed_ground) *
       (max_frame_rate / frame_rate_step);
     const new_frame_rate = Math.min(
       Math.round(frame_rate_level) * frame_rate_step,

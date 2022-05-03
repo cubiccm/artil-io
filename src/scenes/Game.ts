@@ -6,6 +6,9 @@ import Platform from '@/components/Platform';
 import RawGameData, { RawBulletData, RawTankData } from '@/types/RawData';
 import BaseTank from '@/components/Tank/BaseTank';
 import Bullet from '@/components/Projectile/Bullet';
+import Grenade from '@/components/Projectile/Grenade';
+import Cannon from '@/components/Projectile/Cannon';
+import Uzi from '@/components/Projectile/Uzi';
 
 let wrapCamB: Phaser.Cameras.Scene2D.Camera;
 let wrapCamT: Phaser.Cameras.Scene2D.Camera;
@@ -135,6 +138,8 @@ export default class Game extends Phaser.Scene {
         Game.player.syncRemote(remote_data.self);
       }
       if ('health' in remote_data.self) {
+        if (remote_data.self?.health === 0)
+          Global.console.recycling("Congratulations! You're dead!");
         Game.player.set('HP', remote_data.self?.health);
       }
     }
@@ -172,7 +177,49 @@ export default class Game extends Phaser.Scene {
     remote_data?.bullets?.forEach((bullet: RawBulletData) => {
       if (bullet.player && bullet.player in this.players) {
         const parent_tank = this.players[bullet.player];
-        new Bullet(this, bullet.x, bullet.y, bullet.vx, bullet.vy, parent_tank);
+
+        switch (bullet.type) {
+          case 'bullet':
+            new Bullet(
+              this,
+              bullet.x,
+              bullet.y,
+              bullet.vx,
+              bullet.vy,
+              parent_tank
+            );
+            break;
+          case 'cannonball':
+            new Cannon(
+              this,
+              bullet.x,
+              bullet.y,
+              bullet.vx,
+              bullet.vy,
+              parent_tank
+            );
+            break;
+          case 'grenade':
+            new Grenade(
+              this,
+              bullet.x,
+              bullet.y,
+              bullet.vx,
+              bullet.vy,
+              parent_tank
+            );
+            break;
+          case 'uzi':
+            new Uzi(
+              this,
+              bullet.x,
+              bullet.y,
+              bullet.vx,
+              bullet.vy,
+              parent_tank
+            );
+            break;
+        }
       }
     });
   }

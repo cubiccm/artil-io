@@ -51,7 +51,11 @@ io.on('connection', (socket: Socket) => {
       player.tank.setThrustSpeed(data.thrust);
       player.tank.setCannonAngle(data.c_ang);
     } else if (msg[1] == 'fire') {
-      const data = deserializeRawTankData(msg[2]);
+      if (msg[2]?.length != 2) return;
+      const weapon = msg[2][0];
+      // Check weapon availability
+      const data = deserializeRawTankData(msg[2][1]);
+      player.tank.set('weapon', weapon);
       player.tank.setThrustSpeed(data.thrust);
       player.tank.setCannonAngle(data.c_ang);
       player.tank.setFireStatus(true);

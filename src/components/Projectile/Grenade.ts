@@ -5,6 +5,7 @@ import BaseProjectile from './BaseProjectile';
 import CircularDestruction from '../Destruction/CircularDestruction';
 import RectangularDestruction from '../Destruction/RectangularDestruction';
 import BaseDestruction from '../Destruction/BaseDestruction';
+import Platform from '../Platform';
 
 const speed_factor = 0.8;
 export default class Grenade extends BaseProjectile {
@@ -18,6 +19,8 @@ export default class Grenade extends BaseProjectile {
   ) {
     super(scene, x, y, vx * speed_factor, vy * speed_factor, parent);
     this.body.gravityScale = { x: 2, y: 4 };
+    this.bullet_type = 'grenade';
+    this.base_damage = 100;
   }
 
   createObject() {
@@ -30,8 +33,17 @@ export default class Grenade extends BaseProjectile {
     this.scene.matter.add.gameObject(this, body);
   }
 
-  createDestruction(x: number, y: number) {
-    const verts = CircularDestruction.getVerts(75);
-    const sensor = new CircularDestruction(this.scene, x, y, verts);
+  createDestruction(
+    position: MatterJS.Vector,
+    velocity: MatterJS.Vector,
+    terrain: Platform
+  ) {
+    const circular_destruction = new CircularDestruction(this.scene, {
+      r: 100
+    });
+
+    terrain?.onCollide(
+      circular_destruction.getNewTerrain(position, velocity, terrain)
+    );
   }
 }

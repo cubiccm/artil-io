@@ -24,15 +24,26 @@ export interface RawTankData {
   name?: string;
 
   health?: number;
+
+  upgrades?: number[];
 }
+
+export const UPGRADES_TYPES = [
+  'regen_factor',
+  'max_health',
+  'weapon_damage',
+  'body_speed',
+  'bullet_speed',
+  'reload'
+];
 
 export interface RawBulletData {
   x: number;
   y: number;
   vx: number;
   vy: number;
-  player?: string; // Player ID
-  // type: number
+  player: string; // Player ID
+  type: string;
 }
 
 export function serializeRawTankData(data: RawTankData): any[] {

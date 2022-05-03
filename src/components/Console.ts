@@ -89,7 +89,8 @@ export default class Console {
       favorite: [false, 'rgb(255, 99, 144)'],
       info: [false],
       alarm: [true, '#9eb314'],
-      code: [false]
+      code: [false],
+      death: [true, 'rgb(255, 99, 144)']
     } as any;
 
     this.setColor(action[type][1]);
@@ -123,6 +124,10 @@ export default class Console {
 
   love(text: string, channel?: string) {
     this.log(text, channel, 'favorite');
+  }
+
+  recycling(text: string, channel?: string) {
+    this.log(text, channel, 'death');
   }
 
   constructor() {

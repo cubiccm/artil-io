@@ -5,6 +5,7 @@ import BaseProjectile from './BaseProjectile';
 import CircularDestruction from '../Destruction/CircularDestruction';
 import RectangularDestruction from '../Destruction/RectangularDestruction';
 import BaseDestruction from '../Destruction/BaseDestruction';
+import Platform from '../Platform';
 
 const speed_factor = 1.5;
 export default class Uzi extends BaseProjectile {
@@ -18,6 +19,8 @@ export default class Uzi extends BaseProjectile {
   ) {
     super(scene, x, y, vx * speed_factor, vy * speed_factor, parent);
     this.body.gravityScale = { x: 0, y: 2 };
+    this.bullet_type = 'uzi';
+    this.base_damage = 30;
   }
 
   createObject() {
@@ -30,8 +33,18 @@ export default class Uzi extends BaseProjectile {
     this.scene.matter.add.gameObject(this, body);
   }
 
-  createDestruction(x: number, y: number) {
-    const verts = CircularDestruction.getVerts(25);
-    const sensor = new CircularDestruction(this.scene, x, y, verts);
+  createDestruction(
+    position: MatterJS.Vector,
+    velocity: MatterJS.Vector,
+    terrain: Platform
+  ) {
+    const natural_destruction = new CircularDestruction(this.scene, {
+      r: 50,
+      intensity: 1
+    });
+
+    terrain?.onCollide(
+      natural_destruction.getNewTerrain(position, velocity, terrain)
+    );
   }
 }

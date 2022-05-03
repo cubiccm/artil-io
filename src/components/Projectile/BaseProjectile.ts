@@ -1,10 +1,16 @@
 import Global from '@/global';
 import Platform from '@/components/Platform';
+import { RawBulletData } from '@/types/RawData';
+import BaseTank from '../Tank/BaseTank';
 
 export default abstract class BaseProjectile extends Phaser.GameObjects
   .Container {
   parent?: any;
   declare body: MatterJS.BodyType;
+
+  bullet_type = '';
+  base_damage = 0;
+
   constructor(
     scene: Phaser.Scene,
     x: number,
@@ -31,20 +37,31 @@ export default abstract class BaseProjectile extends Phaser.GameObjects
       if (this.scene.scene.key == 'Artilio-server') {
         const position = pair.collision.supports[0];
         const velocity = this.body.velocity;
-        const terrain = (
+        const other = (
           pair.bodyA == this.body ? pair.bodyB : pair.bodyA
         ) as MatterJS.BodyType;
-        if (terrain.collisionFilter.category == Global.CATEGORY_TERRAIN) {
+        if (other.collisionFilter.category == Global.CATEGORY_TERRAIN) {
           this.createDestruction(
             position,
             velocity,
-            terrain.gameObject.controller
+            other.gameObject.controller
           );
         }
       }
       this.selfDestroy();
     };
     this.scene.add.existing(this);
+  }
+
+  get raw(): RawBulletData {
+    return {
+      x: this.body.position.x,
+      y: this.body.position.y,
+      vx: this.body.velocity.x,
+      vy: this.body.velocity.y,
+      player: this.parent?.player?.ID,
+      type: this.bullet_type
+    };
   }
 
   selfDestroy() {

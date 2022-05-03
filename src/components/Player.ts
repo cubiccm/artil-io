@@ -33,7 +33,7 @@ export default class Player {
       thrust: this.tank.getThrustSpeed(),
       name: this.name,
       id: this.ID,
-      health: Phaser.Math.Between(1, 200)
+      health: this.tank.get('HP')
     };
   }
 }

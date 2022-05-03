@@ -86,7 +86,7 @@ export default class PlayerTank extends BaseTank {
     ) {
       if (this.is_firing == false) {
         this.is_firing = true;
-        Global.socket.fire(this.raw);
+        Global.socket.fire([this.get('weapon'), this.raw]);
       }
     } else {
       if (this.is_firing == true) {
@@ -102,17 +102,17 @@ export default class PlayerTank extends BaseTank {
     const canJump = time - this.data.values.lastJumpedAt > 250;
     if (canJump) {
       if (this.data.values.sensors.bottom.blocked) {
-        this.setVelocityY(-this.data.values.speed.jump);
+        this.setVelocityY(-this.data.values.speed_jump);
         this.data.values.lastJumpedAt = time;
       } else if (this.data.values.sensors.left.blocked) {
         // Jump up and away from the wall
-        this.setVelocityY(-this.data.values.speed.jump);
-        this.setVelocityX(this.data.values.speed.ground);
+        this.setVelocityY(-this.data.values.speed_jump);
+        this.setVelocityX(this.data.values.speed_ground);
         this.data.values.lastJumpedAt = time;
       } else if (this.data.values.sensors.right.blocked) {
         // Jump up and away from the wall
-        this.setVelocityY(-this.data.values.speed.jump);
-        this.setVelocityX(-this.data.values.speed.ground);
+        this.setVelocityY(-this.data.values.speed_jump);
+        this.setVelocityX(-this.data.values.speed_ground);
         this.data.values.lastJumpedAt = time;
       }
     }

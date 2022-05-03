@@ -247,20 +247,19 @@ export default class HUD extends Phaser.Scene {
         break;
       }
       case 'bullet-damage': {
+        player_data.weapon_damage += 0.2;
         break;
       }
       case 'body-speed': {
-        player_data.speed.ground += 1.5;
+        player_data.speed_ground += 1.5;
         break;
       }
       case 'bullet-speed': {
-        player_data.bullets.forEach((b) => {
-          player_data.bullet_speed += 0.1;
-        });
+        player_data.bullet_speed += 0.1;
         break;
       }
       case 'jump': {
-        player_data.speed.jump += 1.5;
+        // player_data.speed_jump += 1.5;
         break;
       }
       case 'reload': {

@@ -5,7 +5,6 @@ import RectangularDestruction from '@/components/Destruction/RectangularDestruct
 import BaseDestruction from '@/components/Destruction/BaseDestruction';
 import NaturalDestruction from '@/components/Destruction/NaturalDestruction';
 import Platform from '@/components/Platform';
-import { RawBulletData } from '@/types/RawData';
 
 export default class Bullet extends BaseProjectile {
   constructor(
@@ -18,16 +17,8 @@ export default class Bullet extends BaseProjectile {
   ) {
     super(scene, x, y, vx, vy, parent);
     this.body.gravityScale = { x: 1, y: 4 };
-  }
-
-  get raw(): RawBulletData {
-    return {
-      x: this.body.position.x,
-      y: this.body.position.y,
-      vx: this.body.velocity.x,
-      vy: this.body.velocity.y,
-      player: this.parent?.player?.ID
-    };
+    this.bullet_type = 'bullet';
+    this.base_damage = 50;
   }
 
   createObject() {
@@ -65,18 +56,5 @@ export default class Bullet extends BaseProjectile {
     terrain?.onCollide(
       natural_destruction.getNewTerrain(position, velocity, terrain)
     );
-
-    // funny bullet
-    // const verts = CircularDestruction.getVerts(50);
-    // Math.random() > 0.5
-    // ? CircularDestruction.getVerts(50)
-    // : RectangularDestruction.getVerts(100, 50);
-
-    // const sensor = new CircularDestruction(
-    //   this.scene,
-    //   position.x,
-    //   position.y,
-    //   verts
-    // );
   }
 }

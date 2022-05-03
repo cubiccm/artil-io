@@ -19,11 +19,9 @@ interface TankData {
   };
   lastJumpedAt: number;
   lastFiredAt: number;
-  speed: {
-    ground: number;
-    air: number;
-    jump: number;
-  };
+  speed_ground: number;
+  speed_air: number;
+  speed_jump: number;
   components: {
     cannon_texture?: Phaser.GameObjects.GameObject;
     cannon_body?: MatterJS.BodyType;

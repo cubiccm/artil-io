@@ -64,8 +64,8 @@ export default class NetworkController {
     }
   }
 
-  fire(data: any) {
-    data = serializeRawTankData(data);
+  fire(data: any[]) {
+    data[1] = serializeRawTankData(data[1]);
     this.send('fire', data);
   }
 
