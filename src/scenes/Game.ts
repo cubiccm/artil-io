@@ -29,7 +29,7 @@ export default class Game extends Phaser.Scene {
   platforms = {} as any;
 
   constructor() {
-    super('Artilio');
+    super(Global.SCENE_GAME);
     Game.scene = this;
   }
 

@@ -29,9 +29,9 @@ export default class NetworkController {
         Global.console.recycling(
           `Congratulations! You're killed by ${killer}!`
         );
-        Login.scene.scene.start('LoginScene');
-        Login.scene.scene.stop('Artilio');
-        Login.scene.scene.stop('HUDScene');
+        Login.scene.scene.start(Global.SCENE_LOGIN);
+        Login.scene.scene.stop(Global.SCENE_GAME);
+        Login.scene.scene.stop(Global.SCENE_GAME);
         this.socket.removeListener('disconnect');
       });
       this.socket.once('disconnect', (m) => {

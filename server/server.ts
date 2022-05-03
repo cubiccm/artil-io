@@ -14,8 +14,8 @@ import { deserializeRawTankData, UPGRADES_TYPES } from '@/types/RawData';
 Global.disable_graphics = true;
 
 const game = new Phaser.Game(config);
-game.scene.add('Artilio-server', new Core());
-game.scene.start('Artilio-server');
+game.scene.add('Global.SCENE_CORE', new Core());
+game.scene.start('Global.SCENE_CORE');
 
 io.on('connection', (socket: Socket) => {
   if (Core.scene.initiated == false) {

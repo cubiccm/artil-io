@@ -26,7 +26,7 @@ export default class HUD extends Phaser.Scene {
   public static weapon_box: HTMLDivElement;
   public static skin_box: HTMLDivElement;
   constructor() {
-    super('HUDScene');
+    super(Global.SCENE_GAME);
   }
 
   init(data: any) {
@@ -40,7 +40,7 @@ export default class HUD extends Phaser.Scene {
   create() {
     this.health_bar_graphics = this.add.graphics();
     this.xp_bar_graphics = this.add.graphics();
-    this.gamescene = this.scene.get('Artilio') as Game;
+    this.gamescene = this.scene.get(Global.SCENE_GAME) as Game;
 
     Global.event_bus.on(
       'player-health-update',

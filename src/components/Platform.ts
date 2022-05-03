@@ -128,13 +128,13 @@ export default class Platform {
 
     if (rigid.area < 1000) {
       rigid.gameObject.destroy();
-    } else if (this.scene.scene.key == 'Artilio-server') {
+    } else if (this.scene.scene.key == 'Global.SCENE_CORE') {
       (this.scene as Core).onNewPlatform(this);
     }
   }
 
   onCollide(new_vertices: PolygonClipping.MultiPolygon) {
-    if (this.scene.scene.key == 'Artilio-server') {
+    if (this.scene.scene.key == 'Global.SCENE_CORE') {
       if (!this.gameObject?.active) return;
       this.chunk?.removePlatform(this);
 

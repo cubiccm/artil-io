@@ -5,8 +5,6 @@ import NetworkController from '@/NetworkController';
 import Console from '@/components/Console';
 import Game from '@/scenes/Game';
 
-const _w = Global.SCREEN_WIDTH,
-  _h = Global.SCREEN_HEIGHT;
 export default class Login extends Phaser.Scene {
   graphics!: Phaser.GameObjects.Graphics;
   gameButton!: Phaser.GameObjects.Sprite;
@@ -15,7 +13,7 @@ export default class Login extends Phaser.Scene {
   public static scene: Login;
   public static playerName: string;
   constructor() {
-    super({ key: 'LoginScene', active: true });
+    super({ key: Global.SCENE_LOGIN, active: true });
   }
 
   preload() {
@@ -46,11 +44,11 @@ export default class Login extends Phaser.Scene {
           .then((msg) => {
             element.setVisible(false);
             Game.scene.remote_data = msg;
-            Login.scene.scene.start('HUDScene', {
+            Login.scene.scene.start(Global.SCENE_GAME, {
               playerName: username
             });
-            Login.scene.scene.start('Artilio');
-            // Login.scene.scene.stop('LoginScene');
+            Login.scene.scene.start(Global.SCENE_GAME);
+            // Login.scene.scene.stop(Global.SCENE_LOGIN);
           })
           .catch((msg) => {
             Global.console.error('Failed to login: ' + msg);
@@ -67,7 +65,7 @@ export default class Login extends Phaser.Scene {
 
     this.tweens.add({
       targets: element,
-      y: _h - _h / 2.5,
+      y: Global.SCREEN_WIDTH - Global.SCREEN_HEIGHT / 2.5,
       duration: 1500,
       ease: 'Power3'
     });
