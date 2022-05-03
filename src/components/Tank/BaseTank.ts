@@ -377,14 +377,6 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
       return false;
     }
     this.data.values[attribute] = value;
-    switch (attribute) {
-      case 'HP':
-        Global.event_bus.emit('player-health-update');
-        break;
-      case 'XP':
-        Global.event_bus.emit('player-xp-update');
-        break;
-    }
     return true;
   }
 

@@ -21,7 +21,7 @@ export default class HUD extends Phaser.Scene {
   public static playerName: string;
   public static upgradeBox: Phaser.GameObjects.DOMElement;
   constructor() {
-    super({ key: 'HUDScene', active: true });
+    super('HUDScene');
   }
 
   init(data: any) {
@@ -36,6 +36,35 @@ export default class HUD extends Phaser.Scene {
     this.health_bar_graphics = this.add.graphics();
     this.xp_bar_graphics = this.add.graphics();
     this.gamescene = this.scene.get('Artilio') as Game;
+
+    Global.event_bus.on(
+      'player-health-update',
+      () => {
+        this.drawHealthBar(Game.player.get('HP'), 200);
+      },
+      this
+    );
+
+    Global.event_bus.on(
+      'player-xp-update',
+      () => {
+        this.drawExpBar(Game.player.get('XP'), 100);
+      },
+      this
+    );
+
+    this.scale.on(
+      'resize',
+      () => {
+        this.redrawAll();
+      },
+      this
+    );
+
+    this.redrawAll();
+
+    if (this.show_debug_info)
+      this.debug_message = new DebugMessage(this, 16, 16);
 
     Global.event_bus.on('loading_finished', () => {
       this.add.text(
@@ -91,19 +120,7 @@ export default class HUD extends Phaser.Scene {
   }
 
   update() {
-    if (Game.player) {
-      this.drawHealthBar(
-        Game.player.tank_data.HP,
-        Game.player.tank_data.max_health
-      );
-      this.drawExpBar(
-        Game.player.tank_data.XP + 20, // +20 only for showcase
-        100 // this.gamescene.player.tank_data.Max_XP
-      );
-
-      var exp = Game.player.tank_data.XP;
-      // Update upgrade cost colors if enough XP
-    }
+    // Not used
   }
 
   private static selectUpgrade(
@@ -222,6 +239,11 @@ export default class HUD extends Phaser.Scene {
     }
   }
 
+  redrawAll() {
+    this.drawHealthBar(Game.player?.get('HP') || 200, 200);
+    this.drawExpBar(Game.player?.get('XP') || 100, 100);
+  }
+
   drawHealthBar(current_health: number, max_health: number) {
     const bar_width = 300,
       bar_height = 30;
@@ -253,22 +275,28 @@ export default class HUD extends Phaser.Scene {
     if (current_health != 0)
       current_health = Math.max(1, Math.floor(current_health));
     max_health = Math.floor(max_health);
-    this.add
-      .text(
-        _w / 2,
-        _h - bottom_margin - bar_height / 2,
-        `Health: ${current_health} / ${max_health}`,
-        {
-          fontSize: '14pt',
-          fontFamily: 'monospace', // TODO: Select a font for the game
-          // fontStyle: 'bold'
-          align: 'center',
-          color: 'rgba(255, 255, 255, .8)',
-          stroke: '#000000',
-          strokeThickness: 2
-        }
-      )
-      .setOrigin(0.5);
+    if (!this.health_bar_text) {
+      this.health_bar_text = this.add
+        .text(
+          Global.SCREEN_WIDTH / 2,
+          Global.SCREEN_HEIGHT - bottom_margin - bar_height / 2,
+          `Health`,
+          {
+            fontSize: '14pt',
+            fontFamily: 'consolas', // TODO: Select a font for the game
+            align: 'center',
+            color: 'rgba(255, 255, 255, 1)',
+            stroke: '#000000',
+            strokeThickness: 2
+          }
+        )
+        .setOrigin(0.5);
+    }
+    this.health_bar_text.setPosition(
+      Global.SCREEN_WIDTH / 2,
+      Global.SCREEN_HEIGHT - bottom_margin - bar_height / 2
+    );
+    this.health_bar_text.setText(`Health: ${current_health} / ${max_health}`);
   }
 
   drawExpBar(current_exp: number, max_exp: number) {

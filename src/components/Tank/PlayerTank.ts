@@ -36,6 +36,18 @@ export default class PlayerTank extends BaseTank {
     );
   }
 
+  set(attribute: string, value: any) {
+    switch (attribute) {
+      case 'HP':
+        Global.event_bus.emit('player-health-update');
+        break;
+      case 'XP':
+        Global.event_bus.emit('player-xp-update');
+        break;
+    }
+    return super.set(attribute, value);
+  }
+
   update(time: number, delta: number) {
     const keyboard = this.scene.input.keyboard;
     const pointer = this.scene.input.activePointer;

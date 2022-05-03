@@ -137,9 +137,7 @@ export default class Platform {
           this.anchor.x,
           this.anchor.y,
           vertices,
-          this.colors,
-          this.fillColor,
-          this.fillAlpha
+          this.colors
         );
         (this.scene as Core).onNewPlatform(platform);
       });

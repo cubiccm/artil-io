@@ -114,7 +114,8 @@ export default class Game extends Phaser.Scene {
           data[0],
           data[1][0],
           data[1][1],
-          data[2]
+          data[2],
+          [0x39ff14, 0xffa500, 0xfff857, 0x00ffff, 0xff80cd]
         );
         this.platforms[data[0]] = platform;
       }
