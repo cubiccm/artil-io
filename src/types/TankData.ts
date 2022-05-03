@@ -34,6 +34,8 @@ interface TankData {
   regen_factor: number;
   reload: number;
   bullet_speed: number;
+  weapon: string;
+  weapon_damage: number;
   bullets: Bullet[];
   id: string;
   team: string;

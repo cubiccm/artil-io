@@ -2,13 +2,13 @@ import Phaser from 'phaser';
 import Global from '@/global';
 import Game from '@/scenes/Game';
 import DebugMessage from '@/components/DebugMessage';
-import Login from '@/scenes/Login';
 
 const _w = Global.SCREEN_WIDTH,
   _h = Global.SCREEN_HEIGHT;
 const bar_width = 300,
   bar_height = 30;
 const bottom_margin = 30;
+
 export default class HUD extends Phaser.Scene {
   show_debug_info = true;
 
@@ -18,6 +18,8 @@ export default class HUD extends Phaser.Scene {
   gamescene!: Game;
   debug_message?: Phaser.GameObjects.Text;
 
+  health_text?: Phaser.GameObjects.Text;
+  exp_text?: Phaser.GameObjects.Text;
   public static playerName: string;
   public static upgradeBox: Phaser.GameObjects.DOMElement;
   constructor() {
@@ -67,19 +69,17 @@ export default class HUD extends Phaser.Scene {
       this.debug_message = new DebugMessage(this, 16, 16);
 
     Global.event_bus.on('loading_finished', () => {
-      this.add.text(
-        _w / 2,
-        _h - bottom_margin - bar_height - 30,
-        HUD.playerName,
-        {
-          fontSize: '14pt',
+      this.add
+        .text(_w / 2, _h - bottom_margin - bar_height - 25, HUD.playerName, {
+          fontSize: '18pt',
           fontFamily: 'monospace',
+          fontStyle: 'bold',
           color: 'rgba(255, 255, 255, .8)',
           stroke: '#000000',
           strokeThickness: 2,
           align: 'center'
-        }
-      );
+        })
+        .setOrigin(0.5);
       const upgradeBox = this.add
         .dom(25, _h - _h / 2)
         .createFromCache('upgrade_box');
@@ -88,10 +88,9 @@ export default class HUD extends Phaser.Scene {
       upgradeBox.addListener('click');
       upgradeBox.on('click', function (event: any) {
         Global.event_bus.emit('HUD_clicked');
-        // Clicking Tank, Weapon, Skin upgrades:
         switch (event.target.className) {
           case 'select-buttons': {
-            let element = event.target as HTMLDivElement;
+            const element = event.target as HTMLDivElement;
             HUD.selectUpgrade(upgradeBox, element);
             break;
           }
@@ -99,17 +98,12 @@ export default class HUD extends Phaser.Scene {
             HUD.upgradeTank(upgradeBox, event.target.name);
             break;
           }
+          case 'weapon-item': {
+            HUD.select(event.target as HTMLInputElement, 'weapon');
+            break;
+          }
           case 'skin-item': {
-            HUD.selectSkin(event.target as HTMLInputElement);
-            let skin = event.target.name;
-            Game.player.tank_data.skin = skin;
-            Game.player.setTexture(skin);
-            Game.player.anims.remove('moving_right');
-            Game.player.anims.remove('moving_left');
-            Game.player.anims.remove('idle');
-            Game.player.createWheelAnimations();
-            Game.player.tank_data.components.cannon_texture?.destroy();
-            Game.player.createCannonEnd();
+            HUD.select(event.target as HTMLInputElement, 'skin');
             break;
           }
           default:
@@ -120,7 +114,53 @@ export default class HUD extends Phaser.Scene {
   }
 
   update() {
-    // Not used
+    this.health_text?.destroy();
+    this.exp_text?.destroy();
+    if (Game.player) {
+      this.drawHealthBar(
+        Game.player.tank_data.HP,
+        Game.player.tank_data.max_health
+      );
+      this.drawExpBar(
+        Game.player.tank_data.XP + 20, // +20 only for showcase
+        1000 // this.gamescene.player.tank_data.Max_XP
+      );
+
+      const exp = Game.player.tank_data.XP;
+      // Update upgrade cost colors if enough XP
+      const upgrade_costs = HUD.upgradeBox
+        .getChildByID('tank-options')
+        .getElementsByClassName('add') as HTMLCollectionOf<HTMLButtonElement>;
+
+      const weapon_costs = HUD.upgradeBox
+        .getChildByID('weapon-options')
+        .getElementsByClassName('cost') as HTMLCollectionOf<HTMLDivElement>;
+
+      const skin_costs = HUD.upgradeBox
+        .getChildByID('skin-options')
+        .getElementsByClassName('cost') as HTMLCollectionOf<HTMLDivElement>;
+      for (const item of upgrade_costs) {
+        if (parseInt(item.textContent as string) > exp) {
+          item.style.setProperty('color', 'red');
+        } else {
+          item.style.setProperty('color', 'gray');
+        }
+      }
+      for (const item of weapon_costs) {
+        if (parseInt(item.textContent as string) > exp) {
+          item.style.setProperty('color', 'red');
+        } else {
+          item.style.setProperty('color', 'gray');
+        }
+      }
+      for (const item of skin_costs) {
+        if (parseInt(item.textContent as string) > exp) {
+          item.style.setProperty('color', 'red');
+        } else {
+          item.style.setProperty('color', 'gray');
+        }
+      }
+    }
   }
 
   private static selectUpgrade(
@@ -137,7 +177,7 @@ export default class HUD extends Phaser.Scene {
       );
     });
     element.style.setProperty('background-color', 'lightgray');
-    let open = upgradeBox.getChildByID(
+    const open = upgradeBox.getChildByID(
       element.getAttribute('open') as string
     ) as HTMLInputElement;
 
@@ -158,27 +198,29 @@ export default class HUD extends Phaser.Scene {
     upgradeBox: Phaser.GameObjects.DOMElement,
     name: string
   ) {
-    let button = upgradeBox.getChildByName(name) as HTMLButtonElement;
-    let parent = button.parentElement as HTMLDivElement;
-    let bar = parent.childNodes[1] as HTMLDivElement;
+    const button = upgradeBox.getChildByName(name) as HTMLButtonElement;
+    const parent = button.parentElement as HTMLDivElement;
+    const bar = parent.childNodes[1] as HTMLDivElement;
     // Increment bar
-    // TODO: ONLY INCREMENT IF ENOUGH XP
-    let amount = parseInt(bar.getAttribute('data-amount') as string) + 20;
-    if (amount != 120) {
-      bar.style.setProperty(
-        'background',
-        'linear-gradient(to right, ' +
-          parent.getAttribute('color') +
-          ' ' +
-          amount +
-          '%, rgb(78, 74, 74) ' +
-          amount +
-          '%)'
-      );
-      bar.setAttribute('data-amount', amount.toString());
-      this.upgrade(parent.id);
-
-      // TODO: only increment if enough EXP
+    const cost = parseInt(button.textContent as string);
+    if (cost <= Game.player.tank_data.XP) {
+      const amount = parseInt(bar.getAttribute('data-amount') as string) + 20;
+      if (amount != 120) {
+        bar.style.setProperty(
+          'background',
+          'linear-gradient(to right, ' +
+            parent.getAttribute('color') +
+            ' ' +
+            amount +
+            '%, rgb(78, 74, 74) ' +
+            amount +
+            '%)'
+        );
+        bar.setAttribute('data-amount', amount.toString());
+        Game.player.tank_data.XP -= cost;
+        button.textContent = (cost + 100).toString();
+        this.upgrade(parent.id);
+      }
     }
   }
   private static upgrade(attr: string) {
@@ -196,7 +238,7 @@ export default class HUD extends Phaser.Scene {
         break;
       }
       case 'body-speed': {
-        player_data.speed.run += 1.5;
+        player_data.speed.ground += 1.5;
         break;
       }
       case 'bullet-speed': {
@@ -217,26 +259,61 @@ export default class HUD extends Phaser.Scene {
         break;
     }
   }
-  private static selectSkin(button: HTMLInputElement) {
-    let items = button.parentElement?.childNodes;
-    items?.forEach((e) => {
-      if (e.nodeName == 'INPUT') {
-        let child = e as HTMLInputElement;
-        child.style.setProperty('background-color', 'lightgray');
-      }
-    });
-    let unlocked = button.getAttribute('unlocked');
+  private static select(button: HTMLInputElement, type: string) {
+    const items = button.parentElement?.parentElement?.childNodes;
+    const unlocked = button.getAttribute('unlocked');
     if (unlocked == 'true') {
       // Set player tank texture accordingly
+      this.clearButtons(items);
       button.style.setProperty('background-color', 'bisque');
+      if (type == 'skin') HUD.updateSkin(button.name);
+      else if (type == 'weapon')
+        Game.player.tank_data.weapon = button.getAttribute('name') as string;
     } else if (unlocked == 'false') {
-      button.setAttribute(
-        'src',
-        'assets/hud-elements/tank-skins/' + button.getAttribute('name') + '.png'
-      );
-      button.setAttribute('unlocked', 'true');
-      button.style.setProperty('background-color', 'bisque');
+      const costElement = button.parentElement?.childNodes[3] as HTMLDivElement;
+      const cost = parseInt(costElement.textContent as string);
+      const canUnlock = cost <= Game.player.tank_data.XP;
+      if (canUnlock) {
+        this.clearButtons(items);
+        costElement.style.setProperty('visibility', 'hidden');
+        Game.player.tank_data.XP -= cost;
+        const folder = type == 'skin' ? 'tank-skins' : 'weapons';
+        button.setAttribute(
+          'src',
+          'assets/hud-elements/' +
+            folder +
+            '/' +
+            button.getAttribute('name') +
+            '.png'
+        );
+        button.setAttribute('unlocked', 'true');
+        button.style.setProperty('background-color', 'bisque');
+        if (type == 'skin') HUD.updateSkin(button.name);
+        else if (type == 'weapon')
+          Game.player.tank_data.weapon = button.getAttribute('name') as string;
+      }
     }
+  }
+  private static clearButtons(items: NodeListOf<ChildNode> | undefined) {
+    items?.forEach((e) => {
+      if (e.nodeName == 'DIV') {
+        const i = e.childNodes[1];
+        if (i.nodeName == 'INPUT') {
+          const child = i as HTMLInputElement;
+          child.style.setProperty('background-color', 'lightgray');
+        }
+      }
+    });
+  }
+  private static updateSkin(skin: string) {
+    Game.player.tank_data.skin = skin;
+    Game.player.setTexture(skin);
+    Game.player.anims.remove('moving_right');
+    Game.player.anims.remove('moving_left');
+    Game.player.anims.remove('idle');
+    Game.player.createWheelAnimations();
+    Game.player.tank_data.components.cannon_texture?.destroy();
+    Game.player.createCannonEnd();
   }
 
   redrawAll() {
@@ -248,16 +325,16 @@ export default class HUD extends Phaser.Scene {
     const bar_width = 300,
       bar_height = 30;
     const bottom_margin = 30;
-    const outline_color = 0xff0000,
+    const outline_color = 0xffa500,
       outline_alpha = 0.8;
-    const fill_color = 0xff5050,
+    const fill_color = 0xffa500,
       fill_alpha = 0.5;
 
     this.health_bar_graphics.clear();
 
     this.health_bar_graphics.lineStyle(3, outline_color, outline_alpha);
     this.health_bar_graphics.strokeRoundedRect(
-      (Global.SCREEN_WIDTH - bar_width) / 2,
+      Global.SCREEN_WIDTH - bar_width - 10,
       Global.SCREEN_HEIGHT - bottom_margin - bar_height,
       bar_width,
       bar_height,
@@ -278,7 +355,7 @@ export default class HUD extends Phaser.Scene {
     if (!this.health_bar_text) {
       this.health_bar_text = this.add
         .text(
-          Global.SCREEN_WIDTH / 2,
+          (Global.SCREEN_WIDTH - bar_width) / 2,
           Global.SCREEN_HEIGHT - bottom_margin - bar_height / 2,
           `Health`,
           {
@@ -316,13 +393,30 @@ export default class HUD extends Phaser.Scene {
       bar_height / 2
     );
 
-    this.xp_bar_graphics.fillStyle(base_color, 0.8);
+    this.xp_bar_graphics.fillStyle(base_color, 0.5);
     this.xp_bar_graphics.fillRoundedRect(
-      (Global.SCREEN_WIDTH - bar_width) / 2,
+      Global.SCREEN_WIDTH / 2 + 10,
       Global.SCREEN_HEIGHT - bottom_margin - bar_height,
       bar_height + (bar_width - bar_height) * (current_exp / max_exp),
       bar_height,
       bar_height / 2
     );
+    max_exp = Math.floor(max_exp);
+    this.exp_text = this.add
+      .text(
+        (_w + bar_width) / 2,
+        _h - bottom_margin - bar_height / 2,
+        `EXP: ${current_exp - 20} / ${max_exp}`,
+        {
+          fontSize: '14pt',
+          fontFamily: 'monospace', // TODO: Select a font for the game
+          // fontStyle: 'bold'
+          align: 'center',
+          color: 'rgba(255, 255, 255, .8)',
+          stroke: '#000000',
+          strokeThickness: 2
+        }
+      )
+      .setOrigin(0.5);
   }
 }

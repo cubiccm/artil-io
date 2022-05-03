@@ -5,7 +5,6 @@ export default abstract class BaseProjectile extends Phaser.GameObjects
   .Container {
   parent?: any;
   declare body: MatterJS.BodyType;
-
   constructor(
     scene: Phaser.Scene,
     x: number,

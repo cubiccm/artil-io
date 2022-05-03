@@ -121,10 +121,6 @@
   background-color: lightgrey;
 }
 
-.weapon-item:hover {
-  background-color: darkgray;
-}
-
 .skins {
   display: grid;
   grid-template-columns: auto auto auto;
@@ -148,10 +144,21 @@
   filter: opacity(80%);
   position: relative;
   background-color: lightgrey;
+  font-family: monospace;
+  text-align: center;
+  font-weight:bold;
+  color:red;
+  text-align: center;
 }
 
-.skin-item:hover {
-  background-color: darkgray;
+.cost {
+  position:relative;
+  top:-45%;
+  font-family: monospace;
+  text-align: center;
+  font-weight:bold;
+  font-size: 19px;
+  color:red;
 }
 
 </style>
@@ -195,19 +202,47 @@
     </div>
   
     <div class="weapons" id="weapon-options">
-      <input class="weapon-item" name="bullet" type="image" style="background-color: bisque;" src="assets/hud-elements/upgrade-type/bullet.png"></input>
-      <input class="weapon-item" name="bullet" type="image" src="assets/hud-elements/upgrade-type/bullet.png"></input>
-      <input class="weapon-item" name="bullet" type="image" src="assets/hud-elements/upgrade-type/bullet.png"></input>
-      <input class="weapon-item" name="bullet" type="image" src="assets/hud-elements/upgrade-type/bullet.png"></input>
+      <div class="weapon-container">
+        <input class="weapon-item" name="bullet" type="image" unlocked="true" style="background-color: bisque;" src="assets/hud-elements/weapons/bullet.png"></input>
+      </div>
+      <div class="weapon-container">
+        <input class="weapon-item" name="cannonball" type="image" unlocked="false" src="assets/hud-elements/weapons/cannonball-lock.png"></input>
+        <div class="cost">200</div>
+      </div>
+      <div class="weapon-container">
+        <input class="weapon-item" name="grenade" type="image" unlocked="false" src="assets/hud-elements/weapons/grenade-lock.png"></input>
+        <div class="cost">400</div>
+      </div>
+      <div class="weapon-container">
+        <input class="weapon-item" name="uzi" type="image" unlocked="false" src="assets/hud-elements/weapons/uzi-lock.png"></input>
+        <div class="cost">600</div>
+      </div>
     </div>
   
     <div class="skins" id="skin-options">
-      <input class="skin-item" name="greentank" type=image unlocked="true" style="background-color: bisque;" src="assets/hud-elements/tank-skins/greentank.png"></input>
-      <input class="skin-item" name="orangetank" type=image unlocked="false" src="assets/hud-elements/tank-lock/orangetank-lock.png"></input>
-      <input class="skin-item" name="yellowtank" type=image unlocked="false" src="assets/hud-elements/tank-lock/yellowtank-lock.png"></input>
-      <input class="skin-item" name="bluetank" type=image unlocked="false" src="assets/hud-elements/tank-lock/bluetank-lock.png"></input>
-      <input class="skin-item" name="purpletank" type=image unlocked="false" src="assets/hud-elements/tank-lock/purpletank-lock.png"></input>
-      <input class="skin-item" name="pinktank" type=image unlocked="false" src="assets/hud-elements/tank-lock/pinktank-lock.png"></input>
+      <div class="skin-container">
+        <input class="skin-item" name="greentank" type=image unlocked="true" style="background-color: bisque;" src="assets/hud-elements/tank-skins/greentank.png"></input>
+      </div>
+      <div class="skin-container">
+        <input class="skin-item" name="orangetank" type=image unlocked="false" src="assets/hud-elements/tank-lock/orangetank-lock.png"></input>
+        <div class="cost">100</div>
+      </div>
+      <div class="skin-container">
+        <input class="skin-item" name="yellowtank" type=image unlocked="false" src="assets/hud-elements/tank-lock/yellowtank-lock.png"></input>
+        <div class="cost">100</div>
+      </div>
+      <div class="skin-container">
+        <input class="skin-item" name="bluetank" type=image unlocked="false" src="assets/hud-elements/tank-lock/bluetank-lock.png"></input>
+        <div class="cost">100</div>
+      </div>
+      <div class="skin-container">
+        <input class="skin-item" name="purpletank" type=image unlocked="false" src="assets/hud-elements/tank-lock/purpletank-lock.png"></input>
+        <div class="cost">100</div>
+      </div>
+      <div class="skin-container">
+        <input class="skin-item" name="pinktank" type=image unlocked="false" src="assets/hud-elements/tank-lock/pinktank-lock.png"></input>
+        <div class="cost">100</div>
+      </div>
     </div>
       
   </div>
@@ -216,30 +251,30 @@
 
 
 <script>
-  function incBar(parent, color) {
-    let bar = document.getElementById(parent).childNodes[1];
-    let amount = parseInt(bar.getAttribute('data-amount')) + 20;
-    if (amount !== 120) {
-      bar.style.background = 'linear-gradient(to right, ' + color + ' ' + (amount) + '%, white ' + amount + '%)';
-      bar.setAttribute('data-amount', amount);
-    }
-  }
+  // function incBar(parent, color) {
+  //   let bar = document.getElementById(parent).childNodes[1];
+  //   let amount = parseInt(bar.getAttribute('data-amount')) + 20;
+  //   if (amount !== 120) {
+  //     bar.style.background = 'linear-gradient(to right, ' + color + ' ' + (amount) + '%, white ' + amount + '%)';
+  //     bar.setAttribute('data-amount', amount);
+  //   }
+  // }
 
-  function setVisibility(name) {
-    let element = document.getElementById(name);
-    if (element.style.visibility === 'visible') {
-      element.style.visibility = 'hidden';
-    }
-    else {
-      document.getElementById('tank-options').style.visibility = 'hidden';
-      document.getElementById('weapon-options').style.visibility = 'hidden';
-      document.getElementById('skin-options').style.visibility = 'hidden';
-      element.style.visibility = 'visible';
-    }
-  }
+  // function setVisibility(name) {
+  //   let element = document.getElementById(name);
+  //   if (element.style.visibility === 'visible') {
+  //     element.style.visibility = 'hidden';
+  //   }
+  //   else {
+  //     document.getElementById('tank-options').style.visibility = 'hidden';
+  //     document.getElementById('weapon-options').style.visibility = 'hidden';
+  //     document.getElementById('skin-options').style.visibility = 'hidden';
+  //     element.style.visibility = 'visible';
+  //   }
+  // }
 
-  function changeIcon(element) {
-    element.setAttribute('src', '../tank.png');
-    element.style.filter = 'opacity(100%)'
-  }
+  // function changeIcon(element) {
+  //   element.setAttribute('src', '../tank.png');
+  //   element.style.filter = 'opacity(100%)'
+  // }
 </script>

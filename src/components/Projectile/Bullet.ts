@@ -17,7 +17,7 @@ export default class Bullet extends BaseProjectile {
     parent?: any
   ) {
     super(scene, x, y, vx, vy, parent);
-    this.body.gravityScale = { x: 0, y: 4 };
+    this.body.gravityScale = { x: 1, y: 4 };
   }
 
   get raw(): RawBulletData {
@@ -32,7 +32,7 @@ export default class Bullet extends BaseProjectile {
 
   createObject() {
     const r = 5;
-    const texture = this.scene.add.circle(0, 0, r, 0xff0000);
+    const texture = this.scene.add.circle(0, 0, r, 0xffa500);
     this.add(texture);
     // avoid clipping
     const body = this.scene.matter.add.circle(0, 0, 2 * r);

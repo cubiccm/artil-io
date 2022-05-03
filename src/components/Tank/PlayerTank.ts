@@ -1,7 +1,9 @@
 import Global from '@/global';
 import Game from '@/scenes/Game';
 import BaseTank from '@/components/Tank/BaseTank';
-
+import Cannon from '../Projectile/Cannon';
+import Grenade from '../Projectile/Grenade';
+import Uzi from '../Projectile/Uzi';
 export default class PlayerTank extends BaseTank {
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y);
