@@ -18,12 +18,15 @@ export default class Platform {
   public gameObject: Phaser.GameObjects.GameObject | null;
   ID: string;
 
+  public colors: number[];
+  graphics!: Phaser.GameObjects.Graphics;
   constructor(
     scene: Phaser.Scene,
     ID: string,
     x: number,
     y: number,
     vertices: MatterJS.Vector[],
+    colors?: number[],
     fillColor?: number,
     fillAlpha?: number
   ) {
@@ -31,8 +34,11 @@ export default class Platform {
     this.scene = scene;
     this.anchor = { x: x, y: y };
     this.vertices = vertices;
-    this.fillColor = fillColor || 0x0000ff;
-    this.fillAlpha = fillAlpha || 0.5;
+    this.colors = colors || [0x0000ff];
+    this.fillColor =
+      fillColor ||
+      this.colors[Math.round(Math.random() * (this.colors.length - 1))];
+    this.fillAlpha = fillAlpha || 0.1;
     this.gameObject = this.createPlatform();
     this.ID = ID;
   }
@@ -72,13 +78,15 @@ export default class Platform {
     } catch (error) {
       return null;
     }
-    const texture = this.scene.add.polygon(
-      this.anchor.x,
-      this.anchor.y,
-      this.vertices,
-      this.fillColor,
-      this.fillAlpha
-    ) as unknown as PlatformTexture;
+    const texture = this.scene.add
+      .polygon(
+        this.anchor.x,
+        this.anchor.y,
+        this.vertices,
+        this.fillColor,
+        this.fillAlpha
+      )
+      .setStrokeStyle(7, this.fillColor, 1.0) as unknown as PlatformTexture;
     this.scene.matter.add.gameObject(texture, rigid);
     texture.controller = this;
 
@@ -129,6 +137,7 @@ export default class Platform {
           this.anchor.x,
           this.anchor.y,
           vertices,
+          this.colors,
           this.fillColor,
           this.fillAlpha
         );

@@ -20,7 +20,7 @@ export default class Login extends Phaser.Scene {
 
   preload() {
     this.load.html('loginform', 'assets/loginform.html');
-    this.load.image('background', 'assets/city.png');
+    this.load.image('loginbkg', 'assets/space2.png');
     this.load.image('logo', 'assets/logo.png');
   }
 
@@ -28,8 +28,11 @@ export default class Login extends Phaser.Scene {
     Global.console = new Console();
 
     Login.scene = this;
-    const bkg = this.add.image(_w / 2, _h / 2, 'background');
-    // bkg.scale = 1.8;
+    //const bkg = this.add.tileSprite(_w / 2, _h / 2, _w, _h, 'loginbkg');
+    const bkg = this.add.image(_w / 2, _h / 2, 'loginbkg');
+    bkg.scaleX = 0.39;
+    bkg.scaleY = 0.34;
+    //bkg.scale = 0.38;
     const logo = this.add.image(_w / 2, 200, 'logo');
     logo.scale = 0.7;
 
@@ -45,6 +48,9 @@ export default class Login extends Phaser.Scene {
           .then((msg) => {
             element.setVisible(false);
             Game.scene.remote_data = msg;
+            Login.scene.scene.start('HUDScene', {
+              playerName: username
+            });
             Login.scene.scene.start('Artilio');
           })
           .catch((msg) => {

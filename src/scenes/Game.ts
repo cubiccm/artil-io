@@ -1,4 +1,4 @@
-import 'phaser';
+import Phaser from 'phaser';
 import _ from 'lodash';
 import Global from '@/global';
 import PlayerTank from '@/components/Tank/PlayerTank';
@@ -13,6 +13,7 @@ let wrapCamT: Phaser.Cameras.Scene2D.Camera;
 export default class Game extends Phaser.Scene {
   public static scene: Game;
   public static player: PlayerTank;
+  public static playerName: string;
   public static keyboard: Phaser.Input.Keyboard.KeyboardPlugin;
   public static keys: any;
 
@@ -26,21 +27,17 @@ export default class Game extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('background', 'assets/city.png');
-    this.load.image('tank', 'assets/tank.png');
+    this.load.image('background', 'assets/space3.png');
     this.load.json('tank_shape', 'assets/tank_shape.json');
-    this.load.image('tank_1', 'assets/tank-frames/tank_1.png');
-    this.load.image('tank_2', 'assets/tank-frames/tank_2.png');
-    this.load.image('tank_3', 'assets/tank-frames/tank_3.png');
-    this.load.image('tank_4', 'assets/tank-frames/tank_4.png');
-    this.load.image('cannon', 'assets/cannon-end.png');
-    this.load.image('rock-tile', 'assets/rock-tile.jpeg');
-    const bkg = this.add.image(
+    this.loadTankSprites();
+
+    const load_img = this.add.image(
       Global.SCREEN_WIDTH / 2,
       Global.SCREEN_HEIGHT / 2,
-      'background'
+      'loginbkg'
     );
-
+    load_img.scaleX = 0.39;
+    load_img.scaleY = 0.34;
     this.progressBar();
   }
 
@@ -62,12 +59,13 @@ export default class Game extends Phaser.Scene {
     this.cameras.main.scrollX = -Global.SCREEN_WIDTH / 2;
     this.cameras.main.scrollY = -Global.SCREEN_HEIGHT / 2;
 
-    const bkg = this.add.image(
-      Global.SCREEN_WIDTH / 2,
-      Global.SCREEN_HEIGHT / 2,
+    const bkg = this.add.tileSprite(
+      0,
+      0,
+      Global.WORLD_WIDTH * 2,
+      Global.WORLD_HEIGHT * 2,
       'background'
     );
-    bkg.scale = 1.8;
     this.matter.world.setGravity(0, 1, 0.001);
 
     // Generate player
@@ -116,9 +114,7 @@ export default class Game extends Phaser.Scene {
           data[0],
           data[1][0],
           data[1][1],
-          data[2],
-          0x192841,
-          0.85
+          data[2]
         );
         this.platforms[data[0]] = platform;
       }
@@ -168,6 +164,17 @@ export default class Game extends Phaser.Scene {
       new Bullet(this, bullet.x, bullet.y, bullet.vx, bullet.vy);
     });
   }
+    
+  loadTankSprites() {
+    PlayerTank.skins.forEach((s) => {
+      this.load.atlas(
+        s + 'tank',
+        'assets/sprites/' + s + 'tank-sprites.png',
+        'assets/frames/' + s + 'tank.json'
+      );
+      this.load.image(s + 'tank-cannon', 'assets/cannons/' + s + '-cannon.png');
+    });
+  }
 
   progressBar() {
     const progressBar = this.add.graphics();
@@ -204,6 +211,7 @@ export default class Game extends Phaser.Scene {
       progressBar.destroy();
       progressBox.destroy();
       loadingText.destroy();
+      Global.event_bus.emit('loading_finished');
     });
   }
 }

@@ -10,7 +10,7 @@ import UUID from '@/types/UUID';
 function generateTerrain(scene: Phaser.Scene) {
   const [min_x, max_x] = [-Global.WORLD_WIDTH / 2, Global.WORLD_WIDTH / 2];
   const [min_y, max_y] = [-Global.WORLD_HEIGHT / 2, Global.WORLD_HEIGHT / 2];
-
+  const colors = [0x39ff14, 0xffa500, 0xfff857, 0x00ffff, 0xff80cd];
   const w = 1200;
   const h = 200;
   const s = 50;
@@ -77,9 +77,7 @@ function generateTerrain(scene: Phaser.Scene) {
       vertices_l
     ]);
 
-    platforms.push(
-      new Platform(scene, UUID(8), x, y, vertices, 0x192841, 0.85)
-    );
+    platforms.push(new Platform(scene, UUID(8), x, y, vertices));
   });
   return platforms;
 }

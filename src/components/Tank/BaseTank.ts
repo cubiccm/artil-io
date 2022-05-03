@@ -11,6 +11,7 @@ import Player from '@/components/Player';
 export default class BaseTank extends Phaser.Physics.Matter.Sprite {
   declare body: MatterJS.BodyType;
   player?: Player;
+  public static skins = ['green', 'orange', 'yellow', 'blue', 'purple', 'pink'];
 
   // Avoid using this method: please use get() or set() to trigger events
   public get tank_data(): types.TankData {
@@ -19,7 +20,7 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     // (x, y) is used to set the initial position after all parts constructed at (0, 0)
-    super(scene.matter.world, 0, 0, 'tank_1', undefined, {
+    super(scene.matter.world, 0, 0, 'greentank', undefined, {
       label: 'tank',
       shape: scene.cache.json.get('tank_shape').tank
     } as Phaser.Types.Physics.Matter.MatterBodyConfig);
@@ -48,14 +49,20 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
         air: 1.5,
         jump: 6
       },
-      HP: 0,
+      max_health: 200,
+      HP: 100,
       XP: 0,
+      regen_factor: 1,
+      reload: 300,
       id: 'player',
       team: 'blue',
+      bullet_speed: 1,
       bullets: [],
       components: {
+        cannon_texture: undefined,
         cannon_body: undefined
-      }
+      },
+      skin: 'greentank'
     };
 
     this.setData(data);
@@ -391,40 +398,46 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
   createCannonEnd() {
     const body = this.data.values.components.cannon_body;
     const origin = body.position;
-    const texture = this.scene.add.image(origin.x, origin.y, 'cannon');
+    const texture = this.scene.add.image(
+      origin.x,
+      origin.y,
+      this.tank_data.skin + '-cannon'
+    );
     texture.scale = 0.4;
     texture.scaleY = 0.6;
-    this.scene.matter.add.gameObject(texture, body);
+    this.data.values.components.cannon_texture =
+      this.scene.matter.add.gameObject(texture, body);
   }
 
   createWheelAnimations() {
     if (Global.disable_graphics == true) return;
     this.anims.create({
       key: 'moving_right',
-      frames: [
-        { key: 'tank_1' },
-        { key: 'tank_2' },
-        { key: 'tank_3' },
-        { key: 'tank_4' }
-      ],
+      frames: this.anims.generateFrameNames(this.tank_data.skin, {
+        prefix: 'tank',
+        start: 1,
+        end: 4,
+        zeroPad: 2
+      }),
       frameRate: 15,
       repeat: -1
     });
+
     this.anims.create({
       key: 'moving_left',
-      frames: [
-        { key: 'tank_4' },
-        { key: 'tank_3' },
-        { key: 'tank_2' },
-        { key: 'tank_1' }
-      ],
+      frames: this.anims.generateFrameNames(this.tank_data.skin, {
+        prefix: 'tank',
+        start: 4,
+        end: 1,
+        zeroPad: 2
+      }),
       frameRate: 15,
       repeat: -1
     });
 
     this.anims.create({
       key: 'idle',
-      frames: [{ key: 'tank_1', frame: undefined }],
+      frames: [{ key: this.tank_data.skin, frame: 'tank01' }],
       frameRate: 20,
       repeat: 1
     });
