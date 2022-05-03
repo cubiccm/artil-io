@@ -63,6 +63,6 @@ io.on('connection', (socket: Socket) => {
   console.log('A user connected');
 });
 
-server.listen(8964, () => {
-  console.log('Listening on *:8964');
+server.listen(3000, () => {
+  console.log('Listening on *:3000');
 });

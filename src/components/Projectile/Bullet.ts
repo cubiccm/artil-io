@@ -53,7 +53,7 @@ export default class Bullet extends BaseProjectile {
 
     // Circular Destruction
     const circular_destruction = new CircularDestruction(this.scene, {
-      r: 50
+      r: 70
     });
 
     // Rectangular Destruction

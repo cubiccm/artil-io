@@ -45,9 +45,9 @@ export default class Game extends Phaser.Scene {
     Game.keys = this.input.keyboard.addKeys('LEFT,RIGHT,UP,DOWN,W,A,S,D,SPACE');
 
     this.matter.world.setBounds(
-      -Global.WORLD_WIDTH,
+      -Global.WORLD_WIDTH / 2,
       -Global.WORLD_HEIGHT,
-      Global.WORLD_WIDTH * 2,
+      Global.WORLD_WIDTH,
       Global.WORLD_HEIGHT * 2,
       undefined,
       true,
@@ -58,6 +58,12 @@ export default class Game extends Phaser.Scene {
 
     this.cameras.main.scrollX = -Global.SCREEN_WIDTH / 2;
     this.cameras.main.scrollY = -Global.SCREEN_HEIGHT / 2;
+    this.cameras.main.setBounds(
+      -Global.WORLD_WIDTH / 2,
+      -Global.WORLD_HEIGHT,
+      Global.WORLD_WIDTH,
+      Global.WORLD_HEIGHT * 2
+    );
 
     const bkg = this.add.tileSprite(
       0,
@@ -77,13 +83,14 @@ export default class Game extends Phaser.Scene {
     Game.player.setIgnoreGravity(true);
 
     // draw debugs
-    this.matter.world.createDebugGraphic();
-    this.matter.world.drawDebug = true;
+    // this.matter.world.createDebugGraphic();
+    this.matter.world.drawDebug = false;
     this.matter.world.debugGraphic.visible = this.matter.world.drawDebug;
+
     this.cameras.main.startFollow(Game.player);
 
     addWrapCamera();
-    addWorldBorder();
+    // addWorldBorder();
 
     // this.matter.set60Hz();
     this.matter.set30Hz();
@@ -163,10 +170,13 @@ export default class Game extends Phaser.Scene {
 
     // Bullets
     remote_data?.bullets?.forEach((bullet: RawBulletData) => {
-      new Bullet(this, bullet.x, bullet.y, bullet.vx, bullet.vy);
+      if (bullet.player && bullet.player in this.players) {
+        const parent_tank = this.players[bullet.player];
+        new Bullet(this, bullet.x, bullet.y, bullet.vx, bullet.vy, parent_tank);
+      }
     });
   }
-    
+
   loadTankSprites() {
     PlayerTank.skins.forEach((s) => {
       this.load.atlas(
@@ -237,7 +247,7 @@ function addWrapCamera() {
   );
   wrapCamB.startFollow(Game.player, undefined, 1, 0);
   wrapCamB.scrollY = -Global.WORLD_HEIGHT / 2;
-  wrapCamB.setAlpha(0.6);
+  wrapCamB.setAlpha(1);
 
   wrapCamT = Game.scene.cameras.add(
     0,
@@ -255,7 +265,7 @@ function addWrapCamera() {
   );
   wrapCamT.startFollow(Game.player, undefined, 1, 0);
   wrapCamT.scrollY = Global.WORLD_HEIGHT / 2 - Global.SCREEN_HEIGHT;
-  wrapCamT.setAlpha(0.6);
+  wrapCamT.setAlpha(1);
 
   Game.scene.events.on(Phaser.Scenes.Events.POST_UPDATE, function (event: any) {
     wrapCamB.setViewport(

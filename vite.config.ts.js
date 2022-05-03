@@ -25,7 +25,7 @@ var vite_config_default = defineConfig({
     },
     proxy: {
       "/socket.io": {
-        target: "ws://localhost:8964",
+        target: "ws://localhost:3000",
         ws: true,
         changeOrigin: true
       }

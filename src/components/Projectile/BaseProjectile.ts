@@ -29,12 +29,20 @@ export default abstract class BaseProjectile extends Phaser.GameObjects
     // Collision event
     body.onCollideCallback = (pair: MatterJS.ICollisionPair) => {
       if (!this.active) return;
-      const position = pair.collision.supports[0];
-      const velocity = this.body.velocity;
-      const terrain = (
-        pair.bodyA == this.body ? pair.bodyB : pair.bodyA
-      ) as MatterJS.BodyType;
-      this.createDestruction(position, velocity, terrain.gameObject.controller);
+      if (this.scene.scene.key == 'Artilio-server') {
+        const position = pair.collision.supports[0];
+        const velocity = this.body.velocity;
+        const terrain = (
+          pair.bodyA == this.body ? pair.bodyB : pair.bodyA
+        ) as MatterJS.BodyType;
+        if (terrain.collisionFilter.category == Global.CATEGORY_TERRAIN) {
+          this.createDestruction(
+            position,
+            velocity,
+            terrain.gameObject.controller
+          );
+        }
+      }
       this.selfDestroy();
     };
     this.scene.add.existing(this);

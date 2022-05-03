@@ -38,9 +38,9 @@ export default class Core extends Phaser.Scene {
   create() {
     this.matter.set30Hz();
     this.matter.world.setBounds(
-      -Global.WORLD_WIDTH,
+      -Global.WORLD_WIDTH / 2,
       -Global.WORLD_HEIGHT,
-      Global.WORLD_WIDTH * 2,
+      Global.WORLD_WIDTH,
       Global.WORLD_HEIGHT * 2,
       undefined,
       true,
