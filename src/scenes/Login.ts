@@ -1,10 +1,9 @@
 import Phaser from 'phaser';
 import Global from '@/global';
-import $ from 'jquery';
 import NetworkController from '@/NetworkController';
 import Console from '@/components/Console';
 import Game from '@/scenes/Game';
-import HUD from './HUD';
+import HUD from '@/scenes/HUD';
 
 export default class Login extends Phaser.Scene {
   graphics!: Phaser.GameObjects.Graphics;
@@ -41,22 +40,26 @@ export default class Login extends Phaser.Scene {
       .dom(Global.SCREEN_WIDTH / 2, 0)
       .createFromCache('loginform');
 
-    const submit_login = function () {
-      let username = $('#username').val() as string;
-      username = username?.trim();
+    const usernameForm = document.querySelector(
+      '#username'
+    )! as HTMLInputElement;
+    const submitButton = document.querySelector('#loginButton')!;
+
+    const submit_login = () => {
+      const username = usernameForm.value.trim();
       if (username != '') {
         if (!Global.socket) Global.socket = new NetworkController();
         Global.socket
           .login(username)
           .then((msg) => {
             // element.setVisible(false);
-            Login.scene.scene.add(Global.SCENE_HUD, HUD);
-            Login.scene.scene.add(Global.SCENE_GAME, Game);
-            Login.scene.scene.start(Global.SCENE_HUD, {
+            this.scene.add(Global.SCENE_HUD, HUD);
+            this.scene.add(Global.SCENE_GAME, Game);
+            this.scene.start(Global.SCENE_HUD, {
               playerName: username
             });
-            Login.scene.scene.start(Global.SCENE_GAME);
-            Login.scene.scene.pause(Global.SCENE_LOGIN);
+            this.scene.start(Global.SCENE_GAME);
+            this.scene.pause(Global.SCENE_LOGIN);
           })
           .catch((err) => {
             Global.console.error('Failed to login: ' + err);
@@ -65,12 +68,13 @@ export default class Login extends Phaser.Scene {
       }
     };
 
-    $('#loginButton').on('click', submit_login);
-    $('#username').on('keydown', function (event: any) {
-      if (event.code != 'Enter') return;
-      submit_login();
+    submitButton.addEventListener('click', submit_login);
+    usernameForm.addEventListener('keypress', (e: any) => {
+      if (e.key === 'Enter') {
+        submit_login();
+      }
     });
-    $('#username')[0].focus();
+    usernameForm.focus();
 
     this.tweens.add({
       targets: element,
