@@ -3,8 +3,6 @@ import Global from '@/global';
 import Game from '@/scenes/Game';
 import DebugMessage from '@/components/DebugMessage';
 
-const _w = Global.SCREEN_WIDTH,
-  _h = Global.SCREEN_HEIGHT;
 const bar_width = 300,
   bar_height = 30;
 const bottom_margin = 30;
@@ -75,7 +73,7 @@ export default class HUD extends Phaser.Scene {
     this.redrawAll();
 
     const upgradeBox = this.add
-      .dom(25, _h - _h / 2)
+      .dom(25, Global.SCREEN_HEIGHT - Global.SCREEN_HEIGHT / 2)
       .createFromCache('upgrade_box');
 
     HUD.upgradeBox = upgradeBox;
@@ -333,15 +331,20 @@ export default class HUD extends Phaser.Scene {
     this.drawExpBar(Game.player?.get('XP') || 0, 1000);
     this.username_text?.destroy();
     this.username_text = this.add
-      .text(_w / 2, _h - bottom_margin - bar_height - 25, HUD.playerName, {
-        fontSize: '18pt',
-        fontFamily: 'monospace',
-        fontStyle: 'bold',
-        color: 'rgba(255, 255, 255, .8)',
-        stroke: '#000000',
-        strokeThickness: 2,
-        align: 'center'
-      })
+      .text(
+        Global.SCREEN_WIDTH / 2,
+        Global.SCREEN_HEIGHT - bottom_margin - bar_height - 25,
+        HUD.playerName,
+        {
+          fontSize: '18pt',
+          fontFamily: 'monospace',
+          fontStyle: 'bold',
+          color: 'rgba(255, 255, 255, .8)',
+          stroke: '#000000',
+          strokeThickness: 2,
+          align: 'center'
+        }
+      )
       .setOrigin(0.5);
   }
 
