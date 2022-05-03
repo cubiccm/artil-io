@@ -1,5 +1,3 @@
-const fire_cooldown = 250;
-
 import * as types from '@/types';
 import Global from '@/global';
 import TankSensor from '@/components/Tank/TankSensor';
@@ -303,7 +301,7 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
     else if (this.moving_direction > 0) this.moveRight();
     if (this.is_firing == true) {
       const now = Date.now();
-      if (this.get('lastFiredAt') + fire_cooldown < now) {
+      if (this.get('lastFiredAt') + this.get('reload') < now) {
         this.set('lastFiredAt', now);
         this.fire();
       }
