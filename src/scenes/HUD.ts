@@ -15,6 +15,9 @@ export default class HUD extends Phaser.Scene {
   exp_text?: Phaser.GameObjects.Text;
   public static playerName: string;
   public static upgradeBox: Phaser.GameObjects.DOMElement;
+  public static tank_box: HTMLDivElement;
+  public static weapon_box: HTMLDivElement;
+  public static skin_box: HTMLDivElement;
   constructor() {
     super({ key: 'HUDScene', active: true });
   }
@@ -48,9 +51,20 @@ export default class HUD extends Phaser.Scene {
         .createFromCache('upgrade_box');
 
       HUD.upgradeBox = upgradeBox;
+      HUD.tank_box = HUD.upgradeBox.getChildByID(
+        'tank-options'
+      ) as HTMLDivElement;
+      HUD.weapon_box = HUD.upgradeBox.getChildByID(
+        'weapon-options'
+      ) as HTMLDivElement;
+      HUD.skin_box = HUD.upgradeBox.getChildByID(
+        'skin-options'
+      ) as HTMLDivElement;
+      HUD.tank_box.style.visibility = 'hidden';
+      HUD.weapon_box.style.visibility = 'hidden';
+      HUD.skin_box.style.visibility = 'hidden';
       upgradeBox.addListener('click');
       upgradeBox.on('click', function (event: any) {
-        Global.event_bus.emit('HUD_clicked');
         switch (event.target.className) {
           case 'select-buttons': {
             const element = event.target as HTMLDivElement;
@@ -122,6 +136,23 @@ export default class HUD extends Phaser.Scene {
           item.style.setProperty('color', 'red');
         } else {
           item.style.setProperty('color', 'gray');
+        }
+      }
+      const pointer = Game.scene.input.activePointer;
+      if (pointer.leftButtonDown()) {
+        if (!HUD.inHUDBounds(pointer.x, pointer.y)) {
+          (
+            HUD.upgradeBox.getChildByID('tank-upgrades') as HTMLInputElement
+          ).style.setProperty('background-color', 'gray');
+          (
+            HUD.upgradeBox.getChildByID('weapon-upgrades') as HTMLInputElement
+          ).style.setProperty('background-color', 'gray');
+          (
+            HUD.upgradeBox.getChildByID('skin-upgrades') as HTMLInputElement
+          ).style.setProperty('background-color', 'gray');
+          HUD.tank_box.style.visibility = 'hidden';
+          HUD.weapon_box.style.visibility = 'hidden';
+          HUD.skin_box.style.visibility = 'hidden';
         }
       }
     }
@@ -366,5 +397,63 @@ export default class HUD extends Phaser.Scene {
         }
       )
       .setOrigin(0.5);
+  }
+  public static inHUDBounds(x: number, y: number) {
+    const main_bounds = {
+      x1: HUD.upgradeBox.x - HUD.upgradeBox.width / 2,
+      x2: HUD.upgradeBox.x + HUD.upgradeBox.width * 2,
+      y1: HUD.upgradeBox.y - HUD.upgradeBox.height / 2,
+      y2: HUD.upgradeBox.y + HUD.upgradeBox.height * 2
+    };
+    const tank_bounds = {
+      x1: main_bounds.x2,
+      x2: main_bounds.x2 + 285,
+      y1: main_bounds.y1,
+      y2: main_bounds.y1 + 398
+    };
+    const weapon_bounds = {
+      x1: main_bounds.x2,
+      x2: main_bounds.x2 + 175,
+      y1: main_bounds.y1 + 50,
+      y2: main_bounds.y1 + 50 + 250
+    };
+    const skin_bounds = {
+      x1: main_bounds.x2,
+      x2: main_bounds.x2 + 350,
+      y1: main_bounds.y1 + 60,
+      y2: main_bounds.y1 + 60 + 250
+    };
+    if (
+      x > main_bounds.x1 &&
+      x < main_bounds.x2 &&
+      y > main_bounds.y1 &&
+      y < main_bounds.y2
+    )
+      return true;
+    else if (
+      HUD.tank_box.style.visibility == 'visible' &&
+      x > tank_bounds.x1 &&
+      x < tank_bounds.x2 &&
+      y > tank_bounds.y1 &&
+      y < tank_bounds.y2
+    )
+      return true;
+    else if (
+      HUD.weapon_box.style.visibility == 'visible' &&
+      x > weapon_bounds.x1 &&
+      x < weapon_bounds.x2 &&
+      y > weapon_bounds.y1 &&
+      y < weapon_bounds.y2
+    )
+      return true;
+    else if (
+      HUD.skin_box.style.visibility == 'visible' &&
+      x > skin_bounds.x1 &&
+      x < skin_bounds.x2 &&
+      y > skin_bounds.y1 &&
+      y < skin_bounds.y2
+    )
+      return true;
+    else return false;
   }
 }

@@ -5,6 +5,7 @@ import BaseTank from '@/components/Tank/BaseTank';
 import Cannon from '../Projectile/Cannon';
 import Grenade from '../Projectile/Grenade';
 import Uzi from '../Projectile/Uzi';
+import HUD from '@/scenes/HUD';
 export default class PlayerTank extends BaseTank {
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y);
@@ -158,10 +159,12 @@ export default class PlayerTank extends BaseTank {
   }
 
   fire(time: number, delta: number, cursor: MatterJS.Vector) {
-    let canFire = time - this.data.values.lastFiredAt > this.data.values.reload;
-    Global.event_bus.once('HUD_clicked', () => {
-      canFire = false;
-    });
+    const canFire =
+      time - this.data.values.lastFiredAt > this.data.values.reload &&
+      !HUD.inHUDBounds(
+        this.scene.input.mousePointer.x,
+        this.scene.input.mousePointer.y
+      );
     if (!canFire) return;
     const origin = this.data.values.components.cannon_body.position;
     const angle = this.data.values.components.cannon_body.angle;
