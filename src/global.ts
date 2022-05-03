@@ -12,6 +12,11 @@ export default class Global {
   public static readonly CATEGORY_DESTRUCTION = 1 << 5;
   public static readonly CATEGORY_EXPLOSION = 1 << 6;
 
+  public static readonly SCENE_CORE = 'CoreScene';
+  public static readonly SCENE_GAME = 'GameScene';
+  public static readonly SCENE_HUD = 'HUDScene';
+  public static readonly SCENE_LOGIN = 'LoginScene';
+
   public static readonly WORLD_WIDTH = 2048 * 4;
   public static readonly WORLD_HEIGHT = 2048 * 2;
 

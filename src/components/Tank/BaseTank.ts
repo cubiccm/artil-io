@@ -434,7 +434,7 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
     }
 
     this.get('bullets').push(weapon);
-    if (this.scene.scene.key == 'Artilio-server') {
+    if (this.scene.scene.key == Global.SCENE_CORE) {
       (this.scene as Core)?.onNewBullet(weapon);
     }
   }

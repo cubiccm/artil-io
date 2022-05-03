@@ -35,7 +35,7 @@ export default abstract class BaseProjectile extends Phaser.GameObjects
     // Collision event
     body.onCollideCallback = (pair: MatterJS.ICollisionPair) => {
       if (!this.active) return;
-      if (this.scene.scene.key == 'Artilio-server') {
+      if (this.scene.scene.key == Global.SCENE_CORE) {
         const position = pair.collision.supports[0];
         const velocity = this.body.velocity;
         const other = (
@@ -48,7 +48,7 @@ export default abstract class BaseProjectile extends Phaser.GameObjects
             other.gameObject.controller
           );
         } else if (other.collisionFilter.category == Global.CATEGORY_TANK) {
-          if (this.scene.scene.key == 'Artilio-server') {
+          if (this.scene.scene.key == Global.SCENE_CORE) {
             const source_tank = this.parent;
             const target_tank = other.gameObject as BaseTank;
             if (source_tank != target_tank) {

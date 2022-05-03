@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+const Phaser = (window as any).Phaser as typeof import('phaser');
 import config from '@/config';
 import Global from '@/global';
 import GameScene from '@/scenes/Game';

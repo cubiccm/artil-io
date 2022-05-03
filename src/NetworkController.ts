@@ -33,8 +33,6 @@ export default class NetworkController {
         this.socket.removeListener('disconnect');
         Global.event_bus.removeAllListeners();
         Game.scene.sys.game.destroy(true);
-        (Game.scene as any) = undefined;
-        (Game.player as any) = undefined;
         createNewGame();
       });
       this.socket.once('disconnect', (m) => {

@@ -26,7 +26,7 @@ export default class Core extends Phaser.Scene {
   initiated = false;
 
   constructor() {
-    super({ key: 'Artilio-server', active: true });
+    super({ key: Global.SCENE_CORE, active: true });
     Core.scene = this;
     this.players = [];
   }
