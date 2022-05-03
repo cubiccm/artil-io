@@ -114,6 +114,7 @@ export default class Game extends Phaser.Scene {
         const platform = new Platform(
           this,
           data[0],
+          undefined,
           data[1][0],
           data[1][1],
           data[2],

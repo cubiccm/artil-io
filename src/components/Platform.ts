@@ -4,6 +4,7 @@ import Global from '@/global';
 import BaseDestruction from '@/components/Destruction/BaseDestruction';
 import Core from '@/scenes/Core';
 import UUID from '@/types/UUID';
+import Chunk from './Chunk';
 
 export class PlatformTexture extends Phaser.Physics.Matter.Sprite {
   public controller?: Platform;
@@ -11,16 +12,19 @@ export class PlatformTexture extends Phaser.Physics.Matter.Sprite {
 
 export default class Platform {
   public scene: Phaser.Scene;
+  public chunk: Chunk;
   public anchor: MatterJS.Vector;
   public vertices: MatterJS.Vector[];
   public fillColor: number;
   public fillAlpha: number;
-  public gameObject: Phaser.GameObjects.GameObject | null;
+  public gameObject?: Phaser.GameObjects.GameObject;
+  public body?: MatterJS.BodyType;
   ID: string;
 
   constructor(
     scene: Phaser.Scene,
     ID: string,
+    chunk: Chunk,
     x: number,
     y: number,
     vertices: MatterJS.Vector[],
@@ -29,12 +33,13 @@ export default class Platform {
   ) {
     // const poly = scene.add.polygon(x, y, vertices, 0x0000ff, 0.5); // weird bug sometimes the shape skips some vertices?
     this.scene = scene;
+    this.ID = ID;
+    this.chunk = chunk;
     this.anchor = { x: x, y: y };
     this.vertices = vertices;
     this.fillColor = fillColor || 0x0000ff;
     this.fillAlpha = fillAlpha || 0.5;
-    this.gameObject = this.createPlatform();
-    this.ID = ID;
+    this.createPlatform();
   }
 
   get raw(): any {
@@ -47,7 +52,7 @@ export default class Platform {
     }
   }
 
-  createPlatform(): Phaser.GameObjects.GameObject | null {
+  createPlatform() {
     let rigid: MatterJS.BodyType;
     this.vertices = this.vertices.map((v) => ({
       x: Math.round(v.x * 100) / 100,
@@ -110,10 +115,12 @@ export default class Platform {
       };
     });
 
+    this.gameObject = rigid.gameObject;
+    this.body = rigid;
+
     if (rigid.area < 1000) {
       rigid.gameObject.destroy();
     }
-    return texture;
   }
 
   onCollide(new_vertices: PolygonClipping.MultiPolygon) {
@@ -126,6 +133,7 @@ export default class Platform {
         const platform = new Platform(
           this.scene,
           UUID(8),
+          this.chunk,
           this.anchor.x,
           this.anchor.y,
           vertices,
