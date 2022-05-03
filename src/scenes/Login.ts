@@ -26,13 +26,19 @@ export default class Login extends Phaser.Scene {
     if (!Global.console) Global.console = new Console();
 
     Login.scene = this;
-    const bkg = this.add.image(_w / 2, _h / 2, 'loginbkg');
+    const bkg = this.add.image(
+      Global.SCREEN_WIDTH / 2,
+      Global.SCREEN_HEIGHT / 2,
+      'loginbkg'
+    );
     bkg.scaleX = 0.39;
     bkg.scaleY = 0.34;
-    const logo = this.add.image(_w / 2, 200, 'logo');
+    const logo = this.add.image(Global.SCREEN_WIDTH / 2, 200, 'logo');
     logo.scale = 0.7;
 
-    const element = this.add.dom(_w / 2, 0).createFromCache('loginform');
+    const element = this.add
+      .dom(Global.SCREEN_WIDTH / 2, 0)
+      .createFromCache('loginform');
 
     const submit_login = function () {
       let username = $('#username').val() as string;
