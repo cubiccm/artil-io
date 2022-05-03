@@ -12,7 +12,7 @@ export class PlatformTexture extends Phaser.Physics.Matter.Sprite {
 
 export default class Platform {
   public scene: Phaser.Scene;
-  public chunk: Chunk;
+  public chunk?: Chunk;
   public anchor: MatterJS.Vector;
   public vertices: MatterJS.Vector[];
   public fillColor: number;
@@ -24,7 +24,7 @@ export default class Platform {
   constructor(
     scene: Phaser.Scene,
     ID: string,
-    chunk: Chunk,
+    chunk: Chunk | undefined,
     x: number,
     y: number,
     vertices: MatterJS.Vector[],
@@ -120,14 +120,19 @@ export default class Platform {
 
     if (rigid.area < 1000) {
       rigid.gameObject.destroy();
+    } else if ('onNewPlatform' in this.scene) {
+      (this.scene as Core).onNewPlatform(this);
     }
   }
 
   onCollide(new_vertices: PolygonClipping.MultiPolygon) {
     if ('onNewPlatform' in this.scene) {
       if (!this.gameObject?.active) return;
-      this.gameObject?.destroy();
       (this.scene as Core).onDestroyPlatform(this);
+      this.gameObject?.destroy();
+      // this.gameObject.on('destroy', () => {
+      //   (this.scene as Core).onDestroyPlatform(this);
+      // });
       new_vertices.map((v) => {
         const vertices = v[0].map((p) => ({ x: p[0], y: p[1] }));
         const platform = new Platform(
@@ -140,8 +145,8 @@ export default class Platform {
           this.fillColor,
           this.fillAlpha
         );
-        (this.scene as Core).onNewPlatform(platform);
       });
+      this.chunk?.updateChunk();
     }
   }
 }

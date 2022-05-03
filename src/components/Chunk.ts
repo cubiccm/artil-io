@@ -1,4 +1,5 @@
 import Global from '@/global';
+import Core from '@/scenes/Core';
 import { combineNoise } from '@/scripts/perlin';
 import UUID from '@/types/UUID';
 import _ from 'lodash';
@@ -35,11 +36,11 @@ export default class Chunk {
     this.area = 0;
     this.createChunk(scene, x, y, w, h, s);
 
-    scene.time.addEvent({
-      delay: 10000,
-      loop: true,
-      callback: () => this.regenerateChunk()
-    });
+    // scene.time.addEvent({
+    //   delay: 10000,
+    //   loop: true,
+    //   callback: () => this.regenerateChunk()
+    // });
   }
 
   public createChunk(
@@ -111,16 +112,18 @@ export default class Chunk {
 
   public addPlatform(platform: Platform) {
     this.platforms.push(platform);
+    console.log('Increased ' + platform.body?.area);
     this.area += platform.body!.area;
   }
 
   public removePlatform(platform: Platform) {
     this.platforms.splice(this.platforms.indexOf(platform), 1);
+    console.log('Removed ' + platform.body?.area);
     this.area -= platform.body!.area;
   }
 
   public updateChunk() {
-    // console.log(this.area);
+    console.log(this.area);
     if (this.area < 200000) {
       // Set minimum area to regenerate
       this.regenerateChunk();
@@ -128,8 +131,11 @@ export default class Chunk {
   }
 
   private regenerateChunk() {
+    console.log(this.platforms);
     this.platforms.forEach((platform) => {
-      platform.gameObject!.destroy();
+      console.log('DESTROY!');
+      (this.scene as Core).onDestroyPlatform(platform);
+      platform.gameObject?.destroy();
     });
     this.platforms = [];
     this.area = 0;

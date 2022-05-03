@@ -49,7 +49,7 @@ export default class Core extends Phaser.Scene {
       false
     );
     this.matter.world.setGravity(0, 1, 0.001);
-    this.gamedata.map.platforms = generateTerrain(this);
+    generateTerrain(this);
     this.initiated = true;
     console.log('Game initiated');
   }
@@ -138,19 +138,18 @@ export default class Core extends Phaser.Scene {
   }
 
   onDestroyPlatform(platform: Platform) {
-    platform.chunk.removePlatform(platform);
+    platform.chunk?.removePlatform(platform);
     Object.values(this.players).forEach((_player: any) => {
       _player.terrains_not_synced.push(platform);
     });
   }
 
   onNewPlatform(platform: Platform) {
-    platform.chunk.addPlatform(platform);
+    platform.chunk?.addPlatform(platform);
     this.gamedata.map.platforms.push(platform);
     Object.values(this.players).forEach((_player: any) => {
       _player.terrains_not_synced.push(platform);
     });
-    platform.chunk.updateChunk();
   }
 
   getPlayer(ID: string, secret?: string) {

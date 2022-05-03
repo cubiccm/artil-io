@@ -8,8 +8,7 @@
     "build": "vite build",
     "serve": "vite preview",
     "lint": "eslint . --ext .ts",
-    "dev_server": "nodemon -w ./server -w src/scenes/Core.ts -e ts --exec \"yarn run_server\" ",
-    "run_server": "tsc -p ./server/tsconfig.json && node ./server/build/server/server.js",
+    "ds": "nodemon --watch './server/*.ts' --watch './src/scenes/Core.ts' --exec 'node -r tsconfig-paths/register --experimental-specifier-resolution=node --loader ts-node/esm' server/server.ts",
     "dev:server": "nodemon --watch './**/*.ts' --exec 'node -r tsconfig-paths/register --experimental-specifier-resolution=node --loader ts-node/esm' server/server.ts"
   },
   "repository": "git+https://github.com/geocine/phaser3-rollup-typescript.git",
