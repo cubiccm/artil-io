@@ -222,7 +222,7 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
     /* Movement & position */
     // Estimates location displacement based on velocity and network delay
     const exp_delay = 400;
-    const rotate_radius = 1000;
+    const rotate_radius = 800;
     const remote_velocity = new Phaser.Math.Vector2();
     remote_velocity.set(remote.vx || 0, remote.vy || 0);
     const local = this.body.position;
@@ -298,6 +298,7 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
 
   moving_direction = 0;
   update(time: number, delta: number) {
+    if (this.active == false) return;
     if (this.moving_direction < 0) this.moveLeft();
     else if (this.moving_direction > 0) this.moveRight();
     if (this.is_firing == true) {

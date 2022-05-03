@@ -1,7 +1,8 @@
 import { io, Socket } from 'socket.io-client';
-import { RawTankData, serializeRawTankData } from '@/types/RawData';
+import { serializeRawTankData } from '@/types/RawData';
 import Global from './global';
-import Login from './scenes/Login';
+import Game from './scenes/Game';
+import { createNewGame } from '.';
 const client_report_rate = 50; // ms
 
 export default class NetworkController {
@@ -27,12 +28,14 @@ export default class NetworkController {
       });
       this.socket.once('death', (killer) => {
         Global.console.recycling(
-          `Congratulations! You're killed by ${killer}!`
+          `Congratulations! You've been killed by ${killer}!`
         );
-        Login.scene.scene.start('LoginScene');
-        Login.scene.scene.remove('Artilio');
-        Login.scene.scene.remove('HUDScene');
         this.socket.removeListener('disconnect');
+        Global.event_bus.removeAllListeners();
+        Game.scene.sys.game.destroy(true);
+        (Game.scene as any) = undefined;
+        (Game.player as any) = undefined;
+        createNewGame();
       });
       this.socket.once('disconnect', (m) => {
         Global.console.error('Disconnected');

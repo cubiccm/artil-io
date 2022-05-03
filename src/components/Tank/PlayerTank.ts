@@ -1,9 +1,6 @@
 import Global from '@/global';
 import Game from '@/scenes/Game';
 import BaseTank from '@/components/Tank/BaseTank';
-import Cannon from '../Projectile/Cannon';
-import Grenade from '../Projectile/Grenade';
-import Uzi from '../Projectile/Uzi';
 import HUD from '@/scenes/HUD';
 export default class PlayerTank extends BaseTank {
   constructor(scene: Phaser.Scene, x: number, y: number) {
@@ -12,6 +9,7 @@ export default class PlayerTank extends BaseTank {
     scene.events.on(
       Phaser.Scenes.Events.POST_UPDATE,
       () => {
+        if (!this.active) return;
         const cursor_x =
           this.scene.input.mousePointer.x + this.scene.cameras.main.scrollX;
         const cursor_y =
@@ -52,6 +50,7 @@ export default class PlayerTank extends BaseTank {
   }
 
   update(time: number, delta: number) {
+    if (this.active == false || (this.scene as Game).initiated == false) return;
     const keyboard = this.scene.input.keyboard;
     const pointer = this.scene.input.activePointer;
     const keys: any = Game.keys;

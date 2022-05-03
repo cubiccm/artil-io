@@ -20,12 +20,12 @@ let wrapCamT: Phaser.Cameras.Scene2D.Camera;
 export default class Game extends Phaser.Scene {
   public static scene: Game;
   public static player: PlayerTank;
-  public static playerName: string;
   public static keyboard: Phaser.Input.Keyboard.KeyboardPlugin;
   public static keys: any;
 
   players = {} as any;
   platforms = {} as any;
+  initiated = false;
 
   constructor() {
     super('Artilio');
@@ -48,6 +48,8 @@ export default class Game extends Phaser.Scene {
   }
 
   create() {
+    this.players = {};
+    this.platforms = {};
     Game.keys = this.input.keyboard.addKeys('LEFT,RIGHT,UP,DOWN,W,A,S,D,SPACE');
 
     this.matter.world.setBounds(
@@ -100,6 +102,7 @@ export default class Game extends Phaser.Scene {
     Global.socket.onSync((m: any) => {
       this.sync(m);
     });
+
     Global.socket.init();
   }
 
@@ -174,6 +177,7 @@ export default class Game extends Phaser.Scene {
       }
     });
     if (Game.player.body.ignoreGravity == true) {
+      this.initiated = true;
       this.cameras.main.zoomTo(1, 5, 'Cubic');
       Game.player.setIgnoreGravity(false);
     }
@@ -319,7 +323,7 @@ function addWrapCamera() {
   wrapCamT.scrollY = Global.WORLD_HEIGHT / 2 - Global.SCREEN_HEIGHT;
   wrapCamT.setAlpha(1);
 
-  Game.scene.events.on(Phaser.Scenes.Events.POST_UPDATE, function (event: any) {
+  Game.scene.events.on(Phaser.Scenes.Events.POST_UPDATE, (event: any) => {
     wrapCamB.setViewport(
       0,
       -Game.player.y + (Global.WORLD_HEIGHT + Global.SCREEN_HEIGHT) / 2,

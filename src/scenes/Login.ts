@@ -4,7 +4,6 @@ import $ from 'jquery';
 import NetworkController from '@/NetworkController';
 import Console from '@/components/Console';
 import Game from '@/scenes/Game';
-import HUD from './HUD';
 
 const _w = Global.SCREEN_WIDTH,
   _h = Global.SCREEN_HEIGHT;
@@ -45,14 +44,11 @@ export default class Login extends Phaser.Scene {
         Global.socket
           .login(username)
           .then((msg) => {
-            // element.setVisible(false);
-            Login.scene.scene.add('HUDScene', HUD);
-            Login.scene.scene.add('Artilio', Game);
+            element.setVisible(false);
+            Login.scene.scene.start('Artilio');
             Login.scene.scene.start('HUDScene', {
               playerName: username
             });
-            Login.scene.scene.start('Artilio');
-            Login.scene.scene.pause('LoginScene');
           })
           .catch((msg) => {
             Global.console.error('Failed to login: ' + msg);

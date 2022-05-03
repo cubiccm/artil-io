@@ -44,6 +44,7 @@ io.on('connection', (socket: Socket) => {
         msg[0].slice(0, 8),
         msg[0].slice(8, 20)
       );
+      if (!player || !player.tank || !player.tank.active) return;
       if (msg[1] == 'sync') {
         const data = deserializeRawTankData(msg[2]);
         player.tank.setThrustSpeed(data.thrust);

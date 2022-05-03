@@ -64,7 +64,7 @@ export default class HUD extends Phaser.Scene {
     this.scale.on(
       'resize',
       () => {
-        this.redrawAll();
+        if (this && this.scene.isActive()) this.redrawAll();
       },
       this
     );
@@ -72,50 +72,48 @@ export default class HUD extends Phaser.Scene {
     if (this.show_debug_info)
       this.debug_message = new DebugMessage(this, 16, 16);
 
-    Global.event_bus.on('loading_finished', () => {
-      this.redrawAll();
+    this.redrawAll();
 
-      const upgradeBox = this.add
-        .dom(25, _h - _h / 2)
-        .createFromCache('upgrade_box');
+    const upgradeBox = this.add
+      .dom(25, _h - _h / 2)
+      .createFromCache('upgrade_box');
 
-      HUD.upgradeBox = upgradeBox;
-      HUD.tank_box = HUD.upgradeBox.getChildByID(
-        'tank-options'
-      ) as HTMLDivElement;
-      HUD.weapon_box = HUD.upgradeBox.getChildByID(
-        'weapon-options'
-      ) as HTMLDivElement;
-      HUD.skin_box = HUD.upgradeBox.getChildByID(
-        'skin-options'
-      ) as HTMLDivElement;
-      HUD.tank_box.style.visibility = 'hidden';
-      HUD.weapon_box.style.visibility = 'hidden';
-      HUD.skin_box.style.visibility = 'hidden';
-      upgradeBox.addListener('click');
-      upgradeBox.on('click', function (event: any) {
-        switch (event.target.className) {
-          case 'select-buttons': {
-            const element = event.target as HTMLDivElement;
-            HUD.selectUpgrade(upgradeBox, element);
-            break;
-          }
-          case 'add': {
-            HUD.upgradeTank(upgradeBox, event.target.name);
-            break;
-          }
-          case 'weapon-item': {
-            HUD.select(event.target as HTMLInputElement, 'weapon');
-            break;
-          }
-          case 'skin-item': {
-            HUD.select(event.target as HTMLInputElement, 'skin');
-            break;
-          }
-          default:
-            break;
+    HUD.upgradeBox = upgradeBox;
+    HUD.tank_box = HUD.upgradeBox.getChildByID(
+      'tank-options'
+    ) as HTMLDivElement;
+    HUD.weapon_box = HUD.upgradeBox.getChildByID(
+      'weapon-options'
+    ) as HTMLDivElement;
+    HUD.skin_box = HUD.upgradeBox.getChildByID(
+      'skin-options'
+    ) as HTMLDivElement;
+    HUD.tank_box.style.visibility = 'hidden';
+    HUD.weapon_box.style.visibility = 'hidden';
+    HUD.skin_box.style.visibility = 'hidden';
+    upgradeBox.addListener('click');
+    upgradeBox.on('click', function (event: any) {
+      switch (event.target.className) {
+        case 'select-buttons': {
+          const element = event.target as HTMLDivElement;
+          HUD.selectUpgrade(upgradeBox, element);
+          break;
         }
-      });
+        case 'add': {
+          HUD.upgradeTank(upgradeBox, event.target.name);
+          break;
+        }
+        case 'weapon-item': {
+          HUD.select(event.target as HTMLInputElement, 'weapon');
+          break;
+        }
+        case 'skin-item': {
+          HUD.select(event.target as HTMLInputElement, 'skin');
+          break;
+        }
+        default:
+          break;
+      }
     });
   }
 
@@ -377,7 +375,7 @@ export default class HUD extends Phaser.Scene {
     if (current_health != 0)
       current_health = Math.max(1, Math.floor(current_health));
     max_health = Math.floor(max_health);
-    if (!this.health_bar_text) {
+    if (!this.health_bar_text || this.health_bar_text.active == false) {
       this.health_bar_text = this.add
         .text(
           (Global.SCREEN_WIDTH - bar_width) / 2,
@@ -427,7 +425,7 @@ export default class HUD extends Phaser.Scene {
     );
     max_exp = Math.floor(max_exp);
 
-    if (!this.xp_bar_text) {
+    if (!this.xp_bar_text || this.xp_bar_text.active == false) {
       this.xp_bar_text = this.add
         .text(
           (Global.SCREEN_WIDTH + bar_width) / 2,

@@ -4,11 +4,15 @@ import Global from '@/global';
 import GameScene from '@/scenes/Game';
 import HUDScene from '@/scenes/HUD';
 import LoginScene from '@/scenes/Login';
-const index = new Phaser.Game(
-  Object.assign(config, {
-    scene: [LoginScene]
-  })
-);
+
+export const createNewGame = () => {
+  return new Phaser.Game(
+    Object.assign(config, {
+      scene: [LoginScene, GameScene, HUDScene]
+    })
+  );
+};
+const index = createNewGame();
 
 window.addEventListener(
   'resize',

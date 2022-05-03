@@ -23,6 +23,7 @@ export default class debugMessage extends Phaser.GameObjects.Text {
   }
 
   getDebugMessage() {
+    if (Game.scene.initiated == false) return '';
     const player = Game.player;
     return `
       x: ${Math.round(player?.x)}, y: ${Math.round(player?.y)}
@@ -36,6 +37,7 @@ export default class debugMessage extends Phaser.GameObjects.Text {
   }
 
   update(time: number, delta: number) {
+    if (!this.active) return;
     this.setText(this.getDebugMessage());
   }
 }

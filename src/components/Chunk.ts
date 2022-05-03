@@ -115,7 +115,7 @@ export default class Chunk {
   }
 
   public updateChunk() {
-    if (this.area < 100000) {
+    if (this.area < 50000) {
       // Set minimum area to regenerate
       this.regenerateChunk();
     }
