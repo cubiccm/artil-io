@@ -98,16 +98,7 @@ export default class Chunk {
       vertices_l
     ]);
 
-    const platform = new Platform(
-      scene,
-      UUID(8),
-      this,
-      x,
-      y,
-      vertices,
-      0x192841,
-      0.85
-    );
+    const platform = new Platform(scene, UUID(8), this, x, y, vertices);
   }
 
   public addPlatform(platform: Platform) {
