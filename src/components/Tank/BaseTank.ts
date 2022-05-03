@@ -220,7 +220,7 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
     /* Movement & position */
     // Estimates location displacement based on velocity and network delay
     const exp_delay = 400;
-    const rotate_radius = 800;
+    const rotate_radius = 150;
     const remote_velocity = new Phaser.Math.Vector2();
     remote_velocity.set(remote.vx || 0, remote.vy || 0);
     const local = this.body.position;
@@ -379,10 +379,15 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
   fire() {
     const origin = this.data.values.components.cannon_body.position;
     const angle = this.data.values.components.cannon_body.angle;
-    const cannon_length = 30;
+    let cannon_length = 30;
     const velocity = 30;
     const vx = velocity * Math.cos(angle);
     const vy = velocity * Math.sin(angle);
+    // Increase cannon length if bullet has a large radius
+    cannon_length +=
+      { cannonball: 30, grenade: 40, uzi: 0, bullet: 0 }[
+        this.tank_data.weapon
+      ] || 0;
     let weapon;
     switch (this.tank_data.weapon) {
       case 'cannonball': {
@@ -418,7 +423,7 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
         );
         break;
       }
-      default: {
+      case 'bullet': {
         weapon = new Bullet(
           this.scene,
           origin.x + Math.cos(angle) * cannon_length,
@@ -432,7 +437,7 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
     }
 
     this.get('bullets').push(weapon);
-    if (this.scene.scene.key == Global.SCENE_CORE) {
+    if (weapon && this.scene.scene.key == Global.SCENE_CORE) {
       (this.scene as Core)?.onNewBullet(weapon);
     }
   }
