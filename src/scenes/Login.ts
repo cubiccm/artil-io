@@ -23,26 +23,23 @@ export default class Login extends Phaser.Scene {
 
   create() {
     Login.scene = this;
-    //const bkg = this.add.tileSprite(_w / 2, _h / 2, _w, _h, 'loginbkg');
     const bkg = this.add.image(_w / 2, _h / 2, 'loginbkg');
     bkg.scaleX = 0.39;
     bkg.scaleY = 0.34;
-    //bkg.scale = 0.38;
     const logo = this.add.image(_w / 2, 200, 'logo');
     logo.scale = 0.7;
 
-    var element = this.add.dom(_w / 2, 0).createFromCache('loginform');
+    const element = this.add.dom(_w / 2, 0).createFromCache('loginform');
 
     element.addListener('click');
     element.on('click', function (event: any) {
       if (event.target.name == 'loginButton') {
-        var inputUsername = element.getChildByName(
+        const inputUsername = element.getChildByName(
           'username'
         ) as HTMLInputElement;
 
         if (inputUsername.value != '') {
           element.removeListener('click');
-          // element.setVisible(false);
           element.destroy();
           Login.scene.scene.start('HUDScene', {
             playerName: inputUsername.value

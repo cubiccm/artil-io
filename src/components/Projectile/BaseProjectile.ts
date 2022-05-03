@@ -7,7 +7,6 @@ export default abstract class BaseProjectile extends Phaser.GameObjects
   .Container {
   parent: BaseTank;
   declare body: MatterJS.BodyType;
-
   constructor(
     scene: Phaser.Scene,
     x: number,

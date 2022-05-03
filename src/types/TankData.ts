@@ -1,3 +1,4 @@
+import BaseProjectile from '@/components/Projectile/BaseProjectile';
 import Bullet from '@/components/Projectile/Bullet';
 import TankSensor from '@/components/Tank/TankSensor';
 
@@ -37,6 +38,8 @@ interface TankData {
   regen_factor: number;
   reload: number;
   bullet_speed: number;
+  weapon: string;
+  weapon_damage: number;
   bullets: Bullet[];
   id: string;
   team: string;

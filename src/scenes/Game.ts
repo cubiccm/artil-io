@@ -87,7 +87,7 @@ export default class Game extends Phaser.Scene {
 
     // draw debugs
     this.matter.world.createDebugGraphic();
-    this.matter.world.drawDebug = true;
+    this.matter.world.drawDebug = false;
     this.matter.world.debugGraphic.visible = this.matter.world.drawDebug;
     this.cameras.main.startFollow(Game.player);
 
@@ -114,8 +114,8 @@ export default class Game extends Phaser.Scene {
   }
 
   progressBar() {
-    var progressBar = this.add.graphics();
-    var progressBox = this.add.graphics();
+    const progressBar = this.add.graphics();
+    const progressBox = this.add.graphics();
     progressBox.fillStyle(0x222222, 0.8);
     progressBox.fillRect(
       Global.SCREEN_WIDTH / 2 - 160,
@@ -123,7 +123,7 @@ export default class Game extends Phaser.Scene {
       320,
       50
     );
-    var loadingText = this.make.text({
+    const loadingText = this.make.text({
       x: Global.SCREEN_WIDTH / 2,
       y: Global.SCREEN_HEIGHT / 2 - 50,
       text: 'Loading...',

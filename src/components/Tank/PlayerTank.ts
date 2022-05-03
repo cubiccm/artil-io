@@ -2,7 +2,9 @@ import Global from '@/global';
 import Bullet from '@/components/Projectile/Bullet';
 import Game from '@/scenes/Game';
 import BaseTank from '@/components/Tank/BaseTank';
-
+import Cannon from '../Projectile/Cannon';
+import Grenade from '../Projectile/Grenade';
+import Uzi from '../Projectile/Uzi';
 export default class PlayerTank extends BaseTank {
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y);
@@ -156,7 +158,7 @@ export default class PlayerTank extends BaseTank {
   }
 
   fire(time: number, delta: number, cursor: MatterJS.Vector) {
-    var canFire = time - this.data.values.lastFiredAt > this.data.values.reload;
+    let canFire = time - this.data.values.lastFiredAt > this.data.values.reload;
     Global.event_bus.once('HUD_clicked', () => {
       canFire = false;
     });
@@ -167,16 +169,54 @@ export default class PlayerTank extends BaseTank {
     const velocity = 30;
     const vx = velocity * Math.cos(angle);
     const vy = velocity * Math.sin(angle);
-    this.data.values.bullets.push(
-      new Bullet(
-        this.scene,
-        origin.x + Math.cos(angle) * cannon_length,
-        origin.y + Math.sin(angle) * cannon_length,
-        vx,
-        vy,
-        this
-      )
-    );
+    let weapon;
+    switch (this.tank_data.weapon) {
+      case 'cannonball': {
+        weapon = new Cannon(
+          this.scene,
+          origin.x + Math.cos(angle) * cannon_length,
+          origin.y + Math.sin(angle) * cannon_length,
+          vx,
+          vy,
+          this
+        );
+        break;
+      }
+      case 'grenade': {
+        weapon = new Grenade(
+          this.scene,
+          origin.x + Math.cos(angle) * cannon_length,
+          origin.y + Math.sin(angle) * cannon_length,
+          vx,
+          vy,
+          this
+        );
+        break;
+      }
+      case 'uzi': {
+        weapon = new Uzi(
+          this.scene,
+          origin.x + Math.cos(angle) * cannon_length,
+          origin.y + Math.sin(angle) * cannon_length,
+          vx,
+          vy,
+          this
+        );
+        break;
+      }
+      default: {
+        weapon = new Bullet(
+          this.scene,
+          origin.x + Math.cos(angle) * cannon_length,
+          origin.y + Math.sin(angle) * cannon_length,
+          vx,
+          vy,
+          this
+        );
+        break;
+      }
+    }
+    this.data.values.bullets.push(weapon);
     this.data.values.lastFiredAt = time;
   }
 }
