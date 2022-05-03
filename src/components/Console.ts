@@ -73,12 +73,14 @@ export default class Console {
     const html = `
       <div class="pjw-console-item" ${channel ? channel : ''}>
         <div class="pjw-console-icon material-icons-round ${type}">${type}</div>
-        <div class="pjw-console-text">${text}</div>
+        <div class="pjw-console-text"></div>
       </div>
     `;
 
     this.dom.children('.pjw-console-item').appendTo(this.history);
-    this.dom.append(html);
+    const new_item = $(html);
+    new_item.children('.pjw-console-text').text(text);
+    this.dom.append(new_item);
     if (this.history_expanded)
       this.history[0].scrollTop = this.history[0].scrollHeight;
 
@@ -89,8 +91,7 @@ export default class Console {
       favorite: [false, 'rgb(255, 99, 144)'],
       info: [false],
       alarm: [true, '#9eb314'],
-      code: [false],
-      recycling: [true, 'rgb(255, 99, 144)']
+      code: [false]
     } as any;
 
     this.setColor(action[type][1]);
@@ -126,8 +127,33 @@ export default class Console {
     this.log(text, channel, 'favorite');
   }
 
-  recycling(text: string, channel?: string) {
-    this.log(text, channel, 'recycling');
+  custom(
+    text: string,
+    icon = 'info',
+    color = 'rgba(0, 0, 0, .2)',
+    stay = false,
+    channel = ''
+  ) {
+    if (channel) {
+      channel = `data-channel="${channel}"`;
+      this.dom.find(`[${channel}]`).remove();
+    }
+    const html = `
+      <div class="pjw-console-item" ${channel ? channel : ''}>
+        <div class="pjw-console-icon material-icons-round ${icon}">${icon}</div>
+        <div class="pjw-console-text"></div>
+      </div>
+    `;
+
+    this.dom.children('.pjw-console-item').appendTo(this.history);
+    const new_item = $(html);
+    new_item.children('.pjw-console-text').text(text);
+    this.dom.append(new_item);
+    if (this.history_expanded)
+      this.history[0].scrollTop = this.history[0].scrollHeight;
+
+    this.setColor(color);
+    this.show(stay);
   }
 
   constructor() {
@@ -152,7 +178,7 @@ export default class Console {
         target: this
       },
       function (e) {
-        if (window && e.clientY >= ($(window).height() ?? 40) - 40)
+        if (window && e.clientY >= ($(window).height() ?? 40) - 20)
           e.data.target.show();
       }
     );

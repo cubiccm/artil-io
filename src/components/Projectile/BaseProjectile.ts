@@ -64,7 +64,7 @@ export default abstract class BaseProjectile extends Phaser.GameObjects
               if (target_tank.get('HP') == 0) {
                 (this.scene as Core).onPlayerDeath(
                   target_tank.player!,
-                  this.parent?.player?.name
+                  this.parent?.player
                 );
               }
             }

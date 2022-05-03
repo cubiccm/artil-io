@@ -136,11 +136,16 @@ export default class Core extends Phaser.Scene {
     });
   }
 
-  onPlayerDeath(player: Player, killer?: string) {
+  onPlayerDeath(player: Player, killer?: Player | string) {
     (player.tank.get('bullets') as Bullet[]).forEach((bullet) => {
       bullet.selfDestroy();
     });
-    player.socket?.emit('death', killer);
+    if (typeof killer == 'object') {
+      player.socket?.emit('death', killer.name);
+      killer.socket?.emit('kill', player.name);
+    } else {
+      player.socket?.emit('death', killer);
+    }
     player.socket?.disconnect();
     player.tank.destroy();
     delete this.players[player.ID];

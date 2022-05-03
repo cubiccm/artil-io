@@ -23,18 +23,36 @@ export default class NetworkController {
     this.socket.emit('login', name);
     this.socket.once('session_established', (ID) => {
       this.session_secret = ID;
+
+      // Server actively sync data
       this.socket.on('sync', (m) => {
         this.serverSync(m);
       });
-      this.socket.once('death', (killer) => {
-        Global.console.recycling(
-          `Congratulations! You've been killed by ${killer}!`
+
+      // Elimination feedback
+      this.socket.on('kill', (name) => {
+        Global.console.custom(
+          `Recycled ${name}`,
+          'delete_forever',
+          'rgb(255, 255, 0)'
         );
-        this.socket.removeListener('disconnect');
+      });
+
+      // Player dead
+      this.socket.once('death', (killer) => {
+        Global.console.custom(
+          `You are recycled by ${killer}`,
+          'recycling',
+          'rgb(255, 99, 144)',
+          true
+        );
         Global.event_bus.removeAllListeners();
+        this.socket.removeAllListeners();
         Game.scene.sys.game.destroy(true);
         createNewGame();
       });
+
+      // Connection lost
       this.socket.once('disconnect', (m) => {
         Global.console.error('Disconnected');
       });

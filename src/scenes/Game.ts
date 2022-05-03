@@ -150,9 +150,11 @@ export default class Game extends Phaser.Scene {
       if (player.id && player.id in this.players) {
         // Update existing tank
         const tank = this.players[player.id] as BaseTank;
-        tank.setThrustSpeed(player.thrust || 0);
-        tank.setCannonAngle(player.c_ang || 0);
-        if ('x' in player) tank.syncRemote(player);
+        if (tank.active) {
+          tank.setThrustSpeed(player.thrust || 0);
+          tank.setCannonAngle(player.c_ang || 0);
+          if ('x' in player) tank.syncRemote(player);
+        }
       } else {
         // Create new tank
         if (player.id) {
