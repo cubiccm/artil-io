@@ -38,7 +38,7 @@ export default class Platform {
   }
 
   get raw(): any {
-    if (this.gameObject?.body) {
+    if (this.gameObject?.active) {
       // Existing platform
       return [this.ID, [this.anchor.x, this.anchor.y], this.vertices];
     } else {

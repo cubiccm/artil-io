@@ -1,5 +1,5 @@
 const assets_url_base = 'http://localhost:4000/';
-const server_report_rate = 40; // ms
+const server_report_rate = 20; // ms
 
 import 'phaser';
 import _ from 'lodash';
@@ -9,7 +9,6 @@ import generateTerrain from '@/scripts/terrainGenerator';
 import Platform from '@/components/Platform';
 import RawGameData from '@/types/RawData';
 import Player from '@/components/Player';
-import GeneralTank from '@/components/Tank/GeneralTank';
 import { Socket } from 'socket.io';
 import Bullet from '@/components/Projectile/Bullet';
 
@@ -78,7 +77,8 @@ export default class Core extends Phaser.Scene {
     // Tanks
     res.players = [];
     Object.values(this.players).forEach((_player: any) => {
-      if (_player != player) res.players?.push(_player.raw);
+      if (_player != player && (_player.tank as BaseTank).active)
+        res.players?.push(_player.raw);
     });
     res.self = player.raw;
 
@@ -100,28 +100,41 @@ export default class Core extends Phaser.Scene {
     });
   }
 
-  onNewPlayer(name: string, socket: Socket): Player {
+  onPlayerJoin(name: string, socket: Socket): Player {
     const x = Phaser.Math.Between(-400, 400);
     const y = Phaser.Math.Between(-300, 300);
-    const player = new Player(name, new GeneralTank(this, x, y));
+    const player = new Player(name, new BaseTank(this, x, y));
     player.socket = socket;
 
     // Terrain
     player.terrains_not_synced = this.gamedata.map.platforms.filter(
       (platform) => {
-        if (platform.gameObject?.body) return platform;
+        if (platform.gameObject?.active) return platform;
       }
     );
     this.gamedata.map.platforms = player.terrains_not_synced.slice();
 
     // Bullets
     player.bullets_not_synced = this.gamedata.bullets.filter((bullet) => {
-      if (bullet.body) return bullet;
+      if (bullet.active) return bullet;
     });
     this.gamedata.bullets = player.bullets_not_synced.slice();
 
     this.players[player.ID] = player;
     return player;
+  }
+
+  onPlayerLeave(socket: Socket) {
+    Object.keys(this.players).forEach((key: any) => {
+      const _player = this.players[key];
+      if (_player.socket == socket) {
+        (_player.tank.get('bullets') as Bullet[]).forEach((bullet) => {
+          bullet.selfDestroy();
+        });
+        _player.tank.destroy();
+        delete this.players[key];
+      }
+    });
   }
 
   onDestroyPlatform(platform: Platform) {

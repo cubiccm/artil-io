@@ -25,12 +25,13 @@ io.on('connection', (socket: Socket) => {
   }
 
   socket.on('disconnect', (msg) => {
-    // Remove player
+    console.log('Player left: ' + msg);
+    Core.scene.onPlayerLeave(socket);
   });
 
   socket.on('login', (msg) => {
     console.log('New user: ' + msg);
-    const player = Core.scene.onNewPlayer(msg, socket);
+    const player = Core.scene.onPlayerJoin(msg, socket);
     socket.emit('session_established', player.ID + player.secret);
     socket.emit('login_success', Core.scene.getRawData(player));
   });

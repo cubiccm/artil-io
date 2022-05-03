@@ -8,7 +8,7 @@ import Bullet from '@/components/Projectile/Bullet';
 import Core from '@/scenes/Core';
 import Player from '@/components/Player';
 
-export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
+export default class BaseTank extends Phaser.Physics.Matter.Sprite {
   declare body: MatterJS.BodyType;
   player?: Player;
 
@@ -120,13 +120,16 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
         this.data.values.sensors.left.body,
         this.data.values.sensors.right.body
       ],
-      friction: 0.01,
+      friction: 0.2,
+      frictionAir: 0.01,
+      frictionStatic: 0.5,
       restitution: 0.05 // Prevent body from sticking against a wall
     });
 
     this.setExistingBody(compoundBody);
     this.setPosition(0, 0);
     this.setScale(0.1);
+    this.setMass(50);
     // this.setIgnoreGravity(true);
 
     this.createCannonEnd();
@@ -148,6 +151,7 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
     this.scene.events.on(
       Phaser.Scenes.Events.POST_UPDATE,
       () => {
+        if (!this.active) return;
         this.updateAnimations();
         if (this.body.position.y >= Global.WORLD_HEIGHT / 2) {
           this.setPosition(this.x, -Global.WORLD_HEIGHT / 2);
@@ -183,6 +187,7 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
   syncRemote(remote: RawTankData) {
     // Estimates location displacement based on velocity and network delay
     const exp_delay = 400;
+    const rotate_radius = 1000;
     const remote_velocity = new Phaser.Math.Vector2();
     remote_velocity.set(remote.vx || 0, remote.vy || 0);
     const local = this.body.position;
@@ -190,7 +195,11 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
     local_velocity.set(this.body.velocity.x, this.body.velocity.y);
     const proximity = Math.max(
       ((exp_delay * 60) / 1000) *
-        Math.max(local_velocity.length(), remote_velocity.length()),
+        Math.max(
+          local_velocity.length() +
+            (this.body.angularSpeed || 0) * rotate_radius,
+          remote_velocity.length() + (remote.vang || 0) * rotate_radius
+        ),
       20
     );
     const difference = Math.min(

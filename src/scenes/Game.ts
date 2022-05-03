@@ -5,7 +5,6 @@ import PlayerTank from '@/components/Tank/PlayerTank';
 import Platform from '@/components/Platform';
 import RawGameData, { RawBulletData, RawTankData } from '@/types/RawData';
 import BaseTank from '@/components/Tank/BaseTank';
-import GeneralTank from '@/components/Tank/GeneralTank';
 import Bullet from '@/components/Projectile/Bullet';
 
 let wrapCamB: Phaser.Cameras.Scene2D.Camera;
@@ -134,26 +133,34 @@ export default class Game extends Phaser.Scene {
         Game.player.set('HP', remote_data.self?.health);
       }
     }
-    if (remote_data?.players?.length) {
-      remote_data?.players.forEach((player: RawTankData) => {
-        if (player.id && player.id in this.players) {
-          // Update existing tank
-          const tank = this.players[player.id] as BaseTank;
-          tank.setThrustSpeed(player.thrust || 0);
-          tank.setCannonAngle(player.c_ang || 0);
-          if ('x' in player) tank.syncRemote(player);
-        } else {
-          // Create new tank
-          if (player.id) {
-            this.players[player.id] = new GeneralTank(
-              this,
-              player.x || 0,
-              player.y || 0
-            );
-          }
+    const remote_player_keys = [] as string[];
+    remote_data?.players?.forEach((player: RawTankData) => {
+      if (player.id) remote_player_keys.push(player.id);
+      if (player.id && player.id in this.players) {
+        // Update existing tank
+        const tank = this.players[player.id] as BaseTank;
+        tank.setThrustSpeed(player.thrust || 0);
+        tank.setCannonAngle(player.c_ang || 0);
+        if ('x' in player) tank.syncRemote(player);
+      } else {
+        // Create new tank
+        if (player.id) {
+          this.players[player.id] = new BaseTank(
+            this,
+            player.x || 0,
+            player.y || 0
+          );
         }
-      });
-    }
+      }
+    });
+    Object.keys(this.players).forEach((key: any) => {
+      const player = this.players[key];
+      if (!remote_player_keys.includes(key)) {
+        player.get('components')?.cannon_body.gameObject.destroy();
+        player.destroy();
+        delete this.players[key];
+      }
+    });
     Game.player.setIgnoreGravity(false);
 
     // Bullets

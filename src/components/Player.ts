@@ -23,12 +23,12 @@ export default class Player {
 
   get raw(): RawTankData {
     return {
-      x: this.tank.body.position.x,
-      y: this.tank.body.position.y,
-      vx: this.tank.body.velocity.x,
-      vy: this.tank.body.velocity.y,
-      vang: this.tank.body.angularVelocity,
-      b_ang: this.tank.body.angle,
+      x: this.tank.body?.position.x,
+      y: this.tank.body?.position.y,
+      vx: this.tank.body?.velocity.x,
+      vy: this.tank.body?.velocity.y,
+      vang: this.tank.body?.angularVelocity,
+      b_ang: this.tank.body?.angle,
       c_ang: this.tank.getCannonAngle(),
       thrust: this.tank.getThrustSpeed(),
       name: this.name,
