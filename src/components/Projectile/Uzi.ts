@@ -1,11 +1,8 @@
 import Global from '@/global';
 import BaseTank from '@/components/Tank/BaseTank';
-import Game from '@/scenes/Game';
 import BaseProjectile from './BaseProjectile';
-import CircularDestruction from '../Destruction/CircularDestruction';
-import RectangularDestruction from '../Destruction/RectangularDestruction';
-import BaseDestruction from '../Destruction/BaseDestruction';
 import Platform from '../Platform';
+import NaturalDestruction from '../Destruction/NaturalDestruction';
 
 const speed_factor = 1.5;
 export default class Uzi extends BaseProjectile {
@@ -38,7 +35,7 @@ export default class Uzi extends BaseProjectile {
     velocity: MatterJS.Vector,
     terrain: Platform
   ) {
-    const natural_destruction = new CircularDestruction(this.scene, {
+    const natural_destruction = new NaturalDestruction(this.scene, {
       r: 50,
       intensity: 1
     });
