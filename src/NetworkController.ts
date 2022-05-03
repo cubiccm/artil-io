@@ -30,8 +30,8 @@ export default class NetworkController {
           `Congratulations! You're killed by ${killer}!`
         );
         Login.scene.scene.start('LoginScene');
-        Login.scene.scene.stop('Artilio');
-        Login.scene.scene.stop('HUDScene');
+        Login.scene.scene.remove('Artilio');
+        Login.scene.scene.remove('HUDScene');
         this.socket.removeListener('disconnect');
       });
       this.socket.once('disconnect', (m) => {
@@ -42,6 +42,10 @@ export default class NetworkController {
       this.socket.on('login_success', resolve);
       this.socket.on('login_failed', reject);
     });
+  }
+
+  init() {
+    this.send('init');
   }
 
   sync_callback?: any;
