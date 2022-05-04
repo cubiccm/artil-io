@@ -1,5 +1,4 @@
 const assets_url_base = 'http://localhost:4000/';
-const server_report_rate = 20; // ms
 
 import 'phaser';
 import _ from 'lodash';
@@ -36,7 +35,9 @@ export default class Core extends Phaser.Scene {
   }
 
   create() {
-    this.matter.set30Hz();
+    // this.matter.set30Hz();
+    this.matter.world.autoUpdate = false;
+
     this.matter.world.setBounds(
       -Global.WORLD_WIDTH / 2,
       -Global.WORLD_HEIGHT,
@@ -55,10 +56,16 @@ export default class Core extends Phaser.Scene {
   }
 
   last_update_interval = 0;
+  accumulator = 0;
   update(time: number, delta: number) {
     this.last_update_interval += delta;
-    if (this.last_update_interval >= server_report_rate) {
-      this.last_update_interval = 0;
+    this.accumulator += delta;
+    while (this.accumulator >= Global.MATTER_TIME_STEP) {
+      this.accumulator -= Global.MATTER_TIME_STEP;
+      this.matter.world.step(Global.MATTER_TIME_STEP);
+    }
+    if (this.last_update_interval >= Global.SERVER_REPORT_RATE) {
+      this.last_update_interval -= Global.SERVER_REPORT_RATE;
       Object.values(this.players).forEach((_player: any) => {
         _player.socket?.emit('sync', this.getRawData(_player));
       });

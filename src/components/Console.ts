@@ -9,7 +9,7 @@ export default class Console {
 
   show(stay?: boolean) {
     this.dom.css({
-      bottom: '6px',
+      top: '6px',
       opacity: '1'
     });
     if (typeof this.stay_timeout != 'undefined')
@@ -29,7 +29,7 @@ export default class Console {
   hide() {
     this.collapse();
     this.dom.css({
-      bottom: '-70px',
+      top: '-70px',
       opacity: '0'
     });
     this.setColor();
@@ -178,8 +178,7 @@ export default class Console {
         target: this
       },
       function (e) {
-        if (window && e.clientY >= ($(window).height() ?? 40) - 20)
-          e.data.target.show();
+        if (window && e.clientY <= 40) e.data.target.show();
       }
     );
 

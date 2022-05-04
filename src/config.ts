@@ -10,9 +10,6 @@ export default {
   dom: {
     createContainer: true
   },
-  fps: {
-    target: 60
-  },
   physics: {
     default: 'matter',
     matter: {

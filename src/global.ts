@@ -17,6 +17,9 @@ export default class Global {
   public static readonly SCENE_HUD = 'HUDScene';
   public static readonly SCENE_LOGIN = 'LoginScene';
 
+  public static readonly MATTER_TIME_STEP = 1000 / 60;
+  public static readonly SERVER_REPORT_RATE = 1000 / 30;
+
   public static readonly WORLD_WIDTH = 2048 * 4;
   public static readonly WORLD_HEIGHT = 2048 * 2;
 
