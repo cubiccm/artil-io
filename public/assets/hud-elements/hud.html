@@ -39,7 +39,7 @@
   }
 
   .tank-upgrades {
-    height: 275px;
+    height: 235px;
     width: 270px;
     position: absolute;
     top: 0%;
@@ -125,7 +125,7 @@
   display: grid;
   grid-template-columns: auto auto auto;
   position:absolute;
-  top: 26%;
+  top: 20%;
   width: 310;
   height: 280;
   background: #eceeee;
@@ -179,9 +179,9 @@
         <div class="fill" id="amount" data-amount="0" style="background: linear-gradient(to right, yellow 0%, rgb(78, 74, 74) 0%);">Max Health</div>
         <button class="add" name="max-health-button">100</button>
       </div>
-      <div class="bar" id="bullet-damage" color="pink">
+      <div class="bar" id="body-damage" color="pink">
         <div class="fill" id="amount" data-amount="0" style="background: linear-gradient(to right, pink 0%, rgb(78, 74, 74) 0%);">Bullet Damage</div>
-        <button class="add" name="bullet-damage-button">100</button>
+        <button class="add" name="body-damage-button">100</button>
       </div>
       <div class="bar" id="body-speed" color="lightgreen">
         <div class="fill" id="amount" data-amount="0" style="background: linear-gradient(to right, lightgreen 0%, rgb(78, 74, 74) 0%);">Body Speed</div>
@@ -190,10 +190,6 @@
       <div class="bar" id="bullet-speed" color="lightblue">
         <div class="fill" id="amount" data-amount="0" style="background: linear-gradient(to right, lightblue 0%, rgb(78, 74, 74) 0%);">Bullet Speed</div>
         <button class="add" name="bullet-speed-button">100</button>
-      </div>
-      <div class="bar" id="jump" color="orange">
-        <div class="fill" id="amount" data-amount="0" style="background: linear-gradient(to right, orange 0%, rgb(78, 74, 74) 0%);">Jump</div>
-        <button class="add" name="jump-button">100</button>
       </div>
       <div class="bar" id="reload" color="cyan">
         <div class="fill" id="amount" data-amount="0" style="background: linear-gradient(to right, cyan 0%, rgb(78, 74, 74) 0%);">Reload</div>
@@ -243,38 +239,20 @@
         <input class="skin-item" name="pinktank" type=image unlocked="false" src="assets/hud-elements/tank-lock/pinktank-lock.png"></input>
         <div class="cost">100</div>
       </div>
+      <div class="skin-container">
+        <input class="skin-item" name="browntank" type=image unlocked="false" src="assets/hud-elements/tank-lock/browntank-lock.png"></input>
+        <div class="cost">200</div>
+      </div>
+      <div class="skin-container">
+        <input class="skin-item" name="colorfultank" type=image unlocked="false" src="assets/hud-elements/tank-lock/colorfultank-lock.png"></input>
+        <div class="cost">400</div>
+      </div>
+      <div class="skin-container">
+        <input class="skin-item" name="spacetank" type=image unlocked="false" src="assets/hud-elements/tank-lock/spacetank-lock.png"></input>
+        <div class="cost">600</div>
+      </div>
     </div>
       
   </div>
   
 </div>
-
-
-<script>
-  // function incBar(parent, color) {
-  //   let bar = document.getElementById(parent).childNodes[1];
-  //   let amount = parseInt(bar.getAttribute('data-amount')) + 20;
-  //   if (amount !== 120) {
-  //     bar.style.background = 'linear-gradient(to right, ' + color + ' ' + (amount) + '%, white ' + amount + '%)';
-  //     bar.setAttribute('data-amount', amount);
-  //   }
-  // }
-
-  // function setVisibility(name) {
-  //   let element = document.getElementById(name);
-  //   if (element.style.visibility === 'visible') {
-  //     element.style.visibility = 'hidden';
-  //   }
-  //   else {
-  //     document.getElementById('tank-options').style.visibility = 'hidden';
-  //     document.getElementById('weapon-options').style.visibility = 'hidden';
-  //     document.getElementById('skin-options').style.visibility = 'hidden';
-  //     element.style.visibility = 'visible';
-  //   }
-  // }
-
-  // function changeIcon(element) {
-  //   element.setAttribute('src', '../tank.png');
-  //   element.style.filter = 'opacity(100%)'
-  // }
-</script>

@@ -13,7 +13,17 @@ import BaseProjectile from '../Projectile/BaseProjectile';
 export default class BaseTank extends Phaser.Physics.Matter.Sprite {
   declare body: MatterJS.BodyType;
   player?: Player;
-  public static skins = ['green', 'orange', 'yellow', 'blue', 'purple', 'pink'];
+  public static skins = [
+    'green',
+    'orange',
+    'yellow',
+    'blue',
+    'purple',
+    'pink',
+    'brown',
+    'colorful',
+    'space'
+  ];
 
   // Avoid using this method: please use get() or set() to trigger events
   public get tank_data(): types.TankData {
@@ -479,12 +489,16 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
 
   createWheelAnimations() {
     if (Global.disable_graphics == true) return;
+    let frames;
+    if (this.tank_data.skin == 'colorful') frames = 12;
+    else if (this.tank_data.skin == 'space') frames = 10;
+    else frames = 4;
     this.anims.create({
       key: 'moving_right',
       frames: this.anims.generateFrameNames(this.tank_data.skin, {
         prefix: 'tank',
         start: 1,
-        end: 4,
+        end: frames,
         zeroPad: 2
       }),
       frameRate: 15,
@@ -495,7 +509,7 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
       key: 'moving_left',
       frames: this.anims.generateFrameNames(this.tank_data.skin, {
         prefix: 'tank',
-        start: 4,
+        start: frames,
         end: 1,
         zeroPad: 2
       }),
