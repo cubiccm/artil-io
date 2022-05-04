@@ -45,7 +45,7 @@ export default abstract class BaseProjectile extends Phaser.GameObjects
           this.createDestruction(
             position,
             velocity,
-            other.gameObject.controller
+            other.gameObject?.controller
           );
         } else if (other.collisionFilter.category == Global.CATEGORY_TANK) {
           if (this.scene.scene.key == Global.SCENE_CORE) {
