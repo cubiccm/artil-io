@@ -35,17 +35,17 @@ export default class HUD extends Phaser.Scene {
     this.gamescene = this.scene.get('Artilio') as Game;
 
     Global.event_bus.on('loading_finished', () => {
-      this.add
-        .text(_w / 2, _h - bottom_margin - bar_height - 25, HUD.playerName, {
-          fontSize: '18pt',
-          fontFamily: 'monospace',
-          fontStyle: 'bold',
-          color: 'rgba(255, 255, 255, .8)',
-          stroke: '#000000',
-          strokeThickness: 2,
-          align: 'center'
-        })
-        .setOrigin(0.5);
+      // this.add
+      //   .text(_w / 2, _h - bottom_margin - bar_height - 25, HUD.playerName, {
+      //     fontSize: '18pt',
+      //     fontFamily: 'monospace',
+      //     fontStyle: 'bold',
+      //     color: 'rgba(255, 255, 255, .8)',
+      //     stroke: '#000000',
+      //     strokeThickness: 2,
+      //     align: 'center'
+      //   })
+      //   .setOrigin(0.5);
       const upgradeBox = this.add
         .dom(25, _h - _h / 2)
         .createFromCache('upgrade_box');

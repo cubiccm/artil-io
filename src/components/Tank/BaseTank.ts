@@ -4,6 +4,7 @@ import Global from '@/global';
 import TankSensor from '@/components/Tank/TankSensor';
 import Game from '@/scenes/Game';
 import Login from '@/scenes/Login';
+import HUD from '@/scenes/HUD';
 
 export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
   public smoothedControls!: SmoothedHorionztalControl;
@@ -18,6 +19,7 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
     'colorful',
     'space'
   ];
+  hp_graphics!: Phaser.GameObjects.Graphics;
   declare body: MatterJS.BodyType;
   public get tank_data(): types.TankData {
     return this.data.values as types.TankData;
@@ -29,6 +31,7 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
       shape: scene.cache.json.get('tank_shape').tank
     } as Phaser.Types.Physics.Matter.MatterBodyConfig);
     scene.add.existing(this);
+    this.hp_graphics = scene.add.graphics();
     const data: types.TankData = {
       blocked: {
         left: false,
@@ -68,7 +71,9 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
       bullets: [],
       components: {
         cannon_texture: undefined,
-        cannon_body: undefined
+        cannon_body: undefined,
+        health_bar: undefined,
+        name: this.scene.add.text(0, 0, '')
       },
       skin: 'greentank'
     };
@@ -138,7 +143,7 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
     // this.setIgnoreGravity(true);
 
     this.createCannonEnd();
-
+    this.data.values.components.health_bar = this.drawHealthBar();
     // Setup tank animations
     this.createWheelAnimations();
     Game.scene.events.on(
@@ -176,7 +181,47 @@ export default abstract class BaseTank extends Phaser.Physics.Matter.Sprite {
     this.data.values.components.cannon_texture =
       this.scene.matter.add.gameObject(texture, body);
   }
+  drawHealthBar() {
+    this.hp_graphics.clear();
+    const origin = this.data.values.components.cannon_body.position;
+    const current_health = this.data.values.HP;
+    const max_health = this.data.values.max_health;
+    const bar_width = 80,
+      bar_height = 10;
+    const bottom_margin = 38;
+    const outline_color = 0xffa500,
+      outline_alpha = 1;
+    const fill_color = 0xffa500,
+      fill_alpha = 0.5;
 
+    this.hp_graphics.lineStyle(2, outline_color, outline_alpha);
+    this.hp_graphics.strokeRoundedRect(
+      origin.x - bar_width / 2,
+      origin.y - bottom_margin,
+      bar_width,
+      bar_height,
+      bar_height / 2
+    );
+    this.hp_graphics.fillStyle(fill_color, fill_alpha);
+    this.hp_graphics.fillRoundedRect(
+      origin.x - bar_width / 2,
+      origin.y - bottom_margin,
+      bar_height + (bar_width - bar_height) * (current_health / max_health),
+      bar_height,
+      bar_height / 2
+    );
+    this.data.values.components.name.destroy();
+    this.data.values.components.name = this.scene.add
+      .text(origin.x, origin.y - bottom_margin - 10, HUD.playerName, {
+        fontSize: '10pt',
+        fontFamily: 'monospace',
+        align: 'center',
+        color: 'rgba(255, 255, 255, .8)',
+        stroke: '#000000',
+        strokeThickness: 2
+      })
+      .setOrigin(0.5);
+  }
   createWheelAnimations() {
     let frames;
     if (this.tank_data.skin == 'colorful') frames = 12;

@@ -90,6 +90,7 @@ export default class PlayerTank extends BaseTank {
         this.tank_data.max_health
       );
     }
+    this.data.values.components.health_bar = this.drawHealthBar();
   }
 
   moveLeft(time: number, delta: number) {
