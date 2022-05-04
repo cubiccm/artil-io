@@ -13,6 +13,7 @@ import BaseProjectile from '../Projectile/BaseProjectile';
 export default class BaseTank extends Phaser.Physics.Matter.Sprite {
   declare body: MatterJS.BodyType;
   player?: Player;
+  hp_graphics!: Phaser.GameObjects.Graphics;
   public static skins = [
     'green',
     'orange',
@@ -37,7 +38,7 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
       shape: scene.cache.json.get('tank_shape').tank
     } as Phaser.Types.Physics.Matter.MatterBodyConfig);
     scene.add.existing(this);
-
+    this.hp_graphics = scene.add.graphics();
     const data: types.TankData = {
       blocked: {
         left: false,
@@ -72,7 +73,9 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
       bullets: [],
       components: {
         cannon_texture: undefined,
-        cannon_body: undefined
+        cannon_body: undefined,
+        health_bar: undefined,
+        name: this.scene.add.text(0, 0, '')
       },
       skin: 'greentank'
     };
@@ -165,6 +168,7 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
 
     this.setPosition(x, y);
 
+    this.data.values.components.health_bar = this.drawHealthBar();
     // Setup tank animations
     this.createWheelAnimations();
     this.scene.events.on(
@@ -486,7 +490,47 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
     this.data.values.components.cannon_texture =
       this.scene.matter.add.gameObject(texture, body);
   }
+  drawHealthBar() {
+    this.hp_graphics.clear();
+    const origin = this.data.values.components.cannon_body.position;
+    const current_health = this.data.values.HP;
+    const max_health = this.data.values.max_health;
+    const bar_width = 80,
+      bar_height = 10;
+    const bottom_margin = 38;
+    const outline_color = 0xffa500,
+      outline_alpha = 1;
+    const fill_color = 0xffa500,
+      fill_alpha = 0.5;
 
+    this.hp_graphics.lineStyle(2, outline_color, outline_alpha);
+    this.hp_graphics.strokeRoundedRect(
+      origin.x - bar_width / 2,
+      origin.y - bottom_margin,
+      bar_width,
+      bar_height,
+      bar_height / 2
+    );
+    this.hp_graphics.fillStyle(fill_color, fill_alpha);
+    this.hp_graphics.fillRoundedRect(
+      origin.x - bar_width / 2,
+      origin.y - bottom_margin,
+      bar_height + (bar_width - bar_height) * (current_health / max_health),
+      bar_height,
+      bar_height / 2
+    );
+    this.data.values.components.name.destroy();
+    this.data.values.components.name = this.scene.add
+      .text(origin.x, origin.y - bottom_margin - 10, HUD.playerName, {
+        fontSize: '10pt',
+        fontFamily: 'monospace',
+        align: 'center',
+        color: 'rgba(255, 255, 255, .8)',
+        stroke: '#000000',
+        strokeThickness: 2
+      })
+      .setOrigin(0.5);
+  }
   createWheelAnimations() {
     if (Global.disable_graphics == true) return;
     let frames;
