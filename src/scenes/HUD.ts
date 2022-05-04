@@ -36,6 +36,7 @@ export default class HUD extends Phaser.Scene {
   }
 
   create() {
+    this.scene.bringToTop(Global.SCENE_HUD);
     this.health_bar_graphics = this.add.graphics();
     this.xp_bar_graphics = this.add.graphics();
     this.gamescene = this.scene.get(Global.SCENE_GAME) as Game;
@@ -69,8 +70,6 @@ export default class HUD extends Phaser.Scene {
 
     if (this.show_debug_info)
       this.debug_message = new DebugMessage(this, 16, 16);
-
-    this.redrawAll();
 
     const upgradeBox = this.add
       .dom(25, Global.SCREEN_HEIGHT - Global.SCREEN_HEIGHT / 2)
@@ -124,8 +123,13 @@ export default class HUD extends Phaser.Scene {
     });
   }
 
+  first_draw = false;
   update() {
-    if (Game.player) {
+    if (Game.scene.initiated) {
+      if (this.first_draw == false) {
+        this.first_draw = true;
+        this.redrawAll();
+      }
       const exp = Game.player.tank_data.XP;
       // Update upgrade cost colors if enough XP
       const upgrade_costs = HUD.upgradeBox
