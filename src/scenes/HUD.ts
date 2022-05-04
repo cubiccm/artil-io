@@ -83,6 +83,15 @@ export default class HUD extends Phaser.Scene {
             HUD.select(event.target as HTMLInputElement, 'skin');
             break;
           }
+          case 'cost': {
+            const parent = event.target.parentElement;
+            if (parent.className == 'weapon-container') {
+              HUD.select(parent.childNodes[1] as HTMLInputElement, 'weapon');
+            } else if (parent.className == 'skin-container') {
+              HUD.select(parent.childNodes[1] as HTMLInputElement, 'skin');
+            }
+            break;
+          }
           default:
             break;
         }
