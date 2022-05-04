@@ -97,7 +97,8 @@ export default class Game extends Phaser.Scene {
     // addWorldBorder();
 
     // this.matter.set60Hz();
-    this.matter.set30Hz();
+    // this.matter.set30Hz();
+    this.matter.world.autoUpdate = false;
 
     Global.socket.onSync((m: any) => {
       this.sync(m);
@@ -106,8 +107,14 @@ export default class Game extends Phaser.Scene {
     Global.socket.init();
   }
 
+  accumulator = 0;
   update(time: number, delta: number) {
     // not used, listen to the Game.scene.events.on(Phaser.Scenes.Events.UPDATE, callback) directly
+    this.accumulator += delta;
+    while (this.accumulator >= Global.MATTER_TIME_STEP) {
+      this.accumulator -= Global.MATTER_TIME_STEP;
+      this.matter.world.step(Global.MATTER_TIME_STEP);
+    }
   }
 
   sync(remote_data?: RawGameData) {
