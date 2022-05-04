@@ -3,3 +3,149 @@ body {
   padding: 0;
   position: fixed;
 }
+/* Material Icons */
+@font-face {
+  font-family: 'Material Icons Round';
+  font-style: normal;
+  font-weight: 400;
+  src: 
+    local('Material Icons'),
+    url(https://fonts.gstatic.com/s/materialicons/v128/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2) format('woff2');
+}
+
+.material-icons-round {
+  font-family: 'Material Icons Round' !important;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  user-select: none;
+
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'liga';
+}
+
+.pjw-mini-brand {
+  user-select: none;
+  margin-top: 3px;
+  font-size: 11px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+.pjw-mini-brand > p {
+  text-align: center;
+  color: rgba(0, 0, 0, .5);
+  margin: 3px;
+}
+.pjw-mini-brand > span {
+  margin-right: 6px;
+  color: rgba(0, 0, 0, .5);
+}
+
+/* PJW Console */
+#pjw-console {
+  font-family: "Andale Mono", monospace;
+
+  position: fixed;
+  margin: 10px 20%;
+  top: -70px;
+  opacity: 0;
+  width: 60%;
+  font-size: 11px;
+
+  z-index: 100;
+  border-radius: 16px;
+  transition: top .35s ease-out, filter .15s ease-in, opacity .1s ease-out, transform .1s ease-out;
+
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: center;
+  align-items: stretch;
+
+  filter: drop-shadow(0 0 3px rgba(0, 0, 0, .2));
+  background: rgba(255, 255, 255, .9);
+}
+
+#pjw-console:active {
+  opacity: 0.4 !important;
+  transform: scale(0.99);
+}
+
+.pjw-console-icon {
+  margin: 5px 10px 5px 20px;
+  font-size: 18px;
+}
+
+.pjw-console-icon.error {
+  color: #ff3300;
+}
+
+.pjw-console-icon.warning {
+  color: #ff8936;
+}
+
+.pjw-console-icon.info {
+  color: blue;
+}
+
+.pjw-console-icon.code {
+  color: rgba(0, 0, 0, .6);
+}
+
+.pjw-console-icon.done {
+  color: limegreen;
+}
+
+.pjw-console-icon.alarm {
+  color: #9eb314;
+}
+
+.pjw-console-icon.favorite {
+  color: rgb(255, 99, 144);
+}
+
+#pjw-console-history {
+  width: 100%;
+  max-height: 400px;
+  overflow: auto;
+  display: none;
+  flex-direction: column;
+  align-items: stretch;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  background: rgba(0, 0, 0, .1);
+}
+
+#pjw-console-history > .pjw-console-item {
+  font-size: 11px;
+  font-weight: normal;
+  justify-content: flex-start;
+}
+
+.pjw-console-item {
+  min-height: 32px;
+  padding: 3px 20px;
+  display: flex;
+  flex-direction: row;
+  flex-shrink: 0;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.pjw-console-text {
+  overflow-wrap: anywhere;
+  hyphens: "-";
+}

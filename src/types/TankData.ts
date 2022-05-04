@@ -1,5 +1,5 @@
-import Bullet from '@/components/Projectile/Bullet';
-import TankSensor from '@/components/Tank/TankSensor';
+import Bullet from '../components/Projectile/Bullet';
+import TankSensor from '../components/Tank/TankSensor';
 
 interface TankData {
   blocked: {
@@ -17,24 +17,28 @@ interface TankData {
     left?: TankSensor;
     right?: TankSensor;
   };
-  time: {
-    leftDown: number;
-    rightDown: number;
-  };
   lastJumpedAt: number;
   lastFiredAt: number;
-  speed: {
-    run: number;
-    jump: number;
-  };
+  speed_ground: number;
+  speed_air: number;
+  speed_jump: number;
   components: {
+    cannon_texture?: Phaser.GameObjects.GameObject;
     cannon_body?: MatterJS.BodyType;
+    health_bar?: Phaser.GameObjects.Graphics;
+    name?: Phaser.GameObjects.Text;
   };
+  max_health: number;
   HP: number;
   XP: number;
+  regen_factor: number;
+  reload: number;
+  bullet_speed: number;
+  weapon: string;
+  weapon_damage: number;
   bullets: Bullet[];
-  id: string;
-  team: string;
+  name: string;
+  skin: string;
 }
 
 export default TankData;

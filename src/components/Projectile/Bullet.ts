@@ -1,10 +1,10 @@
 import Global from '@/global';
-import BaseTank from '@/components/Tank/BaseTank';
-import Game from '@/scenes/Game';
 import BaseProjectile from './BaseProjectile';
-import CircularDestruction from '../Destruction/CircularDestruction';
-import RectangularDestruction from '../Destruction/RectangularDestruction';
-import BaseDestruction from '../Destruction/BaseDestruction';
+import CircularDestruction from '@/components/Destruction/CircularDestruction';
+import RectangularDestruction from '@/components/Destruction/RectangularDestruction';
+import BaseDestruction from '@/components/Destruction/BaseDestruction';
+import NaturalDestruction from '@/components/Destruction/NaturalDestruction';
+import Platform from '@/components/Platform';
 
 export default class Bullet extends BaseProjectile {
   constructor(
@@ -13,15 +13,17 @@ export default class Bullet extends BaseProjectile {
     y: number,
     vx: number,
     vy: number,
-    parent: BaseTank
+    parent?: any
   ) {
     super(scene, x, y, vx, vy, parent);
-    this.body.gravityScale = { x: 0, y: 4 };
+    this.body.gravityScale = { x: 1, y: 4 };
+    this.bullet_type = 'bullet';
+    this.base_damage = 50;
   }
 
   createObject() {
     const r = 5;
-    const texture = this.scene.add.circle(0, 0, r, 0xff0000);
+    const texture = this.scene.add.circle(0, 0, r, 0xffa500);
     this.add(texture);
     // avoid clipping
     const body = this.scene.matter.add.circle(0, 0, 2 * r);
@@ -29,13 +31,30 @@ export default class Bullet extends BaseProjectile {
     this.scene.matter.add.gameObject(this, body);
   }
 
-  createDestruction(x: number, y: number) {
-    // funny bullet
-    const verts = CircularDestruction.getVerts(50);
-    // Math.random() > 0.5
-    // ? CircularDestruction.getVerts(50)
-    // : RectangularDestruction.getVerts(100, 50);
+  createDestruction(
+    position: MatterJS.Vector,
+    velocity: MatterJS.Vector,
+    terrain: Platform
+  ) {
+    // Natural Destruction
+    const natural_destruction = new NaturalDestruction(this.scene, {
+      r: 100,
+      intensity: 1.5
+    });
 
-    const sensor = new CircularDestruction(this.scene, x, y, verts);
+    // Circular Destruction
+    const circular_destruction = new CircularDestruction(this.scene, {
+      r: 70
+    });
+
+    // Rectangular Destruction
+    const rectangular_destruction = new RectangularDestruction(this.scene, {
+      w: 100,
+      r: 50
+    });
+
+    terrain?.onCollide(
+      natural_destruction.getNewTerrain(position, velocity, terrain)
+    );
   }
 }

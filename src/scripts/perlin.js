@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 // source: https://oliverbalfour.github.io/javascript/2016/03/19/1d-perlin-noise.html
 
 var M = 4294967296,

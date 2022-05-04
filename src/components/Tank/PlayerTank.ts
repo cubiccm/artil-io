@@ -1,24 +1,15 @@
 import Global from '@/global';
-import Bullet from '@/components/Projectile/Bullet';
 import Game from '@/scenes/Game';
 import BaseTank from '@/components/Tank/BaseTank';
-
+import HUD from '@/scenes/HUD';
 export default class PlayerTank extends BaseTank {
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y);
-    this.body.parts.forEach((part: any) => {
-      part.collisionFilter.category = Global.CATEGORY_TANK;
-      part.collisionFilter.mask =
-        Global.CATEGORY_TERRAIN |
-        Global.CATEGORY_TANK |
-        Global.CATEGORY_PROJECTILE |
-        Global.CATEGORY_DESTRUCTION |
-        Global.CATEGORY_POWERUP;
-    });
 
-    Game.scene.events.on(
+    scene.events.on(
       Phaser.Scenes.Events.POST_UPDATE,
       () => {
+        if (!this.active) return;
         const cursor_x =
           this.scene.input.mousePointer.x + this.scene.cameras.main.scrollX;
         const cursor_y =
@@ -40,30 +31,46 @@ export default class PlayerTank extends BaseTank {
           else angle = tank_angle + Math.PI - max_angle;
         }
         this.scene.matter.body.setAngle(cannon, angle);
+        Global.socket.sync(this.raw, true);
       },
       this
     );
   }
 
-  receive(message: any) {
-    // sync data
+  set(attribute: string, value: any) {
+    const res = super.set(attribute, value);
+    switch (attribute) {
+      case 'HP':
+        Global.event_bus.emit('player-health-update');
+        break;
+      case 'XP':
+        Global.event_bus.emit('player-xp-update');
+        break;
+    }
+    return res;
   }
 
-  send(message: any) {
-    // sync data
+  inc(attribute: string, value: number) {
+    this.set(attribute, this.get(attribute) + value);
   }
 
   update(time: number, delta: number) {
-    const keyboard = Game.scene.input.keyboard;
-    const pointer = Game.scene.input.activePointer;
+    if (this.active == false || (this.scene as Game).initiated == false) return;
+    const keyboard = this.scene.input.keyboard;
+    const pointer = this.scene.input.activePointer;
     const keys: any = Game.keys;
 
+    const prev_direction = this.moving_direction;
     if (keyboard.checkDown(keys.LEFT) || keyboard.checkDown(keys.A)) {
-      this.moveLeft(time, delta);
+      this.moving_direction = -1;
+    } else if (keyboard.checkDown(keys.RIGHT) || keyboard.checkDown(keys.D)) {
+      this.moving_direction = 1;
+    } else {
+      this.moving_direction = 0;
     }
 
-    if (keyboard.checkDown(keys.RIGHT) || keyboard.checkDown(keys.D)) {
-      this.moveRight(time, delta);
+    if (this.moving_direction != prev_direction) {
+      Global.socket.sync(this.raw);
     }
 
     if (keyboard.checkDown(keys.UP) || keyboard.checkDown(keys.SPACE)) {
@@ -74,99 +81,44 @@ export default class PlayerTank extends BaseTank {
       // not implemented
     }
 
-    if (pointer.leftButtonDown()) {
-      const cam = Game.scene.cameras.main;
-      const cursor_x = pointer.x + cam.scrollX;
-      const cursor_y = pointer.y + cam.scrollY;
-      this.fire(time, delta, { x: cursor_x, y: cursor_y });
-    }
-  }
-
-  moveLeft(time: number, delta: number) {
-    if (!this.data.values.sensors.left.blocked) {
-      this.smoothedControls.moveLeft(delta);
-      // matterSprite.anims.play('left', true);
-
-      const oldVelocityX = this.body.velocity.x;
-      const targetVelocityX = -this.data.values.speed.run;
-      const newVelocityX = Phaser.Math.Linear(
-        oldVelocityX,
-        targetVelocityX,
-        -this.smoothedControls.value
-      );
-
-      this.setVelocityX(newVelocityX);
+    if (
+      pointer.leftButtonDown() &&
+      !HUD.inHUDBounds(
+        this.scene.input.mousePointer.x,
+        this.scene.input.mousePointer.y
+      )
+    ) {
+      if (this.is_firing == false) {
+        this.is_firing = true;
+        Global.socket.fire([this.get('weapon'), this.raw]);
+      }
+    } else {
+      if (this.is_firing == true) {
+        this.is_firing = false;
+        Global.socket.stopFire();
+      }
     }
 
-    if (!this.data.values.sensors.bottom.blocked) {
-      this.setAngularVelocity(-0.005); // For rotating in the air
-    } else if (this.data.values.sensors.left.blocked) {
-      this.setAngularVelocity(0.01); // For climbing
-    }
-  }
-
-  moveRight(time: number, delta: number) {
-    if (!this.data.values.sensors.right.blocked) {
-      this.smoothedControls.moveRight(delta);
-      // matterSprite.anims.play('right', true);
-
-      const oldVelocityX = this.body.velocity.x;
-      const targetVelocityX = this.data.values.speed.run;
-      const newVelocityX = Phaser.Math.Linear(
-        oldVelocityX,
-        targetVelocityX,
-        this.smoothedControls.value
-      );
-
-      this.setVelocityX(newVelocityX);
-    }
-
-    if (!this.data.values.sensors.bottom.blocked) {
-      this.setAngularVelocity(0.005);
-    } else if (this.data.values.sensors.right.blocked) {
-      this.setAngularVelocity(-0.01);
-    }
+    super.update(time, delta);
   }
 
   jump(time: number, delta: number) {
     const canJump = time - this.data.values.lastJumpedAt > 250;
     if (canJump) {
       if (this.data.values.sensors.bottom.blocked) {
-        this.setVelocityY(-this.data.values.speed.jump);
+        this.setVelocityY(-this.data.values.speed_jump);
         this.data.values.lastJumpedAt = time;
       } else if (this.data.values.sensors.left.blocked) {
         // Jump up and away from the wall
-        this.setVelocityY(-this.data.values.speed.jump);
-        this.setVelocityX(this.data.values.speed.run);
+        this.setVelocityY(-this.data.values.speed_jump);
+        this.setVelocityX(this.data.values.speed_ground);
         this.data.values.lastJumpedAt = time;
       } else if (this.data.values.sensors.right.blocked) {
         // Jump up and away from the wall
-        this.setVelocityY(-this.data.values.speed.jump);
-        this.setVelocityX(-this.data.values.speed.run);
+        this.setVelocityY(-this.data.values.speed_jump);
+        this.setVelocityX(-this.data.values.speed_ground);
         this.data.values.lastJumpedAt = time;
       }
     }
-  }
-
-  fire(time: number, delta: number, cursor: MatterJS.Vector) {
-    const canFire = time - this.data.values.lastFiredAt > 250;
-    if (!canFire) return;
-    const origin = this.data.values.components.cannon_body.position;
-    const angle = this.data.values.components.cannon_body.angle;
-    const cannon_length = 30;
-    const velocity = 30;
-    const vx = velocity * Math.cos(angle);
-    const vy = velocity * Math.sin(angle);
-    this.data.values.bullets.push(
-      new Bullet(
-        this.scene,
-        origin.x + Math.cos(angle) * cannon_length,
-        origin.y + Math.sin(angle) * cannon_length,
-        vx,
-        vy,
-        this
-      )
-    );
-    this.data.values.lastFiredAt = time;
   }
 }
