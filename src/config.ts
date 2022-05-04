@@ -1,5 +1,5 @@
 import { divide } from 'lodash';
-import Phaser, { DOM } from 'phaser';
+// import Phaser, { DOM } from 'phaser';
 import Global from './global';
 
 export default {

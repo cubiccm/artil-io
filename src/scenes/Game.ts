@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+const Phaser = (window as any).Phaser as typeof import('phaser');
 import _ from 'lodash';
 import Global from '@/global';
 import PlayerTank from '@/components/Tank/PlayerTank';

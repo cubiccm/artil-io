@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+const Phaser = (window as any).Phaser as typeof import('phaser');
 import Global from '@/global';
 import NetworkController from '@/NetworkController';
 import Console from '@/components/Console';

@@ -21,10 +21,11 @@ export default defineConfig({
   },
   server: {
     port: 4000,
-    hmr: {
-      host: 'localhost',
-      port: 4000
-    },
+    hmr: false,
+    // hmr: {
+    //   host: 'localhost',
+    //   port: 4000
+    // },
     proxy: {
       // Proxying socket.io
       '/socket.io': {

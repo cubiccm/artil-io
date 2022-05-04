@@ -231,7 +231,7 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
   syncRemote(remote: RawTankData) {
     /* Movement & position */
     // Estimates location displacement based on velocity and network delay
-    const exp_delay = 400;
+    const exp_delay = 150;
     const rotate_radius = 150;
     const remote_velocity = new Phaser.Math.Vector2();
     remote_velocity.set(remote.vx || 0, remote.vy || 0);

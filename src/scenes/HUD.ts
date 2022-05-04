@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+const Phaser = (window as any).Phaser as typeof import('phaser');
 import Global from '@/global';
 import Game from '@/scenes/Game';
 import DebugMessage from '@/components/DebugMessage';
@@ -8,7 +8,7 @@ const bar_width = 300,
 const bottom_margin = 30;
 
 export default class HUD extends Phaser.Scene {
-  show_debug_info = true;
+  show_debug_info = false;
 
   username_text?: Phaser.GameObjects.Text;
   health_bar_graphics?: Phaser.GameObjects.Graphics;
