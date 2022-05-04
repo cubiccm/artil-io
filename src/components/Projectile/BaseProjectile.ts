@@ -89,12 +89,14 @@ export default abstract class BaseProjectile extends Phaser.GameObjects
 
   selfDestroy() {
     // Remove this bullet from parent tank
-    this.parent?.set(
-      'bullets',
-      this.parent?.get('bullets').filter((v: any) => {
-        return v != this;
-      })
-    );
+    if (this.parent?.active) {
+      this.parent?.set(
+        'bullets',
+        this.parent?.get('bullets').filter((v: any) => {
+          return v != this;
+        })
+      );
+    }
     this.destroy();
   }
 

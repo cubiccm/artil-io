@@ -36,6 +36,7 @@ export default class HUD extends Phaser.Scene {
   }
 
   create() {
+    this.scene.bringToTop(Global.SCENE_HUD);
     this.health_bar_graphics = this.add.graphics();
     this.xp_bar_graphics = this.add.graphics();
     this.gamescene = this.scene.get(Global.SCENE_GAME) as Game;
@@ -69,8 +70,6 @@ export default class HUD extends Phaser.Scene {
 
     if (this.show_debug_info)
       this.debug_message = new DebugMessage(this, 16, 16);
-
-    this.redrawAll();
 
     const upgradeBox = this.add
       .dom(25, Global.SCREEN_HEIGHT - Global.SCREEN_HEIGHT / 2)
@@ -109,14 +108,28 @@ export default class HUD extends Phaser.Scene {
           HUD.select(event.target as HTMLInputElement, 'skin');
           break;
         }
+        case 'cost': {
+          const parent = event.target.parentElement;
+          if (parent.className == 'weapon-container') {
+            HUD.select(parent.childNodes[1] as HTMLInputElement, 'weapon');
+          } else if (parent.className == 'skin-container') {
+            HUD.select(parent.childNodes[1] as HTMLInputElement, 'skin');
+          }
+          break;
+        }
         default:
           break;
       }
     });
   }
 
+  first_draw = false;
   update() {
-    if (Game.player) {
+    if (Game.scene.initiated) {
+      if (this.first_draw == false) {
+        this.first_draw = true;
+        this.redrawAll();
+      }
       const exp = Game.player.tank_data.XP;
       // Update upgrade cost colors if enough XP
       const upgrade_costs = HUD.upgradeBox
@@ -252,10 +265,6 @@ export default class HUD extends Phaser.Scene {
       }
       case 'bullet-speed': {
         player_data.bullet_speed += 0.1;
-        break;
-      }
-      case 'jump': {
-        // player_data.speed_jump += 1.5;
         break;
       }
       case 'reload': {
@@ -462,7 +471,7 @@ export default class HUD extends Phaser.Scene {
       x1: main_bounds.x2,
       x2: main_bounds.x2 + 285,
       y1: main_bounds.y1,
-      y2: main_bounds.y1 + 398
+      y2: main_bounds.y1 + 398 - 15
     };
     const weapon_bounds = {
       x1: main_bounds.x2,
@@ -473,8 +482,8 @@ export default class HUD extends Phaser.Scene {
     const skin_bounds = {
       x1: main_bounds.x2,
       x2: main_bounds.x2 + 350,
-      y1: main_bounds.y1 + 60,
-      y2: main_bounds.y1 + 60 + 250
+      y1: main_bounds.y1 + 50,
+      y2: main_bounds.y1 + 50 + 360
     };
     if (
       x > main_bounds.x1 &&

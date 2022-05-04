@@ -25,6 +25,8 @@ interface TankData {
   components: {
     cannon_texture?: Phaser.GameObjects.GameObject;
     cannon_body?: MatterJS.BodyType;
+    health_bar?: Phaser.GameObjects.Graphics;
+    name?: Phaser.GameObjects.Text;
   };
   max_health: number;
   HP: number;
@@ -35,8 +37,7 @@ interface TankData {
   weapon: string;
   weapon_damage: number;
   bullets: Bullet[];
-  id: string;
-  team: string;
+  name: string;
   skin: string;
 }
 

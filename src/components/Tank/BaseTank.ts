@@ -8,12 +8,22 @@ import Player from '@/components/Player';
 import Cannon from '@/components/Projectile/Cannon';
 import Grenade from '@/components/Projectile/Grenade';
 import Uzi from '@/components/Projectile/Uzi';
-import BaseProjectile from '../Projectile/BaseProjectile';
 
 export default class BaseTank extends Phaser.Physics.Matter.Sprite {
   declare body: MatterJS.BodyType;
   player?: Player;
-  public static skins = ['green', 'orange', 'yellow', 'blue', 'purple', 'pink'];
+  hp_graphics!: Phaser.GameObjects.Graphics;
+  public static skins = [
+    'green',
+    'orange',
+    'yellow',
+    'blue',
+    'purple',
+    'pink',
+    'brown',
+    'colorful',
+    'space'
+  ];
 
   // Avoid using this method: please use get() or set() to trigger events
   public get tank_data(): types.TankData {
@@ -27,7 +37,7 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
       shape: scene.cache.json.get('tank_shape').tank
     } as Phaser.Types.Physics.Matter.MatterBodyConfig);
     scene.add.existing(this);
-
+    this.hp_graphics = scene.add.graphics();
     const data: types.TankData = {
       blocked: {
         left: false,
@@ -54,15 +64,16 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
       XP: 1000,
       regen_factor: 1,
       reload: 300,
-      id: 'player',
-      team: 'blue',
+      name: '',
       bullet_speed: 1,
       weapon: 'bullet',
       weapon_damage: 1,
       bullets: [],
       components: {
         cannon_texture: undefined,
-        cannon_body: undefined
+        cannon_body: undefined,
+        health_bar: undefined,
+        name: this.scene.add.text(0, 0, '')
       },
       skin: 'greentank'
     };
@@ -155,6 +166,7 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
 
     this.setPosition(x, y);
 
+    this.data.values.components.health_bar = this.drawHealthBar();
     // Setup tank animations
     this.createWheelAnimations();
     this.scene.events.on(
@@ -306,6 +318,7 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
         this.fire();
       }
     }
+    this.drawHealthBar();
   }
 
   getThrustSpeed() {
@@ -477,14 +490,62 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
       this.scene.matter.add.gameObject(texture, body);
   }
 
+  drawHealthBar() {
+    this.hp_graphics.clear();
+    this.data.values.components.name.destroy();
+    if (Global.disable_graphics || !this.active || this.get('name') == '')
+      return;
+    const origin = this.data.values.components.cannon_body.position;
+    const current_health = this.data.values.HP;
+    const max_health = this.data.values.max_health;
+    const bar_width = 80,
+      bar_height = 10;
+    const bottom_margin = 38;
+    const outline_color = 0xffa500,
+      outline_alpha = 1;
+    const fill_color = 0xffa500,
+      fill_alpha = 0.5;
+
+    this.hp_graphics.lineStyle(2, outline_color, outline_alpha);
+    this.hp_graphics.strokeRoundedRect(
+      origin.x - bar_width / 2,
+      origin.y - bottom_margin,
+      bar_width,
+      bar_height,
+      bar_height / 2
+    );
+    this.hp_graphics.fillStyle(fill_color, fill_alpha);
+    this.hp_graphics.fillRoundedRect(
+      origin.x - bar_width / 2,
+      origin.y - bottom_margin,
+      bar_height + (bar_width - bar_height) * (current_health / max_health),
+      bar_height,
+      bar_height / 2
+    );
+    this.data.values.components.name = this.scene.add
+      .text(origin.x, origin.y - bottom_margin - 10, this.get('name'), {
+        fontSize: '10pt',
+        fontFamily: 'monospace',
+        align: 'center',
+        color: 'rgba(255, 255, 255, .8)',
+        stroke: '#000000',
+        strokeThickness: 2
+      })
+      .setOrigin(0.5);
+  }
+
   createWheelAnimations() {
     if (Global.disable_graphics == true) return;
+    let frames;
+    if (this.tank_data.skin == 'colorful') frames = 12;
+    else if (this.tank_data.skin == 'space') frames = 10;
+    else frames = 4;
     this.anims.create({
       key: 'moving_right',
       frames: this.anims.generateFrameNames(this.tank_data.skin, {
         prefix: 'tank',
         start: 1,
-        end: 4,
+        end: frames,
         zeroPad: 2
       }),
       frameRate: 15,
@@ -495,7 +556,7 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
       key: 'moving_left',
       frames: this.anims.generateFrameNames(this.tank_data.skin, {
         prefix: 'tank',
-        start: 4,
+        start: frames,
         end: 1,
         zeroPad: 2
       }),
