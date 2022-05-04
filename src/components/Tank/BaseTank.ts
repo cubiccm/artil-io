@@ -8,7 +8,6 @@ import Player from '@/components/Player';
 import Cannon from '@/components/Projectile/Cannon';
 import Grenade from '@/components/Projectile/Grenade';
 import Uzi from '@/components/Projectile/Uzi';
-import BaseProjectile from '../Projectile/BaseProjectile';
 
 export default class BaseTank extends Phaser.Physics.Matter.Sprite {
   declare body: MatterJS.BodyType;
@@ -65,8 +64,7 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
       XP: 1000,
       regen_factor: 1,
       reload: 300,
-      id: 'player',
-      team: 'blue',
+      name: '',
       bullet_speed: 1,
       weapon: 'bullet',
       weapon_damage: 1,
@@ -320,6 +318,7 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
         this.fire();
       }
     }
+    this.drawHealthBar();
   }
 
   getThrustSpeed() {
@@ -490,8 +489,12 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
     this.data.values.components.cannon_texture =
       this.scene.matter.add.gameObject(texture, body);
   }
+
   drawHealthBar() {
     this.hp_graphics.clear();
+    this.data.values.components.name.destroy();
+    if (Global.disable_graphics || !this.active || this.get('name') == '')
+      return;
     const origin = this.data.values.components.cannon_body.position;
     const current_health = this.data.values.HP;
     const max_health = this.data.values.max_health;
@@ -519,9 +522,8 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
       bar_height,
       bar_height / 2
     );
-    this.data.values.components.name.destroy();
     this.data.values.components.name = this.scene.add
-      .text(origin.x, origin.y - bottom_margin - 10, HUD.playerName, {
+      .text(origin.x, origin.y - bottom_margin - 10, this.get('name'), {
         fontSize: '10pt',
         fontFamily: 'monospace',
         align: 'center',
@@ -531,6 +533,7 @@ export default class BaseTank extends Phaser.Physics.Matter.Sprite {
       })
       .setOrigin(0.5);
   }
+
   createWheelAnimations() {
     if (Global.disable_graphics == true) return;
     let frames;

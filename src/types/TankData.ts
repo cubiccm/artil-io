@@ -37,8 +37,7 @@ interface TankData {
   weapon: string;
   weapon_damage: number;
   bullets: Bullet[];
-  id: string;
-  team: string;
+  name: string;
   skin: string;
 }
 

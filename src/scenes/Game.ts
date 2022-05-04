@@ -154,6 +154,9 @@ export default class Game extends Phaser.Scene {
           tank.setThrustSpeed(player.thrust || 0);
           tank.setCannonAngle(player.c_ang || 0);
           if ('x' in player) tank.syncRemote(player);
+          if ('health' in player) {
+            tank.set('HP', player.health);
+          }
         }
       } else {
         // Create new tank
@@ -163,6 +166,10 @@ export default class Game extends Phaser.Scene {
             player.x || 0,
             player.y || 0
           );
+          this.players[player.id].set('name', player.name);
+          if ('health' in player) {
+            this.players[player.id].set('HP', player.health);
+          }
         }
       }
       /* Upgrades */
@@ -176,6 +183,8 @@ export default class Game extends Phaser.Scene {
     Object.keys(this.players).forEach((key: any) => {
       const player = this.players[key];
       if (!remote_player_keys.includes(key)) {
+        player.set('name', '');
+        player.drawHealthBar();
         player.get('components')?.cannon_body.gameObject.destroy();
         player.destroy();
         delete this.players[key];
