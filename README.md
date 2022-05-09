@@ -1,3 +1,9 @@
+# Screenshots
+
+![Game Lobby](https://cubiccm.ddns.net/wp-content/uploads/2022/05/screenshot-1.jpg)
+
+![Game Screenshot](https://cubiccm.ddns.net/wp-content/uploads/2022/05/screenshot-2.jpg)
+
 # Setting Up Environment
 
 1. Install/update VSCode and Docker
