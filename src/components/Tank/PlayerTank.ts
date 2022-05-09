@@ -74,7 +74,7 @@ export default class PlayerTank extends BaseTank {
     }
 
     if (keyboard.checkDown(keys.UP) || keyboard.checkDown(keys.SPACE)) {
-      this.jump(time, delta);
+      // this.jump(time, delta);
     }
 
     if (keyboard.checkDown(keys.DOWN) || keyboard.checkDown(keys.S)) {
