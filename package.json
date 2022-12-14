@@ -8,7 +8,6 @@
     "build": "vite build",
     "serve": "vite preview",
     "lint": "eslint . --ext .ts",
-    "ds": "nodemon --watch './server/*.ts' --watch './src/scenes/Core.ts' --exec 'node -r tsconfig-paths/register --experimental-specifier-resolution=node --loader ts-node/esm' server/server.ts",
     "dev:server": "nodemon --watch './**/*.ts' --exec 'node -r tsconfig-paths/register --experimental-specifier-resolution=node --loader ts-node/esm' server/server.ts"
   },
   "repository": "git+https://github.com/geocine/phaser3-rollup-typescript.git",
@@ -34,8 +33,6 @@
     "jsdom-global": "3.0.2",
     "nodemon": "^2.0.16",
     "prettier": "^2.6.1",
-    "ts-node": "^10.7.0",
-    "tsconfig-paths": "^3.14.1",
     "vite": "^2.0.0-beta.65",
     "vite-tsconfig-paths": "^3.4.1"
   },
@@ -56,7 +53,7 @@
     "random-js": "^2.1.0",
     "socket.io": "^4.5.0",
     "socket.io-client": "^4.5.0",
-    "ts-node": "^10.7.0",
+    "ts-node": "^10.9.1",
     "tsconfig-paths": "^3.14.1",
     "typescript": "^4.1.3"
   }
