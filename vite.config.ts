@@ -20,16 +20,17 @@ export default defineConfig({
     }
   },
   server: {
+    host: '0.0.0.0',
     port: 4000,
     hmr: false,
     // hmr: {
-    //   host: 'localhost',
+    //   host: '0.0.0.0',
     //   port: 4000
     // },
     proxy: {
       // Proxying socket.io
       '/socket.io': {
-        target: 'ws://localhost:3000',
+        target: 'ws://0.0.0.0:3000',
         ws: true,
         changeOrigin: true
       }
