@@ -1,10 +1,12 @@
-# Screenshots
+# Artil-io
+
+## Screenshots
 
 ![Game Lobby](https://cubiccm.ddns.net/wp-content/uploads/2022/05/screenshot-1.jpg)
 
 ![Game Screenshot](https://cubiccm.ddns.net/wp-content/uploads/2022/05/screenshot-2.jpg)
 
-# Setting Up Environment
+## Setting Up Develop Environment
 
 1. Install/update VSCode and Docker
 2. Install `Remote Development` extension pack. Read about devcontainer [here](https://code.visualstudio.com/docs/remote/containers).
@@ -12,4 +14,8 @@
 4. Run `yarn install` to install dependencies
 5. Run `yarn dev` to start the frontend server
 6. Run `yarn dev:server` to start the backend server
-7. Join the game through `localhost:4000` on your web browser
+7. Join the game through `0.0.0.0:4000` on your web browser
+
+## Deploying
+
+Just install docker and docker-compose, then run `docker-compose up -d` to deploy the game.

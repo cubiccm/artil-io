@@ -1,0 +1,10 @@
+version: '3'
+services:
+  artil-io:
+    build: .
+    ports:
+      - 4000:4000
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    tty: true

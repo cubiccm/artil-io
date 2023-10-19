@@ -1,4 +1,4 @@
-const assets_url_base = 'http://localhost:4000/';
+const assets_url_base = 'http://0.0.0.0:4000/';
 
 import 'phaser';
 import _ from 'lodash';
